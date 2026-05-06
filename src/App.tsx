@@ -2,6 +2,8 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 
 import routes from './routes';
 import { Navbar } from '@/components/layouts/Navbar';
+import { TopBar } from '@/components/brickstore/TopBar';
+import { BrickStoreHeader } from '@/components/brickstore/BrickStoreHeader';
 import { PageLayout } from '@/components/layouts/PageLayout';
 import { BottomNav } from '@/components/layouts/BottomNav';
 import { AuthProvider } from '@/contexts/AuthContext';
@@ -13,10 +15,6 @@ import { FloatingWhatsAppButton } from '@/components/ui/FloatingWhatsAppButton';
 function App() {
   const adminRoutes = routes.filter((route) => route.path.startsWith('/admin'));
   const publicRoutes = routes.filter((route) => !route.path.startsWith('/admin'));
-  
-  // Separate homepage from other public routes
-  const homepageRoute = publicRoutes.find((route) => route.path === '/');
-  const otherPublicRoutes = publicRoutes.filter((route) => route.path !== '/');
 
   return (
     <AuthProvider>
@@ -36,32 +34,15 @@ function App() {
             </Route>
           ))}
 
-          {/* Homepage Route (has its own TopBar + BrickStoreHeader, no Navbar) */}
-          {homepageRoute && (
-            <Route
-              path={homepageRoute.path}
-              element={
-                <div className="flex flex-col min-h-screen">
-                  <main className="flex-grow pb-16 xl:pb-0">
-                    <PageLayout>
-                      {homepageRoute.element}
-                    </PageLayout>
-                  </main>
-                  <BottomNav />
-                  <FloatingWhatsAppButton />
-                </div>
-              }
-            />
-          )}
-
-          {/* Other Public Routes (with navbar/footer) */}
-          {otherPublicRoutes.map((route, index) => (
+          {/* All Public Routes (with TopBar + BrickStoreHeader + Footer) */}
+          {publicRoutes.map((route, index) => (
             <Route
               key={`public-${index}`}
               path={route.path}
               element={
                 <div className="flex flex-col min-h-screen">
-                  <Navbar />
+                  <TopBar />
+                  <BrickStoreHeader />
                   <main className="flex-grow pb-16 xl:pb-0">
                     <PageLayout>
                       {route.element}

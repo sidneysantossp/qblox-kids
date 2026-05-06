@@ -1,9 +1,11 @@
 import { Link } from 'react-router-dom';
-import { Search, User, ShoppingCart, Menu } from 'lucide-react';
+import { Search, User, ShoppingCart, Menu, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { getAllCategories } from '@/db/admin-api';
+import type { Category } from '@/types';
 import {
   Sheet,
   SheetContent,
@@ -11,9 +13,17 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 export function BrickStoreHeader() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loadingCategories, setLoadingCategories] = useState(true);
   const cartItemsCount = 3;
   const cartTotal = 239.70;
 
@@ -25,6 +35,24 @@ export function BrickStoreHeader() {
     { label: 'OFERTAS', path: '/ofertas-especiais' },
     { label: 'BLOG', path: '/blog' },
   ];
+
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const data = await getAllCategories();
+        const activeCategories = data
+          .filter(cat => cat.is_active)
+          .sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
+        setCategories(activeCategories);
+      } catch (error) {
+        console.error('Erro ao carregar categorias:', error);
+      } finally {
+        setLoadingCategories(false);
+      }
+    };
+
+    loadCategories();
+  }, []);
 
   return (
     <header className="bg-white border-b border-border shadow-sm sticky top-0 z-50">
@@ -53,8 +81,11 @@ export function BrickStoreHeader() {
             </div>
           </Link>
 
-          {/* Busca - Desktop */}
-          <div className="hidden md:flex items-center flex-1 max-w-[480px] mx-4">
+          {/* Spacer para empurrar elementos para direita */}
+          <div className="flex-1 hidden lg:block" />
+
+          {/* Busca - Desktop (alinhada à direita) */}
+          <div className="hidden md:flex items-center w-full max-w-[360px]">
             <div className="relative w-full">
               <Input
                 type="search"
@@ -126,6 +157,27 @@ export function BrickStoreHeader() {
                     {item.label}
                   </Link>
                 ))}
+                
+                {/* Categorias no mobile */}
+                <div className="border-t pt-4 mt-2">
+                  <p className="text-xs font-semibold text-muted-foreground mb-3">CATEGORIAS</p>
+                  {loadingCategories ? (
+                    <p className="text-sm text-muted-foreground">Carregando...</p>
+                  ) : (
+                    <div className="flex flex-col gap-3">
+                      {categories.map((category) => (
+                        <Link
+                          key={category.id}
+                          to={`/categoria/${category.slug}`}
+                          onClick={() => setIsMenuOpen(false)}
+                          className="text-sm font-medium text-foreground hover:text-[#E52421] transition-colors"
+                        >
+                          {category.name}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </nav>
             </SheetContent>
           </Sheet>
@@ -150,13 +202,81 @@ export function BrickStoreHeader() {
 
         {/* Linha Inferior - Botão Categorias + Menu Principal - Desktop Only */}
         <div className="hidden lg:flex items-center gap-6 h-[52px] border-t border-border">
-          {/* Categorias Button */}
-          <Button 
-            className="bg-[#FFD200] hover:bg-[#F5C400] text-[#111827] font-bold text-[13px] h-10 px-5 rounded-lg shrink-0"
-          >
-            <Menu className="w-4 h-4 mr-2" />
-            CATEGORIAS
-          </Button>
+          {/* Categorias Mega Menu */}
+          <DropdownMenu open={isCategoriesOpen} onOpenChange={setIsCategoriesOpen}>
+            <DropdownMenuTrigger asChild>
+              <Button 
+                className="bg-[#FFD200] hover:bg-[#F5C400] text-[#111827] font-bold text-[13px] h-10 px-5 rounded-lg shrink-0"
+              >
+                <Menu className="w-4 h-4 mr-2" />
+                CATEGORIAS
+                <ChevronDown className="w-4 h-4 ml-2" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent 
+              className="w-[800px] p-6 bg-white"
+              align="start"
+              sideOffset={8}
+            >
+              {loadingCategories ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  Carregando categorias...
+                </div>
+              ) : (
+                <div className="grid grid-cols-4 gap-6">
+                  {categories.map((category) => (
+                    <Link
+                      key={category.id}
+                      to={`/categoria/${category.slug}`}
+                      onClick={() => setIsCategoriesOpen(false)}
+                      className="group"
+                    >
+                      <div className="flex flex-col items-center gap-3 p-4 rounded-lg hover:bg-[#F9FAFB] transition-colors">
+                        {category.image_url ? (
+                          <div className="w-20 h-20 rounded-full overflow-hidden bg-gray-100">
+                            <img
+                              src={category.image_url}
+                              alt={category.name}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        ) : (
+                          <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#0057D9] to-[#003A99] flex items-center justify-center">
+                            <span className="text-2xl text-white font-bold">
+                              {category.name.charAt(0)}
+                            </span>
+                          </div>
+                        )}
+                        <div className="text-center">
+                          <p className="text-sm font-semibold text-foreground group-hover:text-[#E52421] transition-colors">
+                            {category.name}
+                          </p>
+                          {category.description && (
+                            <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                              {category.description}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              )}
+              
+              {/* Link para ver todas */}
+              {!loadingCategories && categories.length > 0 && (
+                <div className="border-t mt-4 pt-4 text-center">
+                  <Link
+                    to="/loja"
+                    onClick={() => setIsCategoriesOpen(false)}
+                    className="text-sm font-semibold text-[#E52421] hover:underline"
+                  >
+                    Ver todas as categorias →
+                  </Link>
+                </div>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
 
           {/* Menu Principal */}
           <nav className="flex items-center gap-6">

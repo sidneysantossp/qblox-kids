@@ -1,5 +1,3 @@
-import { TopBar } from '@/components/brickstore/TopBar';
-import { BrickStoreHeader } from '@/components/brickstore/BrickStoreHeader';
 import { HeroBanner } from '@/components/brickstore/HeroBanner';
 import { CategoryStrip } from '@/components/brickstore/CategoryStrip';
 import { FilterSidebar } from '@/components/brickstore/FilterSidebar';
@@ -29,12 +27,6 @@ const featuredProducts = [
 export default function BrickStoreHomePage() {
   return (
     <div className="min-h-screen bg-[#F7F8FA]">
-      {/* Top Bar */}
-      <TopBar />
-
-      {/* Header */}
-      <BrickStoreHeader />
-
       {/* Hero Banner */}
       <HeroBanner />
 

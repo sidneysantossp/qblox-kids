@@ -19,6 +19,7 @@ export function HeroBanner() {
   useEffect(() => {
     const loadBanner = async () => {
       try {
+        console.log('🎯 Carregando banner...');
         const { data, error } = await supabase
           .from('hero_banners')
           .select('*')
@@ -27,10 +28,15 @@ export function HeroBanner() {
           .limit(1)
           .maybeSingle();
 
-        if (error) throw error;
+        if (error) {
+          console.error('❌ Erro ao carregar banner:', error);
+          throw error;
+        }
+        
+        console.log('✅ Banner carregado:', data);
         setBanner(data);
       } catch (error) {
-        console.error('Erro ao carregar banner:', error);
+        console.error('❌ Erro ao carregar banner (catch):', error);
       } finally {
         setLoading(false);
       }

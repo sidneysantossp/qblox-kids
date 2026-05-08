@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/db/supabase';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface HeroBanner {
   id: string;
@@ -13,37 +14,84 @@ interface HeroBanner {
 }
 
 export function HeroBanner() {
-  const [banner, setBanner] = useState<HeroBanner | null>(null);
+  const [banners, setBanners] = useState<HeroBanner[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
 
   useEffect(() => {
-    const loadBanner = async () => {
+    const loadBanners = async () => {
       try {
-        console.log('🎯 Carregando banner...');
+        console.log('🎯 Carregando banners...');
         const { data, error } = await supabase
           .from('hero_banners')
           .select('*')
           .eq('is_active', true)
           .order('display_order', { ascending: true })
-          .limit(1)
-          .maybeSingle();
+          .limit(4);
 
         if (error) {
-          console.error('❌ Erro ao carregar banner:', error);
+          console.error('❌ Erro ao carregar banners:', error);
           throw error;
         }
         
-        console.log('✅ Banner carregado:', data);
-        setBanner(data);
+        console.log('✅ Banners carregados:', data);
+        
+        if (data && data.length > 0) {
+          setBanners(data);
+        } else {
+          // Fallback para banner padrão
+          setBanners([{
+            id: 'default',
+            title: 'COLECIONE. MONTE. AVENTURE-SE!',
+            subtitle: 'MINIFIGURAS ÚNICAS PARA HISTÓRIAS INCRÍVEIS!',
+            button_text: 'VER LANÇAMENTOS',
+            link_url: '/categoria/lancamentos',
+          }]);
+        }
       } catch (error) {
-        console.error('❌ Erro ao carregar banner (catch):', error);
+        console.error('❌ Erro ao carregar banners (catch):', error);
+        // Fallback para banner padrão em caso de erro
+        setBanners([{
+          id: 'default',
+          title: 'COLECIONE. MONTE. AVENTURE-SE!',
+          subtitle: 'MINIFIGURAS ÚNICAS PARA HISTÓRIAS INCRÍVEIS!',
+          button_text: 'VER LANÇAMENTOS',
+          link_url: '/categoria/lancamentos',
+        }]);
       } finally {
         setLoading(false);
       }
     };
 
-    loadBanner();
+    loadBanners();
   }, []);
+
+  // Auto-play carrossel
+  useEffect(() => {
+    if (!isAutoPlaying || banners.length <= 1) return;
+
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % banners.length);
+    }, 5000); // Muda a cada 5 segundos
+
+    return () => clearInterval(interval);
+  }, [isAutoPlaying, banners.length]);
+
+  const goToNext = () => {
+    setIsAutoPlaying(false);
+    setCurrentIndex((prev) => (prev + 1) % banners.length);
+  };
+
+  const goToPrevious = () => {
+    setIsAutoPlaying(false);
+    setCurrentIndex((prev) => (prev - 1 + banners.length) % banners.length);
+  };
+
+  const goToSlide = (index: number) => {
+    setIsAutoPlaying(false);
+    setCurrentIndex(index);
+  };
 
   if (loading) {
     return (
@@ -57,10 +105,11 @@ export function HeroBanner() {
     );
   }
 
-  const title = banner?.title || 'COLECIONE. MONTE. AVENTURE-SE!';
-  const subtitle = banner?.subtitle || 'MINIFIGURAS ÚNICAS PARA HISTÓRIAS INCRÍVEIS!';
-  const buttonText = banner?.button_text || 'VER LANÇAMENTOS';
-  const linkUrl = banner?.link_url || '/categoria/lancamentos';
+  const currentBanner = banners[currentIndex];
+  const title = currentBanner?.title || 'COLECIONE. MONTE. AVENTURE-SE!';
+  const subtitle = currentBanner?.subtitle || 'MINIFIGURAS ÚNICAS PARA HISTÓRIAS INCRÍVEIS!';
+  const buttonText = currentBanner?.button_text || 'VER LANÇAMENTOS';
+  const linkUrl = currentBanner?.link_url || '/categoria/lancamentos';
 
   // Parse title for styling (split by periods)
   const titleParts = title.split('.').filter(part => part.trim());
@@ -68,10 +117,10 @@ export function HeroBanner() {
   return (
     <section className="relative bg-gradient-to-br from-[#0057D9] to-[#003A99] overflow-hidden">
       {/* Background Image */}
-      {banner?.image_url && (
-        <div className="absolute inset-0">
+      {currentBanner?.image_url && (
+        <div className="absolute inset-0 transition-opacity duration-500">
           <img
-            src={banner.image_url}
+            src={currentBanner.image_url}
             alt={title}
             className="w-full h-full object-cover opacity-20"
           />
@@ -89,6 +138,26 @@ export function HeroBanner() {
 
       {/* Radial gradient overlay */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(255,255,255,0.1)_0%,_transparent_70%)]" />
+
+      {/* Navigation Arrows - Desktop Only */}
+      {banners.length > 1 && (
+        <>
+          <button
+            onClick={goToPrevious}
+            className="hidden md:flex absolute left-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 items-center justify-center rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all group"
+            aria-label="Banner anterior"
+          >
+            <ChevronLeft className="w-6 h-6 text-white group-hover:scale-110 transition-transform" />
+          </button>
+          <button
+            onClick={goToNext}
+            className="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 items-center justify-center rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all group"
+            aria-label="Próximo banner"
+          >
+            <ChevronRight className="w-6 h-6 text-white group-hover:scale-110 transition-transform" />
+          </button>
+        </>
+      )}
 
       <div className="container mx-auto px-4 relative">
         <div className="flex flex-col md:flex-row items-center justify-center min-h-[420px] md:min-h-[380px] py-12 md:py-0 gap-8">
@@ -139,12 +208,22 @@ export function HeroBanner() {
             </Link>
 
             {/* Carousel dots */}
-            <div className="flex items-center gap-2 mt-2">
-              <div className="w-2 h-2 rounded-full bg-white" />
-              <div className="w-2 h-2 rounded-full bg-white/40" />
-              <div className="w-2 h-2 rounded-full bg-white/40" />
-              <div className="w-2 h-2 rounded-full bg-white/40" />
-            </div>
+            {banners.length > 1 && (
+              <div className="flex items-center gap-2 mt-2">
+                {banners.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => goToSlide(index)}
+                    className={`w-2 h-2 rounded-full transition-all ${
+                      index === currentIndex
+                        ? 'bg-white w-8'
+                        : 'bg-white/40 hover:bg-white/60'
+                    }`}
+                    aria-label={`Ir para banner ${index + 1}`}
+                  />
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Right minifigures placeholder */}

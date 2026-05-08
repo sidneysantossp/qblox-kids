@@ -1,0 +1,86 @@
+import { Routes, Route, Navigate } from 'react-router-dom';
+
+import routes from './routes';
+import { Navbar } from '@/components/layouts/Navbar';
+import { PageLayout } from '@/components/layouts/PageLayout';
+import { BottomNav } from '@/components/layouts/BottomNav';
+import { AuthProvider } from '@/contexts/AuthContext';
+import { CartProvider } from '@/contexts/CartContext';
+import { Toaster } from '@/components/ui/toaster';
+import { ScrollToTop } from '@/components/ScrollToTop';
+import { FloatingWhatsAppButton } from '@/components/ui/FloatingWhatsAppButton';
+
+function App() {
+  const adminRoutes = routes.filter((route) => route.path.startsWith('/admin'));
+  const publicRoutes = routes.filter((route) => !route.path.startsWith('/admin'));
+  
+  // Separate homepage from other public routes
+  const homepageRoute = publicRoutes.find((route) => route.path === '/');
+  const otherPublicRoutes = publicRoutes.filter((route) => route.path !== '/');
+
+  return (
+    <AuthProvider>
+      <CartProvider>
+        <ScrollToTop />
+        <Routes>
+          {/* Admin Routes (no navbar/footer) */}
+          {adminRoutes.map((route, index) => (
+            <Route key={`admin-${index}`} path={route.path} element={route.element}>
+              {route.children?.map((child, childIndex) => (
+                <Route
+                  key={`admin-child-${childIndex}`}
+                  path={child.path}
+                  element={child.element}
+                />
+              ))}
+            </Route>
+          ))}
+
+          {/* Homepage Route (has its own TopBar + BrickStoreHeader, no Navbar) */}
+          {homepageRoute && (
+            <Route
+              path={homepageRoute.path}
+              element={
+                <div className="flex flex-col min-h-screen">
+                  <main className="flex-grow pb-16 xl:pb-0">
+                    <PageLayout>
+                      {homepageRoute.element}
+                    </PageLayout>
+                  </main>
+                  <BottomNav />
+                  <FloatingWhatsAppButton />
+                </div>
+              }
+            />
+          )}
+
+          {/* Other Public Routes (with navbar/footer) */}
+          {otherPublicRoutes.map((route, index) => (
+            <Route
+              key={`public-${index}`}
+              path={route.path}
+              element={
+                <div className="flex flex-col min-h-screen">
+                  <Navbar />
+                  <main className="flex-grow pb-16 xl:pb-0">
+                    <PageLayout>
+                      {route.element}
+                    </PageLayout>
+                  </main>
+                  <BottomNav />
+                  <FloatingWhatsAppButton />
+                </div>
+              }
+            />
+          ))}
+
+          {/* Fallback redirect */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+        <Toaster />
+      </CartProvider>
+    </AuthProvider>
+  );
+}
+
+export default App;

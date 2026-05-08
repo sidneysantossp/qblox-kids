@@ -1,0 +1,186 @@
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { ShoppingCart, Minus, Plus, Star } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { CardImageGallery } from './CardImageGallery';
+import type { Product, AvailabilityStatus } from '@/types';
+import { useCart } from '@/contexts/CartContext';
+
+interface ProductCardProps {
+  product: Product;
+}
+
+// Helper para obter as configurações do badge de disponibilidade
+const getAvailabilityBadge = (status: AvailabilityStatus) => {
+  switch (status) {
+    case 'in_stock':
+      return {
+        label: 'Pronta Entrega',
+        variant: 'default' as const,
+        className: 'bg-green-600 hover:bg-green-700 text-white',
+      };
+    case 'made_to_order':
+      return {
+        label: 'Sob Encomenda',
+        variant: 'secondary' as const,
+        className: 'bg-blue-600 hover:bg-blue-700 text-white',
+      };
+    case 'unavailable':
+      return {
+        label: 'Indisponível',
+        variant: 'destructive' as const,
+        className: 'bg-red-600 hover:bg-red-700 text-white',
+      };
+    default:
+      return {
+        label: 'Pronta Entrega',
+        variant: 'default' as const,
+        className: 'bg-green-600 hover:bg-green-700 text-white',
+      };
+  }
+};
+
+export function ProductCard({ product }: ProductCardProps) {
+  const { addToCart } = useCart();
+  const [quantity, setQuantity] = useState(1);
+  
+  const discount = product.original_price
+    ? Math.round(((product.original_price - product.price) / product.original_price) * 100)
+    : 0;
+
+  const handleDecrement = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (quantity > 1) {
+      setQuantity(quantity - 1);
+    }
+  };
+
+  const handleIncrement = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (quantity < 99) {
+      setQuantity(quantity + 1);
+    }
+  };
+
+  const handleAddToCart = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    await addToCart(product, quantity);
+  };
+
+  // Criar array de imagens (usar a mesma imagem 4 vezes se não houver múltiplas)
+  const images = [
+    product.image_url,
+    product.image_url,
+    product.image_url,
+    product.image_url,
+  ];
+
+  return (
+    <Link to={`/produto/${product.id}`}>
+      <div className="bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow h-full flex flex-col">
+        {/* Galeria de Imagens */}
+        <div className="relative">
+          <CardImageGallery images={images} alt={product.name} discount={discount} />
+          {product.stock <= 0 && (
+            <div className="absolute inset-0 bg-background/80 flex items-center justify-center rounded-t-2xl">
+              <Badge variant="destructive">Esgotado</Badge>
+            </div>
+          )}
+        </div>
+
+        {/* Badge de Disponibilidade */}
+        <div className="px-4 pt-3">
+          <Badge 
+            variant={getAvailabilityBadge(product.availability_status || 'in_stock').variant}
+            className={getAvailabilityBadge(product.availability_status || 'in_stock').className}
+          >
+            {getAvailabilityBadge(product.availability_status || 'in_stock').label}
+          </Badge>
+        </div>
+
+        {/* Conteúdo do Card */}
+        <div className="p-4 xl:p-5 flex flex-col flex-1">
+          <h3 className="font-medium text-sm xl:text-base text-foreground line-clamp-2 mb-2 min-h-[2.5rem]">
+            {product.name}
+          </h3>
+
+          {/* Avaliação */}
+          <div className="flex items-center gap-1 mb-2">
+            <Star className="h-4 w-4 fill-secondary text-secondary" />
+            <span className="text-sm font-medium">{product.rating.toFixed(1)}</span>
+            <span className="text-xs text-muted-foreground">({product.reviews_count})</span>
+          </div>
+
+          {/* Preço */}
+          <div className="flex items-baseline gap-2 mb-4">
+            <p className="text-lg xl:text-xl font-semibold text-foreground">
+              R$ {product.price.toFixed(2).replace('.', ',')}
+            </p>
+            {product.original_price && product.original_price > product.price && (
+              <p className="text-sm text-muted-foreground line-through">
+                R$ {product.original_price.toFixed(2).replace('.', ',')}
+              </p>
+            )}
+          </div>
+
+          {/* Quantidade e Botão Adicionar */}
+          <div className="mt-auto space-y-2">
+            {/* Input de Quantidade */}
+            <div className="flex items-center justify-between border border-border rounded-lg bg-background p-1 w-full">
+              <button
+                onClick={handleDecrement}
+                disabled={quantity <= 1 || product.stock <= 0}
+                aria-label="Diminuir quantidade"
+                className="w-8 h-8 rounded-md hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-colors"
+              >
+                <Minus className="w-4 h-4 text-foreground" />
+              </button>
+              <input
+                type="number"
+                min="1"
+                max="99"
+                value={quantity}
+                onChange={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  const val = parseInt(e.target.value) || 1;
+                  setQuantity(Math.min(99, Math.max(1, val)));
+                }}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                }}
+                disabled={product.stock <= 0}
+                className="flex-1 h-8 text-center text-sm font-medium text-foreground bg-transparent focus:outline-none disabled:opacity-50"
+                aria-label="Quantidade"
+              />
+              <button
+                onClick={handleIncrement}
+                disabled={quantity >= 99 || product.stock <= 0}
+                aria-label="Aumentar quantidade"
+                className="w-8 h-8 rounded-md hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-colors"
+              >
+                <Plus className="w-4 h-4 text-foreground" />
+              </button>
+            </div>
+
+            {/* Botão Adicionar */}
+            <Button
+              onClick={handleAddToCart}
+              disabled={product.stock <= 0}
+              className="w-full h-10 text-sm font-semibold bg-[#FF6B35] hover:bg-[#FF5722] text-white"
+              aria-label={`Adicionar ${quantity} ${product.name} ao carrinho`}
+            >
+              <ShoppingCart className="w-4 h-4 mr-1.5" />
+              Adicionar
+            </Button>
+          </div>
+        </div>
+      </div>
+    </Link>
+  );
+}

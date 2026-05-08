@@ -1,0 +1,184 @@
+/* stylelint-disable */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here.
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    --radius: 0.875rem;
+    /* Base colors */
+    --background: 0 0% 100%;
+    --foreground: 215 25% 15%;
+    
+    /* Card colors */
+    --card: 0 0% 100%;
+    --card-foreground: 215 25% 15%;
+    
+    /* Popover colors */
+    --popover: 0 0% 100%;
+    --popover-foreground: 215 25% 15%;
+    
+    /* Primary: Blue (#0057D9) */
+    --primary: 214 100% 43%;
+    --primary-foreground: 0 0% 100%;
+    
+    /* Secondary: Yellow (#FFD200) */
+    --secondary: 48 100% 50%;
+    --secondary-foreground: 215 25% 15%;
+    
+    /* Accent: Yellow for highlights */
+    --accent: 48 100% 50%;
+    --accent-foreground: 215 25% 15%;
+    
+    /* Muted colors */
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
+    
+    /* Destructive: Red (#E52421) */
+    --destructive: 0 79% 52%;
+    --destructive-foreground: 0 0% 100%;
+    
+    /* Border and input */
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 214 100% 43%;
+    
+    /* Chart colors - BrickStore palette */
+    --chart-1: 48 100% 50%;
+    --chart-2: 0 79% 52%;
+    --chart-3: 214 100% 43%;
+    --chart-4: 215 100% 10%;
+    --chart-5: 173 58% 39%;
+    
+    /* Sidebar colors */
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 215 25% 15%;
+    --sidebar-primary: 214 100% 43%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 210 40% 96%;
+    --sidebar-accent-foreground: 215 25% 15%;
+    --sidebar-border: 214 32% 91%;
+    --sidebar-ring: 214 100% 43%;
+    
+    /* E-commerce specific colors */
+    --success: 142 71% 45%;
+    --warning: 48 100% 50%;
+    --info: 214 100% 43%;
+    --sale: 0 79% 52%;
+    
+    /* Custom BrickStore colors */
+    --brickstore-yellow: 48 100% 50%;
+    --brickstore-red: 0 79% 52%;
+    --brickstore-blue: 214 100% 43%;
+    --brickstore-navy: 215 100% 10%;
+    --buy-button: 48 100% 50%;
+    --buy-button-foreground: 215 25% 15%;
+  }
+
+  .dark {
+    /* Base colors */
+    --background: 0 0% 12%;
+    --foreground: 0 0% 95%;
+    
+    /* Card colors */
+    --card: 0 0% 16%;
+    --card-foreground: 0 0% 95%;
+    
+    /* Popover colors */
+    --popover: 0 0% 16%;
+    --popover-foreground: 0 0% 95%;
+    
+    /* Primary: Lighter Beige for dark mode */
+    --primary: 30 35% 65%;
+    --primary-foreground: 0 0% 10%;
+    
+    /* Secondary: Lighter Beige variation */
+    --secondary: 32 38% 62%;
+    --secondary-foreground: 0 0% 10%;
+    
+    /* Accent: Dark Beige for backgrounds */
+    --accent: 30 20% 20%;
+    --accent-foreground: 0 0% 95%;
+    
+    /* Muted colors */
+    --muted: 0 0% 20%;
+    --muted-foreground: 0 0% 65%;
+    
+    /* Destructive */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    
+    /* Border and input */
+    --border: 0 0% 25%;
+    --input: 0 0% 25%;
+    --ring: 30 35% 65%;
+    
+    /* Chart colors - beige palette for dark mode */
+    --chart-1: 30 35% 65%;
+    --chart-2: 32 38% 62%;
+    --chart-3: 142 71% 52%;
+    --chart-4: 0 0% 85%;
+    --chart-5: 0 0% 60%;
+    
+    /* Sidebar colors */
+    --sidebar-background: 0 0% 16%;
+    --sidebar-foreground: 0 0% 95%;
+    --sidebar-primary: 30 35% 65%;
+    --sidebar-primary-foreground: 0 0% 10%;
+    --sidebar-accent: 0 0% 20%;
+    --sidebar-accent-foreground: 0 0% 95%;
+    --sidebar-border: 0 0% 25%;
+    --sidebar-ring: 30 35% 65%;
+    
+    /* E-commerce specific colors */
+    --success: 142 71% 52%;
+    --warning: 45 100% 60%;
+    --info: 30 35% 65%;
+    --sale: 4 90% 64%;
+    
+    /* Custom colors for this design */
+    --buy-button: 142 71% 52%;
+    --buy-button-foreground: 0 0% 100%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .gradient-logo-text {
+    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--secondary)) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+  
+  .diagonal-shape {
+    clip-path: polygon(0 0, 85% 0, 100% 100%, 0 100%);
+  }
+  
+  .diagonal-shape-reverse {
+    clip-path: polygon(15% 0, 100% 0, 100% 100%, 0 100%);
+  }
+  
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}

@@ -134,10 +134,15 @@ export const getTvSeriesProducts = async (limit = 8) => {
 };
 
 export const getProductById = async (id: string): Promise<Product | null> => {
+  // Verifica se é um UUID válido
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  const isUuid = uuidRegex.test(id);
+  
+  // Se for UUID, busca por ID, senão busca por slug
   const { data, error } = await supabase
     .from('products')
     .select('*')
-    .eq('id', id)
+    .eq(isUuid ? 'id' : 'slug', id)
     .maybeSingle();
   
   if (error) throw error;

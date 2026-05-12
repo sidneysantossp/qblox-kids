@@ -3,6 +3,8 @@ import BrickStoreHomePage from './pages/BrickStoreHomePage';
 import NotFoundPage from './pages/NotFoundPage';
 import ProductDetailPage from './pages/ProductDetailPage';
 import CategoryPage from './pages/CategoryPage';
+import ShopPage from './pages/ShopPage';
+import AboutUsPage from './pages/AboutUsPage';
 import BlogPage from './pages/BlogPage';
 import BlogPostPage from './pages/BlogPostPage';
 import SpecialOffersPage from './pages/SpecialOffersPage';
@@ -78,6 +80,18 @@ const routes: RouteConfig[] = [
     path: '/produto/:id',
     element: <ProductDetailPage />,
     visible: false
+  },
+  {
+    name: 'Shop',
+    path: '/loja',
+    element: <ShopPage />,
+    visible: true
+  },
+  {
+    name: 'About Us',
+    path: '/quem-somos',
+    element: <AboutUsPage />,
+    visible: true
   },
   {
     name: 'Custom Builder',

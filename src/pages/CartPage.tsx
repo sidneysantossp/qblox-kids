@@ -2,6 +2,7 @@ import { ChevronRight, Minus, Plus, ShoppingBag, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { SEO } from '@/components/SEO';
+import { getProductPath } from '@/lib/urls';
 import { 
   Breadcrumb, 
   BreadcrumbItem, 
@@ -54,7 +55,7 @@ export default function CartPage() {
   return (
     <>
       <SEO
-        title="Carrinho de Compras | Kids Block Store"
+        title="Carrinho de Compras | QBLOX"
         description="Revise seus produtos e finalize sua compra. Frete grátis acima de R$99."
       />
       
@@ -88,7 +89,7 @@ export default function CartPage() {
                 <CardContent className="p-4 xl:p-6">
                   <div className="flex gap-4">
                     {/* Image */}
-                    <Link to={`/produto/${product.id}`} className="shrink-0">
+                    <Link to={getProductPath(product)} className="shrink-0">
                       <div className="w-24 h-24 xl:w-32 xl:h-32 rounded-lg overflow-hidden bg-muted">
                         <img
                           src={product.image_url}
@@ -100,7 +101,7 @@ export default function CartPage() {
 
                     {/* Info */}
                     <div className="flex-1 min-w-0">
-                      <Link to={`/produto/${product.id}`}>
+                      <Link to={getProductPath(product)}>
                         <h3 className="font-semibold text-base xl:text-lg mb-2 hover:text-[#FF6B35] line-clamp-2">
                           {product.name}
                         </h3>

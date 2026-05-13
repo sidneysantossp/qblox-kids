@@ -1,5 +1,7 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import { BRAND_DEFAULT_TITLE, BRAND_NAME, BRAND_BASE_URL } from '@/lib/brand';
+import { usePublicSettings } from '@/hooks/use-public-settings';
 
 export interface SEOProps {
   title: string;
@@ -33,13 +35,14 @@ export function SEO({
   noindex = false,
 }: SEOProps) {
   const location = useLocation();
-  const baseUrl = 'https://qblox.com.br';
+  const { site_meta_title, site_meta_description } = usePublicSettings();
+  const baseUrl = BRAND_BASE_URL;
   const fullUrl = url || `${baseUrl}${location.pathname}`;
   const canonicalUrl = canonical || fullUrl;
 
   useEffect(() => {
     // Update title
-    document.title = title;
+    document.title = title || site_meta_title || BRAND_DEFAULT_TITLE;
 
     // Update or create meta tags
     const updateMetaTag = (name: string, content: string, property = false) => {
@@ -56,7 +59,7 @@ export function SEO({
     };
 
     // Basic meta tags
-    updateMetaTag('description', description);
+    updateMetaTag('description', description || site_meta_description);
     if (keywords) {
       updateMetaTag('keywords', keywords);
     }
@@ -69,7 +72,7 @@ export function SEO({
     updateMetaTag('og:image', image, true);
     updateMetaTag('og:url', fullUrl, true);
     updateMetaTag('og:type', type, true);
-    updateMetaTag('og:site_name', 'QBLOX', true);
+    updateMetaTag('og:site_name', BRAND_NAME, true);
     updateMetaTag('og:locale', 'pt_BR', true);
 
     // Product-specific Open Graph
@@ -99,7 +102,7 @@ export function SEO({
     // Cleanup function
     return () => {
       // Reset to default title when component unmounts
-      document.title = 'QBLOX - Bonecos de Montar LEGO | Super Heróis, Roblox e Mais';
+      document.title = BRAND_DEFAULT_TITLE;
     };
   }, [title, description, keywords, image, fullUrl, canonicalUrl, type, price, currency, availability, noindex]);
 
@@ -110,7 +113,7 @@ export function SEO({
  * Hook para gerar título SEO-friendly
  */
 export function useSEOTitle(pageTitle: string): string {
-  const siteName = 'QBLOX';
+  const siteName = BRAND_NAME;
   return `${pageTitle} | ${siteName}`;
 }
 

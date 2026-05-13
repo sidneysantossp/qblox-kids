@@ -25,6 +25,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { getProducts, getAllCategories } from '@/db/api';
 import type { Product, Category } from '@/types';
+import { getProductPath } from '@/lib/urls';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -386,7 +387,7 @@ export default function ShopPage() {
               ) : (
                 <div className={`grid grid-cols-2 md:grid-cols-${gridCols} gap-4 md:gap-6`}>
                   {filteredProducts.map((product) => (
-                    <Link key={product.id} to={`/produto/${product.slug || product.id}`}>
+                    <Link key={product.id} to={getProductPath(product)}>
                       <Card className="h-full hover:shadow-lg transition-shadow group">
                         <CardContent className="p-4 flex flex-col h-full">
                           {/* Image */}

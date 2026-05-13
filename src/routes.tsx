@@ -5,6 +5,18 @@ import ProductDetailPage from './pages/ProductDetailPage';
 import CategoryPage from './pages/CategoryPage';
 import ShopPage from './pages/ShopPage';
 import AboutUsPage from './pages/AboutUsPage';
+import BuildingFiguresPillarPage from './pages/BuildingFiguresPillarPage';
+import SuperHeroesPillarPage from './pages/SuperHeroesPillarPage';
+import RobloxPillarPage from './pages/RobloxPillarPage';
+import TvSeriesPillarPage from './pages/TvSeriesPillarPage';
+import GuideByAgePage from './pages/GuideByAgePage';
+import GiftGuidePage from './pages/GiftGuidePage';
+import BeginnersGuidePage from './pages/BeginnersGuidePage';
+import MostWantedSuperHeroesGuidePage from './pages/MostWantedSuperHeroesGuidePage';
+import RobloxCollectionGuidePage from './pages/RobloxCollectionGuidePage';
+import GiftByPriceGuidePage from './pages/GiftByPriceGuidePage';
+import LaunchesGuidePage from './pages/LaunchesGuidePage';
+import ThemesComparisonGuidePage from './pages/ThemesComparisonGuidePage';
 import BlogPage from './pages/BlogPage';
 import BlogPostPage from './pages/BlogPostPage';
 import SpecialOffersPage from './pages/SpecialOffersPage';
@@ -42,6 +54,7 @@ import AdminBannersPage from './pages/admin/AdminBannersPage';
 import BannerFormPage from './pages/admin/BannerFormPage';
 import AdminSections from './pages/admin/AdminSections';
 import AdminThematicCollections from './pages/admin/AdminThematicCollections';
+import AdminSpecialHighlight from './pages/admin/AdminSpecialHighlight';
 import AdminBlog from './pages/admin/AdminBlog';
 import AdminPayments from './pages/admin/AdminPayments';
 import AdminReports from './pages/admin/AdminReports';
@@ -92,6 +105,78 @@ const routes: RouteConfig[] = [
     name: 'About Us',
     path: '/quem-somos',
     element: <AboutUsPage />,
+    visible: true
+  },
+  {
+    name: 'Building Figures Pillar',
+    path: '/bonecos-de-montar',
+    element: <BuildingFiguresPillarPage />,
+    visible: true
+  },
+  {
+    name: 'Super Heroes Pillar',
+    path: '/bonecos-de-super-herois',
+    element: <SuperHeroesPillarPage />,
+    visible: true
+  },
+  {
+    name: 'Roblox Pillar',
+    path: '/bonecos-de-roblox',
+    element: <RobloxPillarPage />,
+    visible: true
+  },
+  {
+    name: 'TV Series Pillar',
+    path: '/bonecos-de-series-da-tv',
+    element: <TvSeriesPillarPage />,
+    visible: true
+  },
+  {
+    name: 'Guide By Age',
+    path: '/guia/como-escolher-bonecos-de-montar-por-idade',
+    element: <GuideByAgePage />,
+    visible: true
+  },
+  {
+    name: 'Gift Guide',
+    path: '/guia/bonecos-de-montar-para-presentear',
+    element: <GiftGuidePage />,
+    visible: true
+  },
+  {
+    name: 'Beginners Guide',
+    path: '/guia/melhores-bonecos-de-montar-para-iniciantes',
+    element: <BeginnersGuidePage />,
+    visible: true
+  },
+  {
+    name: 'Most Wanted Super Heroes Guide',
+    path: '/guia/bonecos-de-super-herois-mais-procurados',
+    element: <MostWantedSuperHeroesGuidePage />,
+    visible: true
+  },
+  {
+    name: 'Roblox Collection Guide',
+    path: '/guia/como-comecar-uma-colecao-de-roblox',
+    element: <RobloxCollectionGuidePage />,
+    visible: true
+  },
+  {
+    name: 'Gift By Price Guide',
+    path: '/guia/bonecos-de-montar-por-faixa-de-preco',
+    element: <GiftByPriceGuidePage />,
+    visible: true
+  },
+  {
+    name: 'Launches Guide',
+    path: '/guia/melhores-lancamentos-de-bonecos-de-montar',
+    element: <LaunchesGuidePage />,
+    visible: true
+  },
+  {
+    name: 'Themes Comparison Guide',
+    path: '/guia/comparativo-super-herois-roblox-series-tv',
+    element: <ThemesComparisonGuidePage />,
     visible: true
   },
   {
@@ -360,6 +445,12 @@ const routes: RouteConfig[] = [
         name: 'Admin Sections',
         path: 'secoes',
         element: <AdminSections />,
+        visible: false
+      },
+      {
+        name: 'Admin Special Highlight',
+        path: 'destaque-especial',
+        element: <AdminSpecialHighlight />,
         visible: false
       },
       {

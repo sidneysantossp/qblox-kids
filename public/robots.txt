@@ -1,47 +1,13 @@
-# User-agent: *
-# Allow: /
-
-# Sitemap
-Sitemap: https://qblox.com.br/sitemap.xml
-
-# Allow all crawlers
 User-agent: *
 Allow: /
 
-# Allow CSS, JS, and images for proper rendering
-Allow: /src/
-Allow: /assets/
-Allow: /*.css$
-Allow: /*.js$
-Allow: /*.jpg$
-Allow: /*.jpeg$
-Allow: /*.png$
-Allow: /*.gif$
-Allow: /*.svg$
-Allow: /*.webp$
+Sitemap: https://qblox.com.br/sitemap.xml
 
-# Disallow admin and private areas
 Disallow: /admin/
 Disallow: /checkout
 Disallow: /carrinho
 Disallow: /minha-conta/
 Disallow: /login
-Disallow: /cadastro
-
-# Disallow API endpoints
+Disallow: /registro
 Disallow: /api/
-
-# Crawl-delay (optional, adjust if needed)
-# Crawl-delay: 1
-
-# Specific rules for Google
-User-agent: Googlebot
-Allow: /
-Allow: /src/
-Allow: /assets/
-
-# Specific rules for Bing
-User-agent: Bingbot
-Allow: /
-Allow: /src/
-Allow: /assets/
+Disallow: /busca?

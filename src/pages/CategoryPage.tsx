@@ -4,7 +4,7 @@ import { Link, useParams } from 'react-router-dom';
 import { ProductCard } from '@/components/products/ProductCard';
 import { ProductFilters } from '@/components/products/ProductFilters';
 import { SEO } from '@/components/SEO';
-import { SchemaMarkup, generateItemListSchema, generateCategoryTitle, generateCategoryDescription, type ProductListItem } from '@/lib/schema';
+import { SchemaMarkup, generateItemListSchema, generateCategoryTitle, generateCategoryDescription, generateFAQSchema, type ProductListItem } from '@/lib/schema';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Card, CardContent } from '@/components/ui/card';
@@ -13,6 +13,7 @@ import { Badge } from '@/components/ui/badge';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { getAllCategories, getProductsByCategory, getCategoryBySlug } from '@/db/api';
 import type { Product, Category } from '@/types';
+import { getCategoryCanonicalUrl, getCategoryPath, getPillarPathByCategory, getProductCanonicalUrl, getSatelliteGuidePathsByCategory } from '@/lib/urls';
 
 export default function CategoryPage() {
   const { category } = useParams<{ category: string }>();
@@ -95,12 +96,12 @@ export default function CategoryPage() {
   const categoryName = category || 'Categoria';
   const seoTitle = generateCategoryTitle(categoryName);
   const seoDescription = generateCategoryDescription(categoryName, filteredProducts.length);
-  const categoryUrl = `https://qblox.com.br/categoria/${category}`;
+  const categoryUrl = getCategoryCanonicalUrl(categoryName);
   
   // Generate ItemList schema for category
   const productListItems: ProductListItem[] = products.slice(0, 20).map(product => ({
     name: product.name,
-    url: `https://qblox.com.br/produto/${product.slug || 'produto'}-${product.id}`,
+    url: getProductCanonicalUrl(product),
     image: product.image_url,
     price: product.price,
     currency: 'BRL',
@@ -112,6 +113,9 @@ export default function CategoryPage() {
     productListItems
   );
 
+  const faqSchema = categoryData?.faq?.length ? generateFAQSchema(categoryData.faq) : null;
+  const [primaryGuidePath, secondaryGuidePath] = getSatelliteGuidePathsByCategory(categoryData?.slug || category || '');
+
   return (
     <>
       <SEO
@@ -122,6 +126,7 @@ export default function CategoryPage() {
       />
       
       <SchemaMarkup schema={itemListSchema} />
+      {faqSchema ? <SchemaMarkup schema={faqSchema} /> : null}
       
       <div className="container mx-auto px-4 py-8">
       {/* Breadcrumb Navigation */}
@@ -160,6 +165,27 @@ export default function CategoryPage() {
           </CardContent>
         </Card>
       )}
+
+      <div className="grid gap-4 md:grid-cols-3 mb-8">
+        <Card>
+          <CardContent className="p-5">
+            <h2 className="font-bold mb-2">Para quem esta categoria faz sentido</h2>
+            <p className="text-sm text-muted-foreground">Ideal para quem quer navegar por um tema específico, comparar produtos parecidos e entender melhor o contexto da coleção.</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-5">
+            <h2 className="font-bold mb-2">O que observar antes da compra</h2>
+            <p className="text-sm text-muted-foreground">Compare faixa de preço, imagens, lançamentos, produtos relacionados e conteúdos satélite para escolher melhor.</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-5">
+            <h2 className="font-bold mb-2">Como aprofundar a pesquisa</h2>
+            <p className="text-sm text-muted-foreground">Use o guia principal do tema, o blog e as vitrines da loja para descobrir mais oportunidades dentro da categoria.</p>
+          </CardContent>
+        </Card>
+      </div>
 
       <div className="flex flex-col lg:flex-row gap-8">
         <aside className="hidden lg:block w-64 shrink-0">
@@ -266,6 +292,38 @@ export default function CategoryPage() {
           )}
         </div>
       </div>
+
+      <Card className="mt-12">
+        <CardContent className="p-6">
+          <h2 className="text-2xl font-bold mb-4">Continue explorando {categoryData?.name || category}</h2>
+          <div className="grid gap-3 md:grid-cols-3">
+            <Link to="/blog" className="rounded-xl border p-4 hover:border-primary transition-colors">
+              <h3 className="font-semibold mb-1">Guias e dicas</h3>
+              <p className="text-sm text-muted-foreground">Veja conteúdos do blog para escolher melhor seus bonecos de montar.</p>
+            </Link>
+            <Link to={getPillarPathByCategory(categoryData?.slug || category || '')} className="rounded-xl border p-4 hover:border-primary transition-colors">
+              <h3 className="font-semibold mb-1">Guia principal do tema</h3>
+              <p className="text-sm text-muted-foreground">Acesse a página pilar para ampliar sua busca com contexto editorial e links estratégicos.</p>
+            </Link>
+            <Link to={primaryGuidePath} className="rounded-xl border p-4 hover:border-primary transition-colors">
+              <h3 className="font-semibold mb-1">Guia satélite</h3>
+              <p className="text-sm text-muted-foreground">Acesse um conteúdo complementar com intenção de busca ligada a este tema.</p>
+            </Link>
+            <Link to={secondaryGuidePath} className="rounded-xl border p-4 hover:border-primary transition-colors">
+              <h3 className="font-semibold mb-1">Conteúdo complementar</h3>
+              <p className="text-sm text-muted-foreground">Amplie a pesquisa com um segundo guia informacional conectado à categoria.</p>
+            </Link>
+            <Link to="/ofertas-especiais" className="rounded-xl border p-4 hover:border-primary transition-colors">
+              <h3 className="font-semibold mb-1">Ofertas especiais</h3>
+              <p className="text-sm text-muted-foreground">Descubra promoções e kits com melhor custo-benefício.</p>
+            </Link>
+            <Link to="/loja" className="rounded-xl border p-4 hover:border-primary transition-colors">
+              <h3 className="font-semibold mb-1">Todos os produtos</h3>
+              <p className="text-sm text-muted-foreground">Amplie sua busca e compare diferentes categorias da coleção.</p>
+            </Link>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* FAQ Section */}
       {categoryData?.faq && categoryData.faq.length > 0 && (

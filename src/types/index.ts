@@ -145,6 +145,30 @@ export interface MiniBanner {
   updated_at: string;
 }
 
+export type SpecialHighlightBackgroundType = 'gradient' | 'image' | 'solid';
+
+export interface SpecialHighlightConfig {
+  badge_text?: string;
+  headline?: string;
+  description?: string;
+  features?: string[];
+  image_url?: string;
+  price_prefix?: string;
+  price_value?: string;
+  primary_cta_text?: string;
+  primary_cta_url?: string;
+  secondary_cta_text?: string;
+  secondary_cta_url?: string;
+  background_type?: SpecialHighlightBackgroundType;
+  background_image_url?: string;
+  background_color?: string;
+  background_gradient_from?: string;
+  background_gradient_via?: string;
+  background_gradient_to?: string;
+  background_overlay?: string;
+  background_image_position_y?: number;
+}
+
 export interface HomepageSection {
   id: string;
   section_type: 'promotional_cards' | 'category_carousel' | 'featured_products' | 'best_sellers' | 'on_sale' | 'special_highlight' | 'thematic_collections';

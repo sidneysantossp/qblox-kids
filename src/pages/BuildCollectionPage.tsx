@@ -35,7 +35,7 @@ export default function BuildCollectionPage() {
   }, []);
 
   // SEO Configuration
-  const seoTitle = 'Monte sua Coleção - Crie seu Próprio Boneco LEGO | Kids Block Store';
+  const seoTitle = 'Monte sua Coleção - Crie seu Próprio Boneco LEGO | QBLOX';
   const seoDescription = 'Monte seu próprio boneco LEGO! Escolha cabeças, corpos, braços, pernas e acessórios. Milhares de combinações possíveis. Peças originais e de qualidade.';
   
   const breadcrumbs = [

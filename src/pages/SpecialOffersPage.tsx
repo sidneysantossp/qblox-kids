@@ -29,7 +29,7 @@ export default function SpecialOffersPage() {
   }, []);
 
   // SEO Configuration
-  const seoTitle = 'Ofertas Especiais - Bonecos de Montar LEGO | Kids Block Store';
+  const seoTitle = 'Ofertas Especiais - Bonecos de Montar LEGO | QBLOX';
   const seoDescription = 'Aproveite nossas ofertas relâmpago! Bonecos de montar tipo LEGO com descontos imperdíveis por tempo limitado. Frete grátis acima de R$99. Compre agora!';
   
   const breadcrumbs = [

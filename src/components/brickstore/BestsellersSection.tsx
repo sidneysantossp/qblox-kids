@@ -39,7 +39,9 @@ export function BestsellersSection({ products }: BestsellersSectionProps) {
             oldPrice={product.original_price || undefined}
             rating={Math.round(product.rating || 0)}
             reviews={product.reviews_count || 0}
+            sku={product.sku}
             image={product.image_url}
+            images={product.images}
             badge="MAIS VENDIDO"
             discount={
               product.original_price && product.original_price > product.price

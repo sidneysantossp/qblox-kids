@@ -1,3 +1,5 @@
+import { BRAND_BASE_URL, BRAND_NAME } from '@/lib/brand';
+
 /**
  * Utilitários para SEO e Schema.org markup
  */
@@ -31,6 +33,21 @@ export interface ProductListItem {
   currency: string;
 }
 
+export interface FAQItem {
+  question: string;
+  answer: string;
+}
+
+export interface ArticleSchema {
+  headline: string;
+  description: string;
+  image?: string;
+  url: string;
+  datePublished?: string;
+  dateModified?: string;
+  author?: string;
+}
+
 /**
  * Gera JSON-LD para Schema.org - Produto
  */
@@ -54,7 +71,7 @@ export function generateProductSchema(product: ProductSchema): string {
       availability: `https://schema.org/${product.availability}`,
       seller: {
         '@type': 'Organization',
-        name: 'QBLOX',
+        name: BRAND_NAME,
       },
     },
   };
@@ -97,8 +114,8 @@ export function generateOrganizationSchema(): string {
   const schema = {
     '@context': 'https://schema.org',
     '@type': 'Organization',
-    name: 'QBLOX',
-    url: 'https://qblox.com.br',
+    name: BRAND_NAME,
+    url: BRAND_BASE_URL,
     logo: 'https://qblox.com.br/logo.png',
     description: 'Loja especializada em bonecos de montar tipo LEGO para crianças',
     contactPoint: {
@@ -121,8 +138,8 @@ export function generateWebsiteSchema(): string {
   const schema = {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
-    name: 'QBLOX',
-    url: 'https://qblox.com.br',
+    name: BRAND_NAME,
+    url: BRAND_BASE_URL,
     potentialAction: {
       '@type': 'SearchAction',
       target: {
@@ -182,6 +199,51 @@ export function generateItemListSchema(
   return JSON.stringify(schema);
 }
 
+export function generateFAQSchema(items: FAQItem[]): string {
+  const schema = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: items.map((item) => ({
+      '@type': 'Question',
+      name: item.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: item.answer,
+      },
+    })),
+  };
+
+  return JSON.stringify(schema);
+}
+
+export function generateArticleSchema(article: ArticleSchema): string {
+  const schema = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: article.headline,
+    description: article.description,
+    image: article.image ? [article.image] : undefined,
+    mainEntityOfPage: article.url,
+    url: article.url,
+    datePublished: article.datePublished,
+    dateModified: article.dateModified || article.datePublished,
+    author: {
+      '@type': 'Organization',
+      name: article.author || BRAND_NAME,
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: BRAND_NAME,
+      logo: {
+        '@type': 'ImageObject',
+        url: 'https://qblox.com.br/logo.png',
+      },
+    },
+  };
+
+  return JSON.stringify(schema);
+}
+
 /**
  * Gera meta tags para compartilhamento social
  */
@@ -218,7 +280,7 @@ export function sanitizeUrl(url: string): string {
  * Gera título otimizado para SEO seguindo padrões específicos
  */
 export function generateSEOTitle(parts: string[]): string {
-  return [...parts, 'QBLOX'].join(' | ');
+  return [...parts, BRAND_NAME].join(' | ');
 }
 
 /**

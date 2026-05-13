@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { getAllCategories } from '@/db/admin-api';
 import type { Category } from '@/types';
 import { Shield, Compass, Rocket, Building2, Star, Hammer, Anchor, Briefcase } from 'lucide-react';
+import { getCategoryPath } from '@/lib/urls';
 
 // Fallback icons
 const iconMap: Record<string, typeof Shield> = {
@@ -80,7 +81,7 @@ export function CategoryStrip() {
             return (
               <Link
                 key={category.id}
-                to={`/categoria/${category.slug}`}
+                to={getCategoryPath(category.slug)}
                 className="flex flex-col items-center gap-3 group"
               >
                 <div className={`w-20 h-20 ${colorClass} rounded-full flex items-center justify-center text-white transition-all duration-200 group-hover:-translate-y-1 group-hover:shadow-xl overflow-hidden`}>
@@ -114,7 +115,7 @@ export function CategoryStrip() {
               return (
                 <Link
                   key={category.id}
-                  to={`/categoria/${category.slug}`}
+                  to={getCategoryPath(category.slug)}
                   className="flex flex-col items-center gap-2 shrink-0"
                 >
                   <div className={`w-16 h-16 ${colorClass} rounded-full flex items-center justify-center text-white overflow-hidden`}>

@@ -2,6 +2,7 @@ import { Heart } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { Product } from '@/types';
+import { getProductPath } from '@/lib/urls';
 
 interface WeeklyDealsCardProps {
   product: Product;
@@ -20,7 +21,7 @@ export function WeeklyDealsCard({ product }: WeeklyDealsCardProps) {
 
   return (
     <Link 
-      to={`/produto/${product.id}`} 
+      to={getProductPath(product)}
       className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300 flex flex-col h-full block"
     >
       {/* Imagem do Produto */}

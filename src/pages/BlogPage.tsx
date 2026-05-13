@@ -42,11 +42,11 @@ export default function BlogPage() {
         title="Blog QBLOX | Dicas e Guias sobre Bonecos de Montar"
         description="Descubra dicas, guias e novidades sobre bonecos de montar tipo LEGO. Aprenda a escolher, montar e cuidar da sua coleção de minifiguras."
         url="https://qblox.com.br/blog"
+        canonical="https://qblox.com.br/blog"
         type="website"
       />
 
       <div className="container mx-auto px-4 py-8">
-        {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl xl:text-4xl font-bold mb-2">
             Blog QBLOX
@@ -56,7 +56,26 @@ export default function BlogPage() {
           </p>
         </div>
 
-        {/* Posts Grid */}
+        <div className="rounded-2xl border bg-muted/20 p-6 mb-8">
+          <h2 className="text-xl font-bold mb-3">Explore conteúdos por intenção</h2>
+          <div className="flex flex-wrap gap-2">
+            <Link to="/bonecos-de-super-herois" className="rounded-full bg-white px-3 py-2 text-sm font-medium hover:text-primary transition-colors">Bonecos de Super Heróis</Link>
+            <Link to="/bonecos-de-roblox" className="rounded-full bg-white px-3 py-2 text-sm font-medium hover:text-primary transition-colors">Bonecos de Roblox</Link>
+            <Link to="/bonecos-de-series-da-tv" className="rounded-full bg-white px-3 py-2 text-sm font-medium hover:text-primary transition-colors">Séries da TV</Link>
+            <Link to="/categoria/lancamentos" className="rounded-full bg-white px-3 py-2 text-sm font-medium hover:text-primary transition-colors">Lançamentos</Link>
+            <Link to="/loja" className="rounded-full bg-white px-3 py-2 text-sm font-medium hover:text-primary transition-colors">Todos os produtos</Link>
+            <Link to="/bonecos-de-montar" className="rounded-full bg-white px-3 py-2 text-sm font-medium hover:text-primary transition-colors">Guia principal</Link>
+            <Link to="/guia/como-escolher-bonecos-de-montar-por-idade" className="rounded-full bg-white px-3 py-2 text-sm font-medium hover:text-primary transition-colors">Guia por idade</Link>
+            <Link to="/guia/bonecos-de-montar-para-presentear" className="rounded-full bg-white px-3 py-2 text-sm font-medium hover:text-primary transition-colors">Guia para presentear</Link>
+            <Link to="/guia/melhores-bonecos-de-montar-para-iniciantes" className="rounded-full bg-white px-3 py-2 text-sm font-medium hover:text-primary transition-colors">Guia para iniciantes</Link>
+            <Link to="/guia/bonecos-de-super-herois-mais-procurados" className="rounded-full bg-white px-3 py-2 text-sm font-medium hover:text-primary transition-colors">Super-heróis mais procurados</Link>
+            <Link to="/guia/como-comecar-uma-colecao-de-roblox" className="rounded-full bg-white px-3 py-2 text-sm font-medium hover:text-primary transition-colors">Coleção de Roblox</Link>
+            <Link to="/guia/bonecos-de-montar-por-faixa-de-preco" className="rounded-full bg-white px-3 py-2 text-sm font-medium hover:text-primary transition-colors">Faixa de preço</Link>
+            <Link to="/guia/melhores-lancamentos-de-bonecos-de-montar" className="rounded-full bg-white px-3 py-2 text-sm font-medium hover:text-primary transition-colors">Lançamentos</Link>
+            <Link to="/guia/comparativo-super-herois-roblox-series-tv" className="rounded-full bg-white px-3 py-2 text-sm font-medium hover:text-primary transition-colors">Comparativo de temas</Link>
+          </div>
+        </div>
+
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             {[...Array(6)].map((_, i) => (

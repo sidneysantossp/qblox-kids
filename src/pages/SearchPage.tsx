@@ -92,7 +92,7 @@ export default function SearchPage() {
   }, [products, selectedCategories, priceRange]);
 
   // SEO Configuration for Search
-  const seoTitle = query ? `Busca: ${query} | Kids Block Store` : 'Buscar Produtos | Kids Block Store';
+  const seoTitle = query ? `Busca: ${query} | QBLOX` : 'Buscar Produtos | QBLOX';
   const seoDescription = query
     ? `Resultados da busca por "${query}". Encontre bonecos de montar tipo LEGO de qualidade.`
     : 'Busque por bonecos de montar tipo LEGO. Super Heróis, Roblox, Séries da TV e muito mais!';
@@ -102,6 +102,7 @@ export default function SearchPage() {
       <SEO
         title={seoTitle}
         description={seoDescription}
+        noindex
       />
       
       <div className="container mx-auto px-4 py-8">

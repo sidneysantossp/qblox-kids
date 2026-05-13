@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { ShoppingCart, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -10,6 +10,7 @@ import {
 import { useCart } from '@/contexts/CartContext';
 import { Link } from 'react-router-dom';
 import { Separator } from '@/components/ui/separator';
+import { FreeShippingProgress } from '@/components/cart/FreeShippingProgress';
 
 export function CartDropdown() {
   const { cartItems, cartCount, cartTotal, removeItem } = useCart();
@@ -25,6 +26,12 @@ export function CartDropdown() {
   const handleRemoveItem = async (itemId: string) => {
     await removeItem(itemId);
   };
+
+  const recentCartItems = useMemo(() => {
+    return [...cartItems]
+      .sort((a, b) => new Date(b.updated_at || b.created_at).getTime() - new Date(a.updated_at || a.created_at).getTime())
+      .slice(0, 3);
+  }, [cartItems]);
 
   return (
     <div
@@ -55,7 +62,7 @@ export function CartDropdown() {
           {cartItems.length > 0 ? (
             <>
               <div className="max-h-[300px] overflow-y-auto">
-                {cartItems.slice(0, 3).map((item) => (
+                {recentCartItems.map((item) => (
                   <div key={item.id} className="p-4 hover:bg-muted/50 transition-colors">
                     <div className="flex gap-3">
                       <img
@@ -90,38 +97,7 @@ export function CartDropdown() {
               <Separator />
 
               <div className="p-4 space-y-3">
-                {/* Free Shipping Progress Bar */}
-                {cartTotal < 99 && (
-                  <div className="mb-3">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-xs font-medium text-muted-foreground">
-                        Faltam {formatPrice(99 - cartTotal)} para frete grátis
-                      </span>
-                      <span className="text-xs font-bold text-[#FF6B35]">
-                        {Math.min(100, Math.round((cartTotal / 99) * 100))}%
-                      </span>
-                    </div>
-                    <div className="relative h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                      <div
-                        className="absolute top-0 left-0 h-full rounded-full transition-all duration-500 ease-out"
-                        style={{
-                          width: `${Math.min(100, (cartTotal / 99) * 100)}%`,
-                          background: `linear-gradient(to right, 
-                            ${cartTotal < 49.5 ? '#FF6B35' : cartTotal < 74.25 ? '#FFA726' : '#66BB6A'}, 
-                            ${cartTotal < 49.5 ? '#FFA726' : cartTotal < 74.25 ? '#66BB6A' : '#4CAF50'})`
-                        }}
-                      />
-                    </div>
-                  </div>
-                )}
-
-                {cartTotal >= 99 && (
-                  <div className="mb-3 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-lg p-2">
-                    <p className="text-xs text-green-900 dark:text-green-100 text-center font-medium">
-                      🎉 Você ganhou frete grátis!
-                    </p>
-                  </div>
-                )}
+                <FreeShippingProgress cartTotal={cartTotal} variant="compact" />
 
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Subtotal:</span>

@@ -20,6 +20,7 @@ import { TopBar } from './TopBar';
 import { getAllCategories } from '@/db/api';
 import type { Category } from '@/types';
 import type { LucideIcon } from 'lucide-react';
+import { getCategoryPath } from '@/lib/urls';
 
 // Mapeamento de ícones
 const iconMap: Record<string, LucideIcon> = {
@@ -367,7 +368,7 @@ export function Navbar() {
                           return (
                             <Link
                               key={category.id || category.slug}
-                              to={`/categoria/${category.slug}`}
+                              to={getCategoryPath(category.slug)}
                               onClick={() => setIsOpen(false)}
                               className="flex items-center gap-3 text-base hover:text-orange-500 transition-colors py-2"
                             >
@@ -396,7 +397,7 @@ export function Navbar() {
                   return (
                     <Link
                       key={category.id || category.slug}
-                      to={`/categoria/${category.slug}`}
+                      to={getCategoryPath(category.slug)}
                       className="flex items-center gap-2 text-sm font-medium text-white hover:text-orange-500 transition-colors group"
                     >
                       <Icon className="h-4 w-4 group-hover:scale-110 transition-transform" />

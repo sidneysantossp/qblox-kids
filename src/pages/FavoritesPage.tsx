@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useCart } from '@/contexts/CartContext';
 import { Product } from '@/types/index';
+import { getProductPath } from '@/lib/urls';
 
 export default function FavoritesPage() {
   const [favorites, setFavorites] = useState<Product[]>([]);
@@ -57,7 +58,7 @@ export default function FavoritesPage() {
           {favorites.map((product) => (
             <Card key={product.id} className="group overflow-hidden">
               <CardContent className="p-0">
-                <Link to={`/produto/${product.id}`}>
+                <Link to={getProductPath(product)}>
                   <div className="aspect-square overflow-hidden bg-muted">
                     <img
                       src={product.image_url}
@@ -67,7 +68,7 @@ export default function FavoritesPage() {
                   </div>
                 </Link>
                 <div className="p-4">
-                  <Link to={`/produto/${product.id}`}>
+                  <Link to={getProductPath(product)}>
                     <h3 className="font-semibold text-sm xl:text-base mb-2 line-clamp-2 group-hover:text-primary transition-colors">
                       {product.name}
                     </h3>

@@ -35,7 +35,9 @@ export function FeaturedProductsSection({ products }: FeaturedProductsSectionPro
             oldPrice={product.original_price || undefined}
             rating={Math.round(product.rating || 0)}
             reviews={product.reviews_count || 0}
+            sku={product.sku}
             image={product.image_url}
+            images={product.images}
             badge={product.is_bestseller ? 'MAIS VENDIDO' : product.is_on_sale ? 'OFERTA' : 'NOVO'}
             discount={
               product.original_price && product.original_price > product.price

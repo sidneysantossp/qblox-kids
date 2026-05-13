@@ -3,9 +3,11 @@ import { Facebook, Instagram, Twitter, Mail, MapPin, MessageCircle } from 'lucid
 import { useEffect, useState } from 'react';
 import { getWhatsAppSettings } from '@/db/api';
 import type { WhatsAppSettings } from '@/types';
+import { usePublicSettings } from '@/hooks/use-public-settings';
 
 export function Footer() {
   const [whatsappSettings, setWhatsappSettings] = useState<WhatsAppSettings | null>(null);
+  const { footer_logo_url } = usePublicSettings();
 
   useEffect(() => {
     const loadWhatsAppSettings = async () => {
@@ -40,9 +42,13 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8">
           {/* Sobre */}
           <div>
-            <h3 className="font-bold text-lg mb-4 gradient-logo-text">
-              QBLOX KIDS
-            </h3>
+            {footer_logo_url ? (
+              <img src={footer_logo_url} alt="QBLOX" className="h-12 w-auto object-contain mb-4" />
+            ) : (
+              <h3 className="font-bold text-lg mb-4 gradient-logo-text">
+                QBLOX KIDS
+              </h3>
+            )}
             <p className="text-sm text-gray-300 mb-4">
               A melhor loja de bonecos de montar para crianças. Produtos de qualidade com entrega rápida e segura.
             </p>
@@ -69,12 +75,12 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link to="/categoria/Lançamentos" className="text-gray-300 hover:text-[#FF6B35] transition-colors">
+                <Link to="/categoria/lancamentos" className="text-gray-300 hover:text-[#FF6B35] transition-colors">
                   Lançamentos
                 </Link>
               </li>
               <li>
-                <Link to="/categoria/Super Heróis" className="text-gray-300 hover:text-[#FF6B35] transition-colors">
+                <Link to="/categoria/super-herois" className="text-gray-300 hover:text-[#FF6B35] transition-colors">
                   Super Heróis
                 </Link>
               </li>

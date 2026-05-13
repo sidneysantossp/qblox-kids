@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { CardImageGallery } from './CardImageGallery';
 import { Badge } from '@/components/ui/badge';
 import type { AvailabilityStatus } from '@/types';
+import { getProductPath } from '@/lib/urls';
 
 export interface FeaturedProduct {
   id: string;
@@ -53,7 +54,7 @@ export function FeaturedProductCard({ product }: FeaturedProductCardProps) {
 
   return (
     <Link 
-      to={`/produto/${product.id}`}
+      to={getProductPath({ id: product.id, name: product.title, slug: undefined })}
       className="bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow flex-shrink-0 w-[260px] xl:w-[300px] snap-start flex flex-col block"
     >
       <CardImageGallery images={product.images} alt={product.title} discount={discount} />

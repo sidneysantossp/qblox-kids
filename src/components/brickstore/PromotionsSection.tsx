@@ -66,7 +66,9 @@ export function PromotionsSection() {
                   oldPrice={product.original_price || undefined}
                   rating={Math.round(product.rating || 0)}
                   reviews={product.reviews_count || 0}
+                  sku={product.sku}
                   image={product.image_url}
+                  images={product.images}
                   badge="OFERTA"
                   discount={
                     product.original_price && product.original_price > product.price

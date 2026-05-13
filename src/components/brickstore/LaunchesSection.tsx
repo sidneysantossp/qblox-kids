@@ -11,6 +11,7 @@ const newProducts = [
     rating: 5,
     reviews: 23,
     badge: 'NOVO' as const,
+    images: [],
   },
   {
     id: 'new-2',
@@ -20,6 +21,7 @@ const newProducts = [
     rating: 5,
     reviews: 18,
     badge: 'NOVO' as const,
+    images: [],
   },
   {
     id: 'new-3',
@@ -29,6 +31,7 @@ const newProducts = [
     rating: 5,
     reviews: 31,
     badge: 'NOVO' as const,
+    images: [],
   },
   {
     id: 'new-4',
@@ -38,6 +41,7 @@ const newProducts = [
     rating: 4,
     reviews: 15,
     badge: 'NOVO' as const,
+    images: [],
   },
   {
     id: 'new-5',
@@ -47,6 +51,7 @@ const newProducts = [
     rating: 5,
     reviews: 27,
     badge: 'NOVO' as const,
+    images: [],
   },
   {
     id: 'new-6',
@@ -56,6 +61,7 @@ const newProducts = [
     rating: 4,
     reviews: 12,
     badge: 'NOVO' as const,
+    images: [],
   },
 ];
 

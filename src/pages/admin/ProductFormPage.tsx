@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -35,8 +35,10 @@ import {
   updateProduct,
   deleteProduct,
   getAllCategories,
-  uploadImage,
 } from '@/db/admin-api';
+import { Dropzone, DropzoneContent, DropzoneEmptyState } from '@/components/dropzone';
+import { useSupabaseUpload } from '@/hooks/use-supabase-upload';
+import { supabase } from '@/db/supabase';
 import type { Product, Category } from '@/types';
 
 const productSchema = z.object({
@@ -81,6 +83,17 @@ export default function ProductFormPage() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [uploadingImages, setUploadingImages] = useState(false);
   const [additionalImages, setAdditionalImages] = useState<string[]>([]);
+  const mainImageUploadPathRef = useRef(`product-main/${Date.now()}`);
+
+  const mainImageUpload = useSupabaseUpload({
+    bucketName: 'products',
+    path: mainImageUploadPathRef.current,
+    allowedMimeTypes: ['image/*'],
+    maxFileSize: 5 * 1024 * 1024,
+    maxFiles: 1,
+    upsert: false,
+    supabase,
+  });
 
   const form = useForm<ProductFormData>({
     resolver: zodResolver(productSchema),
@@ -120,6 +133,37 @@ export default function ProductFormPage() {
       loadProduct();
     }
   }, [id]);
+
+  useEffect(() => {
+    const fileToUpload = mainImageUpload.files[0];
+    const alreadyUploaded = fileToUpload && mainImageUpload.successes.includes(fileToUpload.name);
+
+    if (!fileToUpload || fileToUpload.errors.length > 0 || alreadyUploaded || mainImageUpload.loading) {
+      return;
+    }
+
+    void mainImageUpload.onUpload();
+  }, [mainImageUpload.files, mainImageUpload.successes, mainImageUpload.loading, mainImageUpload.onUpload]);
+
+  useEffect(() => {
+    const uploadedFile = mainImageUpload.files[0];
+    const uploadedSuccessfully = uploadedFile && mainImageUpload.successes.includes(uploadedFile.name);
+
+    if (!uploadedSuccessfully) {
+      return;
+    }
+
+    const uploadPath = `${mainImageUploadPathRef.current}/${uploadedFile.name}`;
+    const { data } = supabase.storage.from('products').getPublicUrl(uploadPath);
+    form.setValue('image_url', data.publicUrl, {
+      shouldDirty: true,
+      shouldTouch: true,
+      shouldValidate: true,
+    });
+    mainImageUpload.setFiles([]);
+    mainImageUpload.setErrors([]);
+    toast.success('Imagem principal enviada com sucesso');
+  }, [form, mainImageUpload.files, mainImageUpload.successes, mainImageUpload.setErrors, mainImageUpload.setFiles]);
 
   const loadCategories = async () => {
     try {
@@ -190,34 +234,70 @@ export default function ProductFormPage() {
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, isMainImage: boolean = true) => {
-    const file = e.target.files?.[0];
+    const input = e.target;
+    const file = input.files?.[0];
     if (!file) return;
 
-    // Validar tamanho (1MB)
-    if (file.size > 1024 * 1024) {
-      toast.error('Imagem deve ter no máximo 1MB');
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Imagem deve ter no máximo 5MB');
+      input.value = '';
       return;
     }
 
     try {
       setUploadingImages(true);
-      const imageUrl = await uploadImage(file, 'products');
-      
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random().toString(36).substring(2)}_${Date.now()}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('products')
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: false,
+        });
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      const { data } = supabase.storage.from('products').getPublicUrl(fileName);
+      const imageUrl = data.publicUrl;
+
       if (isMainImage) {
-        form.setValue('image_url', imageUrl);
+        form.setValue('image_url', imageUrl, {
+          shouldDirty: true,
+          shouldTouch: true,
+          shouldValidate: true,
+        });
       } else {
         const newImages = [...additionalImages, imageUrl];
         setAdditionalImages(newImages);
-        form.setValue('images', newImages);
+        form.setValue('images', newImages, {
+          shouldDirty: true,
+          shouldTouch: true,
+          shouldValidate: true,
+        });
       }
-      
+
       toast.success('Imagem enviada com sucesso');
     } catch (error) {
       console.error('Erro ao fazer upload:', error);
       toast.error('Erro ao fazer upload da imagem');
     } finally {
+      input.value = '';
       setUploadingImages(false);
     }
+  };
+
+  const removeMainImage = () => {
+    form.setValue('image_url', '', {
+      shouldDirty: true,
+      shouldTouch: true,
+      shouldValidate: true,
+    });
+    mainImageUpload.setFiles([]);
+    mainImageUpload.setErrors([]);
+    toast.success('Imagem principal removida');
   };
 
   const removeAdditionalImage = (index: number) => {
@@ -529,38 +609,31 @@ export default function ProductFormPage() {
                                   alt="Preview"
                                   className="w-full h-full object-cover"
                                 />
+                                <Button
+                                  type="button"
+                                  variant="destructive"
+                                  size="icon"
+                                  className="absolute top-2 right-2"
+                                  onClick={removeMainImage}
+                                >
+                                  <X className="h-4 w-4" />
+                                </Button>
                               </div>
                             )}
-                            <div className="flex gap-2">
-                              <Input
-                                type="text"
-                                placeholder="URL da imagem"
-                                {...field}
-                              />
-                              <Button
-                                type="button"
-                                variant="outline"
-                                disabled={uploadingImages}
-                                onClick={() => document.getElementById('main-image-upload')?.click()}
-                              >
-                                {uploadingImages ? (
-                                  <Loader2 className="h-4 w-4 animate-spin" />
-                                ) : (
-                                  <Upload className="h-4 w-4" />
-                                )}
-                              </Button>
-                              <input
-                                id="main-image-upload"
-                                type="file"
-                                accept="image/*"
-                                className="hidden"
-                                onChange={(e) => handleImageUpload(e, true)}
-                              />
-                            </div>
+                            <Input
+                              type="text"
+                              placeholder="URL da imagem"
+                              value={field.value || ''}
+                              onChange={(e) => field.onChange(e.target.value)}
+                            />
+                            <Dropzone {...mainImageUpload} className="bg-background">
+                              <DropzoneEmptyState />
+                              <DropzoneContent />
+                            </Dropzone>
                           </div>
                         </FormControl>
                         <FormDescription>
-                          Tamanho máximo: 1MB. Formatos: JPG, PNG, WebP
+                          Tamanho máximo: 5MB. Formatos: JPG, PNG, WebP
                         </FormDescription>
                         <FormMessage />
                       </FormItem>

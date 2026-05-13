@@ -153,9 +153,9 @@ export const searchProducts = async (searchTerm: string) => {
   const { data, error } = await supabase
     .from('products')
     .select('*')
-    .or(`name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`)
+    .or(`name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%,category.ilike.%${searchTerm}%,sku.ilike.%${searchTerm}%`)
     .order('created_at', { ascending: false });
-  
+
   if (error) throw error;
   return Array.isArray(data) ? data : [];
 };

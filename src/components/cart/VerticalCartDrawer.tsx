@@ -7,6 +7,7 @@ import { Separator } from '@/components/ui/separator';
 import { useCart } from '@/contexts/CartContext';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
+import { FreeShippingProgress } from '@/components/cart/FreeShippingProgress';
 
 export function VerticalCartDrawer() {
   const { cartItems, cartCount, cartTotal, updateQuantity, removeItem, isLoading } = useCart();
@@ -145,38 +146,7 @@ export function VerticalCartDrawer() {
         {/* Footer */}
         {cartItems.length > 0 && (
           <div className="border-t p-6 space-y-4">
-            {/* Free Shipping Progress Bar */}
-            {cartTotal < 99 && (
-              <div className="mb-4">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-xs font-medium text-muted-foreground">
-                    Faltam {formatPrice(99 - cartTotal)} para frete grátis
-                  </span>
-                  <span className="text-xs font-bold text-[#FF6B35]">
-                    {Math.min(100, Math.round((cartTotal / 99) * 100))}%
-                  </span>
-                </div>
-                <div className="relative h-3 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                  <div
-                    className="absolute top-0 left-0 h-full rounded-full transition-all duration-500 ease-out"
-                    style={{
-                      width: `${Math.min(100, (cartTotal / 99) * 100)}%`,
-                      background: `linear-gradient(to right, 
-                        ${cartTotal < 49.5 ? '#FF6B35' : cartTotal < 74.25 ? '#FFA726' : '#66BB6A'}, 
-                        ${cartTotal < 49.5 ? '#FFA726' : cartTotal < 74.25 ? '#66BB6A' : '#4CAF50'})`
-                    }}
-                  />
-                </div>
-              </div>
-            )}
-
-            {cartTotal >= 99 && (
-              <div className="mb-4 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-lg p-3">
-                <p className="text-sm text-green-900 dark:text-green-100 text-center font-medium">
-                  🎉 Você ganhou frete grátis!
-                </p>
-              </div>
-            )}
+            <FreeShippingProgress cartTotal={cartTotal} />
 
             <div className="flex items-center justify-between">
               <span className="text-lg font-semibold">Preço Total</span>

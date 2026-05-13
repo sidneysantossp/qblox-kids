@@ -182,7 +182,7 @@ export default function HomePage() {
   }, [heroApi]);
 
   // SEO Configuration
-  const seoTitle = 'Kids Block Store - Bonecos de Montar LEGO - Super Heróis, Roblox e Mais';
+  const seoTitle = 'QBLOX - Bonecos de Montar LEGO - Super Heróis, Roblox e Mais';
   const seoDescription = 'Loja especializada em bonecos de montar tipo LEGO para crianças. Encontre Super Heróis, Roblox, Séries da TV, Aventura e muito mais! Frete grátis acima de R$99. Compra segura e produtos de qualidade.';
 
   // Use database banners or fallback to default images
@@ -213,8 +213,36 @@ export default function HomePage() {
       
       <SchemaMarkup schema={generateWebsiteSchema()} />
       <SchemaMarkup schema={generateOrganizationSchema()} />
-      
+
       <div className="min-h-screen bg-background">
+      <section className="max-w-7xl mx-auto px-4 py-8 xl:py-12">
+        <div className="rounded-3xl border bg-white p-6 xl:p-8">
+          <h2 className="text-2xl xl:text-3xl font-bold text-foreground mb-4">
+            Bonecos de montar para colecionar, brincar e presentear
+          </h2>
+          <div className="grid gap-6 xl:grid-cols-[1.3fr_0.7fr] items-start">
+            <div className="space-y-4 text-muted-foreground leading-relaxed">
+              <p>
+                A QBLOX reúne bonecos de montar inspirados em super-heróis, Roblox, séries da TV e coleções temáticas para quem busca variedade, qualidade e ideias criativas para presentear.
+              </p>
+              <p>
+                Se você está começando uma coleção, procurando um presente infantil ou buscando personagens específicos para montar, navegue pelas categorias principais e descubra os kits mais buscados da loja.
+              </p>
+            </div>
+            <div className="rounded-2xl bg-muted/40 p-4">
+              <h3 className="font-semibold text-foreground mb-3">Explore os hubs principais</h3>
+              <div className="flex flex-wrap gap-2">
+                <Link to="/bonecos-de-super-herois" className="rounded-full bg-white px-3 py-2 text-sm font-medium hover:text-primary transition-colors">Super Heróis</Link>
+                <Link to="/bonecos-de-roblox" className="rounded-full bg-white px-3 py-2 text-sm font-medium hover:text-primary transition-colors">Roblox</Link>
+                <Link to="/bonecos-de-series-da-tv" className="rounded-full bg-white px-3 py-2 text-sm font-medium hover:text-primary transition-colors">Séries da TV</Link>
+                <Link to="/categoria/aventura" className="rounded-full bg-white px-3 py-2 text-sm font-medium hover:text-primary transition-colors">Aventura</Link>
+                <Link to="/blog" className="rounded-full bg-white px-3 py-2 text-sm font-medium hover:text-primary transition-colors">Guias do Blog</Link>
+                <Link to="/bonecos-de-montar" className="rounded-full bg-white px-3 py-2 text-sm font-medium hover:text-primary transition-colors">Guia de Bonecos de Montar</Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
       {/* Mobile Search Bar - Above Hero Banner */}
       <div className="md:hidden w-full bg-background px-4 py-3 border-b">
         <form onSubmit={handleSearch} className="w-full">
@@ -521,7 +549,7 @@ export default function HomePage() {
               Monte Sua Coleção
             </h2>
             <Button asChild variant="outline" className="hidden md:flex">
-              <Link to="/categoria/Monte sua Coleção">
+              <Link to="/categoria/monte-sua-colecao">
                 Ver Todos
               </Link>
             </Button>
@@ -542,7 +570,7 @@ export default function HomePage() {
               </div>
               <div className="flex justify-center mt-8 md:hidden">
                 <Button asChild variant="outline" className="w-full max-w-xs">
-                  <Link to="/categoria/Monte sua Coleção">
+                  <Link to="/categoria/monte-sua-colecao">
                     Ver Todos
                   </Link>
                 </Button>
@@ -560,7 +588,7 @@ export default function HomePage() {
               Séries da TV
             </h2>
             <Button asChild variant="outline" className="hidden md:flex">
-              <Link to="/categoria/Séries da TV">
+              <Link to="/categoria/series-tv">
                 Ver Todos
               </Link>
             </Button>
@@ -580,7 +608,7 @@ export default function HomePage() {
               </div>
               <div className="flex justify-center mt-8 md:hidden">
                 <Button asChild variant="outline" className="w-full max-w-xs">
-                  <Link to="/categoria/Séries da TV">
+                  <Link to="/categoria/series-tv">
                     Ver Todos
                   </Link>
                 </Button>

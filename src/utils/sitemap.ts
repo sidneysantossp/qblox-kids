@@ -87,7 +87,7 @@ export function getProductSitemapUrls(
   products: Array<{ id: string; slug: string; updated_at?: string }>
 ): SitemapUrl[] {
   return products.map(product => ({
-    loc: `${baseUrl}/produto/${product.slug}`,
+    loc: `${baseUrl}/produto/${product.slug}-${product.id}`,
     lastmod: product.updated_at ? new Date(product.updated_at).toISOString().split('T')[0] : undefined,
     changefreq: 'weekly' as const,
     priority: 0.8

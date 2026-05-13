@@ -92,9 +92,11 @@ Deno.serve(async (req) => {
     // Páginas estáticas
     const staticPages = [
       { path: '/ofertas-especiais', priority: '0.9', changefreq: 'daily' },
-      { path: '/busca', priority: '0.7', changefreq: 'weekly' },
-      { path: '/ajuda', priority: '0.6', changefreq: 'monthly' },
-      { path: '/politica-de-devolucao', priority: '0.5', changefreq: 'monthly' },
+      { path: '/blog', priority: '0.8', changefreq: 'weekly' },
+      { path: '/loja', priority: '0.8', changefreq: 'weekly' },
+      { path: '/quem-somos', priority: '0.6', changefreq: 'monthly' },
+      { path: '/central-de-ajuda', priority: '0.6', changefreq: 'monthly' },
+      { path: '/politica-de-troca', priority: '0.5', changefreq: 'monthly' },
       { path: '/politica-de-privacidade', priority: '0.5', changefreq: 'monthly' },
       { path: '/termos-de-uso', priority: '0.5', changefreq: 'monthly' },
     ];

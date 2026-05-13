@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Calendar, Clock, ArrowLeft, ArrowRight } from 'lucide-react';
 import { SEO } from '@/components/SEO';
+import { SchemaMarkup, generateArticleSchema } from '@/lib/schema';
+import { getPillarPathByCategory } from '@/lib/urls';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -74,6 +76,16 @@ export default function BlogPostPage() {
     );
   }
 
+  const articleSchema = generateArticleSchema({
+    headline: post.title,
+    description: post.meta_description || post.excerpt || post.title,
+    image: post.featured_image || undefined,
+    url: `https://qblox.com.br/blog/${post.slug}`,
+    datePublished: post.published_at || undefined,
+    dateModified: post.updated_at,
+    author: post.author || 'QBLOX',
+  });
+
   return (
     <>
       <SEO
@@ -81,8 +93,10 @@ export default function BlogPostPage() {
         description={post.meta_description || post.excerpt || post.title}
         image={post.featured_image || undefined}
         url={`https://qblox.com.br/blog/${post.slug}`}
+        canonical={`https://qblox.com.br/blog/${post.slug}`}
         type="article"
       />
+      <SchemaMarkup schema={articleSchema} />
 
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         {/* Back Button */}
@@ -190,6 +204,26 @@ export default function BlogPostPage() {
             </div>
           </div>
         )}
+
+        <Card className="mt-12 border">
+          <CardContent className="p-6">
+            <h3 className="text-xl font-bold mb-3">Próximos passos para a sua busca</h3>
+            <div className="grid gap-3 md:grid-cols-3">
+              <Link to={getPillarPathByCategory(post.category || '')} className="rounded-xl border p-4 hover:border-primary transition-colors">
+                <h4 className="font-semibold mb-1">Guia do tema</h4>
+                <p className="text-sm text-muted-foreground">Acesse a página pilar relacionada ao tema deste conteúdo para aprofundar sua busca.</p>
+              </Link>
+              <Link to="/blog" className="rounded-xl border p-4 hover:border-primary transition-colors">
+                <h4 className="font-semibold mb-1">Voltar para o blog</h4>
+                <p className="text-sm text-muted-foreground">Continue navegando por guias e conteúdos relacionados ao seu interesse.</p>
+              </Link>
+              <Link to="/loja" className="rounded-xl border p-4 hover:border-primary transition-colors">
+                <h4 className="font-semibold mb-1">Ver todos os produtos</h4>
+                <p className="text-sm text-muted-foreground">Compare diferentes categorias antes de escolher sua próxima compra.</p>
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* CTA */}
         <Card className="mt-12 bg-primary text-primary-foreground">

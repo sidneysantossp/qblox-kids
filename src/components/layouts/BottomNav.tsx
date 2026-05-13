@@ -1,5 +1,6 @@
 import { Home, Grid3x3, ShoppingCart, User } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
+import { getCategoryPath } from '@/lib/urls';
 import { useCart } from '@/contexts/CartContext';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
@@ -94,7 +95,7 @@ export function BottomNav() {
                       {categories.map((category) => (
                         <Link
                           key={category.slug}
-                          to={`/categoria/${category.slug}`}
+                          to={getCategoryPath(category.slug)}
                           onClick={() => setCategoriesOpen(false)}
                         >
                           <Button

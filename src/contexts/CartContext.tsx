@@ -8,7 +8,7 @@ interface CartContextType {
   cartCount: number;
   cartTotal: number;
   isLoading: boolean;
-  addToCart: (product: Product, quantity?: number) => Promise<void>;
+  addToCart: (product: Product, quantity?: number, options?: { silent?: boolean; skipRefresh?: boolean }) => Promise<void>;
   updateQuantity: (itemId: string, quantity: number) => Promise<void>;
   removeItem: (itemId: string) => Promise<void>;
   clearCart: () => Promise<void>;
@@ -54,16 +54,26 @@ export function CartProvider({ children }: { children: ReactNode }) {
     refreshCart();
   }, []);
 
-  const addToCart = async (product: Product, quantity = 1) => {
+  const addToCart = async (
+    product: Product,
+    quantity = 1,
+    options?: { silent?: boolean; skipRefresh?: boolean }
+  ) => {
     try {
-      console.log('Tentando adicionar ao carrinho:', { sessionId, productId: product.id, quantity });
       const result = await addToCartDB(sessionId, product.id, quantity);
-      console.log('Resultado da adição:', result);
-      await refreshCart();
-      toast({
-        title: 'Produto adicionado!',
-        description: `${product.name} foi adicionado ao carrinho`,
-      });
+
+      if (!options?.skipRefresh) {
+        await refreshCart();
+      }
+
+      if (!options?.silent) {
+        toast({
+          title: 'Produto adicionado!',
+          description: `${product.name} foi adicionado ao carrinho`,
+        });
+      }
+
+      return result;
     } catch (error) {
       console.error('Erro ao adicionar ao carrinho:', error);
       const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
@@ -72,6 +82,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         description: `Não foi possível adicionar o produto ao carrinho. ${errorMessage}`,
         variant: 'destructive',
       });
+      throw error;
     }
   };
 

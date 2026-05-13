@@ -19,7 +19,8 @@ import {
   Home,
   Settings,
   Ticket,
-  MessageCircle
+  MessageCircle,
+  Sparkles
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -32,6 +33,7 @@ const navigation = [
   { name: 'Cupons', href: '/admin/cupons', icon: Ticket },
   { name: 'Banners Hero', href: '/admin/banners', icon: Image },
   { name: 'Seções Home', href: '/admin/secoes', icon: LayoutGrid },
+  { name: 'Destaque Especial', href: '/admin/destaque-especial', icon: Sparkles },
   { name: 'Coleções Temáticas', href: '/admin/colecoes-tematicas', icon: LayoutGrid },
   { name: 'Blog', href: '/admin/blog', icon: FileText },
   { name: 'Pagamentos', href: '/admin/pagamentos', icon: CreditCard },

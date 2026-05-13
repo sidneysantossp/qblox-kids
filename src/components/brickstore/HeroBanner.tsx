@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import DOMPurify from 'dompurify';
 import { supabase } from '@/db/supabase';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
@@ -11,18 +12,18 @@ interface HeroBanner {
   image_url?: string;
   link_url?: string;
   button_text?: string;
+  background_position_y?: number;
 }
 
 export function HeroBanner() {
   const [banners, setBanners] = useState<HeroBanner[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(false);
 
   useEffect(() => {
     const loadBanners = async () => {
       try {
-        console.log('🎯 Carregando banners...');
         const { data, error } = await supabase
           .from('hero_banners')
           .select('*')
@@ -31,11 +32,8 @@ export function HeroBanner() {
           .limit(4);
 
         if (error) {
-          console.error('❌ Erro ao carregar banners:', error);
           throw error;
         }
-        
-        console.log('✅ Banners carregados:', data);
         
         if (data && data.length > 0) {
           setBanners(data);
@@ -50,7 +48,7 @@ export function HeroBanner() {
           }]);
         }
       } catch (error) {
-        console.error('❌ Erro ao carregar banners (catch):', error);
+        console.error('Erro ao carregar banners:', error);
         // Fallback para banner padrão em caso de erro
         setBanners([{
           id: 'default',
@@ -67,13 +65,12 @@ export function HeroBanner() {
     loadBanners();
   }, []);
 
-  // Auto-play carrossel
   useEffect(() => {
     if (!isAutoPlaying || banners.length <= 1) return;
 
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % banners.length);
-    }, 5000); // Muda a cada 5 segundos
+    }, 5000);
 
     return () => clearInterval(interval);
   }, [isAutoPlaying, banners.length]);
@@ -93,11 +90,26 @@ export function HeroBanner() {
     setCurrentIndex(index);
   };
 
+  const currentBanner = banners[currentIndex];
+  const title = currentBanner?.title || 'COLECIONE. MONTE. AVENTURE-SE!';
+  const subtitle = currentBanner?.subtitle || 'MINIFIGURAS ÚNICAS PARA HISTÓRIAS INCRÍVEIS!';
+  const buttonText = currentBanner?.button_text || 'VER LANÇAMENTOS';
+  const linkUrl = currentBanner?.link_url || '/categoria/lancamentos';
+
+  const sanitizedTitle = useMemo(
+    () =>
+      DOMPurify.sanitize(title, {
+        ALLOWED_TAGS: ['strong', 'br', 'p'],
+        ALLOWED_ATTR: [],
+      }),
+    [title]
+  );
+
   if (loading) {
     return (
-      <section className="relative bg-gradient-to-br from-[#0057D9] to-[#003A99] overflow-hidden">
+      <section className="relative overflow-hidden bg-[#0f172a]">
         <div className="container mx-auto px-4 relative">
-          <div className="flex items-center justify-center min-h-[420px] md:min-h-[380px]">
+          <div className="flex items-center justify-center min-h-[460px] md:min-h-[440px]">
             <div className="animate-pulse text-white text-2xl">Carregando...</div>
           </div>
         </div>
@@ -105,39 +117,29 @@ export function HeroBanner() {
     );
   }
 
-  const currentBanner = banners[currentIndex];
-  const title = currentBanner?.title || 'COLECIONE. MONTE. AVENTURE-SE!';
-  const subtitle = currentBanner?.subtitle || 'MINIFIGURAS ÚNICAS PARA HISTÓRIAS INCRÍVEIS!';
-  const buttonText = currentBanner?.button_text || 'VER LANÇAMENTOS';
-  const linkUrl = currentBanner?.link_url || '/categoria/lancamentos';
-
-  // Parse title for styling (split by periods)
-  const titleParts = title.split('.').filter(part => part.trim());
-
   return (
-    <section className="relative bg-gradient-to-br from-[#0057D9] to-[#003A99] overflow-hidden">
+    <section className="relative overflow-hidden bg-[#0f172a]">
+      <style>{`
+        .hero-banner-title p {
+          margin: 0;
+        }
+
+        .hero-banner-title strong {
+          color: #ffd200;
+        }
+      `}</style>
       {/* Background Image */}
       {currentBanner?.image_url && (
         <div className="absolute inset-0 transition-opacity duration-500">
           <img
             src={currentBanner.image_url}
             alt={title}
-            className="w-full h-full object-cover opacity-20"
+            className="w-full h-full object-cover"
+            style={{ objectPosition: `center ${currentBanner.background_position_y ?? 50}%` }}
           />
         </div>
       )}
-
-      {/* Decorative elements */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-10 left-10 w-16 h-16 bg-[#FFD200] rounded-lg rotate-12" />
-        <div className="absolute top-20 right-20 w-12 h-12 bg-[#FFD200] rounded-lg -rotate-6" />
-        <div className="absolute bottom-20 left-1/4 w-14 h-14 bg-[#FFD200] rounded-lg rotate-45" />
-        <div className="absolute bottom-10 right-1/3 w-10 h-10 bg-[#FFD200] rounded-lg -rotate-12" />
-        <div className="absolute top-1/2 right-10 w-8 h-8 bg-[#FFD200] rounded-lg rotate-6" />
-      </div>
-
-      {/* Radial gradient overlay */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(255,255,255,0.1)_0%,_transparent_70%)]" />
+      <div className="absolute inset-0 bg-black/30" />
 
       {/* Navigation Arrows - Desktop Only */}
       {banners.length > 1 && (
@@ -160,40 +162,15 @@ export function HeroBanner() {
       )}
 
       <div className="container mx-auto px-4 relative">
-        <div className="flex flex-col md:flex-row items-center justify-center min-h-[420px] md:min-h-[380px] py-12 md:py-0 gap-8">
-          {/* Left minifigures placeholder */}
-          <div className="hidden lg:flex items-end gap-2 shrink-0">
-            <div className="w-24 h-32 bg-white/10 rounded-lg backdrop-blur-sm" />
-            <div className="w-24 h-36 bg-white/10 rounded-lg backdrop-blur-sm" />
-          </div>
-
-          {/* Center content */}
-          <div className="flex flex-col items-center text-center gap-6 z-10">
-            {/* Main text */}
-            <div className="flex flex-col items-center">
-              <h1 className="text-white font-extrabold leading-none drop-shadow-[0_4px_8px_rgba(6,26,51,0.5)]">
-                {titleParts.map((part, index) => {
-                  const isMiddle = titleParts.length === 3 && index === 1;
-                  return (
-                    <div
-                      key={index}
-                      className={`${
-                        isMiddle
-                          ? 'text-[48px] md:text-[68px] text-[#FFD200] my-1'
-                          : index === 0
-                          ? 'text-[32px] md:text-[44px]'
-                          : 'text-[36px] md:text-[48px]'
-                      }`}
-                    >
-                      {part.trim()}.
-                    </div>
-                  );
-                })}
-              </h1>
-            </div>
+        <div className="flex items-center justify-center min-h-[460px] md:min-h-[440px] py-12 md:py-0">
+          <div className="flex flex-col items-center text-center gap-6 z-10 max-w-3xl">
+            <div
+              className="hero-banner-title text-white font-extrabold leading-tight text-[32px] md:text-[52px]"
+              dangerouslySetInnerHTML={{ __html: sanitizedTitle }}
+            />
 
             {/* Subheadline */}
-            <div className="bg-[#E52421] text-white px-6 py-2.5 rounded-lg shadow-lg font-bold text-sm md:text-base">
+            <div className="bg-[#E52421] text-white px-6 py-2.5 rounded-lg font-bold text-sm md:text-base">
               {subtitle}
             </div>
 
@@ -201,13 +178,12 @@ export function HeroBanner() {
             <Link to={linkUrl}>
               <Button 
                 size="lg"
-                className="bg-[#FFD200] hover:bg-[#F5C400] text-[#111827] font-extrabold text-sm md:text-base px-8 h-12 rounded-lg shadow-lg hover:scale-105 transition-transform"
+                className="bg-[#FFD200] hover:bg-[#F5C400] text-[#111827] font-extrabold text-sm md:text-base px-8 h-12 rounded-lg"
               >
                 {buttonText}
               </Button>
             </Link>
 
-            {/* Carousel dots */}
             {banners.length > 1 && (
               <div className="flex items-center gap-2 mt-2">
                 {banners.map((_, index) => (
@@ -224,12 +200,6 @@ export function HeroBanner() {
                 ))}
               </div>
             )}
-          </div>
-
-          {/* Right minifigures placeholder */}
-          <div className="hidden lg:flex items-end gap-2 shrink-0">
-            <div className="w-24 h-36 bg-white/10 rounded-lg backdrop-blur-sm" />
-            <div className="w-24 h-32 bg-white/10 rounded-lg backdrop-blur-sm" />
           </div>
         </div>
       </div>

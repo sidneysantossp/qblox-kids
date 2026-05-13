@@ -87,9 +87,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
       if (session?.user) {
-        console.log('[AuthContext] Carregando profile para usuário:', session.user.id);
         getProfile(session.user.id).then((profileData) => {
-          console.log('[AuthContext] Profile carregado:', profileData);
           setProfile(profileData);
           setLoading(false); // Só marca como carregado após o profile estar pronto
         });
@@ -99,12 +97,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
     // In this function, do NOT use any await calls. Use `.then()` instead to avoid deadlocks.
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log('[AuthContext] Auth state changed:', event, 'User:', session?.user?.id);
       setUser(session?.user ?? null);
       if (session?.user) {
-        console.log('[AuthContext] Carregando profile após auth change:', session.user.id);
         getProfile(session.user.id).then((profileData) => {
-          console.log('[AuthContext] Profile carregado após auth change:', profileData);
           setProfile(profileData);
         });
       } else {

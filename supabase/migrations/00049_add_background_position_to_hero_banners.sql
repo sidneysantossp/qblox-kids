@@ -1,0 +1,1 @@
+ALTER TABLE hero_banners ADD COLUMN IF NOT EXISTS background_position_y INTEGER NOT NULL DEFAULT 50;

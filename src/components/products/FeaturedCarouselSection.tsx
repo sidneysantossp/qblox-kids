@@ -17,7 +17,7 @@ export function FeaturedCarouselSection({ title, heroCard, products }: FeaturedC
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
-  const autoScrollIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const autoScrollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const checkScroll = () => {
     const container = scrollContainerRef.current;

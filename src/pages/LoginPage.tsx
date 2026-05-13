@@ -22,12 +22,8 @@ export default function LoginPage() {
   // Pegar URL de retorno do state ou usar '/' como padrão
   const returnUrl = (location.state as any)?.returnUrl || (location.state as any)?.from?.pathname || '/';
 
-  // Aguardar o profile ser carregado após login bem-sucedido
   useEffect(() => {
-    console.log('[LoginPage] waitingForProfile:', waitingForProfile, 'user:', user?.id, 'profile:', profile);
     if (waitingForProfile && user && profile) {
-      // Profile carregado, agora podemos redirecionar
-      console.log('[LoginPage] Profile carregado! Redirecionando para:', returnUrl);
       toast({
         title: 'Login realizado com sucesso!',
         description: 'Bem-vindo de volta!',
@@ -41,11 +37,9 @@ export default function LoginPage() {
     e.preventDefault();
     setIsLoading(true);
 
-    console.log('[LoginPage] Tentando fazer login...');
     const { error } = await signIn(email, password);
 
     if (error) {
-      console.log('[LoginPage] Erro no login:', error);
       toast({
         title: 'Erro ao fazer login',
         description: error.message || 'Verifique suas credenciais e tente novamente',
@@ -53,20 +47,21 @@ export default function LoginPage() {
       });
       setIsLoading(false);
     } else {
-      // Login bem-sucedido, aguardar profile carregar
-      console.log('[LoginPage] Login bem-sucedido! Aguardando profile...');
       setWaitingForProfile(true);
-      // Timeout de segurança: se o profile não carregar em 5 segundos, redirecionar mesmo assim
-      setTimeout(() => {
-        if (waitingForProfile) {
-          console.log('[LoginPage] Timeout! Redirecionando mesmo sem profile...');
+      window.setTimeout(() => {
+        setWaitingForProfile((current) => {
+          if (!current) {
+            return current;
+          }
+
           toast({
             title: 'Login realizado com sucesso!',
             description: 'Bem-vindo de volta!',
             variant: 'success',
           });
           navigate(returnUrl, { replace: true });
-        }
+          return false;
+        });
       }, 5000);
     }
   };

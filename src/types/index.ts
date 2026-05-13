@@ -124,6 +124,7 @@ export interface HeroBanner {
   image_url: string;
   link_url?: string | null;
   button_text?: string | null;
+  background_position_y?: number;
   display_order: number;
   is_active: boolean;
   created_at: string;
@@ -133,8 +134,11 @@ export interface HeroBanner {
 export interface MiniBanner {
   id: string;
   title: string;
+  subtitle?: string | null;
   image_url: string;
   link_url?: string | null;
+  button_text?: string | null;
+  placement?: string;
   display_order: number;
   is_active: boolean;
   created_at: string;
@@ -143,7 +147,7 @@ export interface MiniBanner {
 
 export interface HomepageSection {
   id: string;
-  section_type: 'promotional_cards' | 'category_carousel' | 'featured_products' | 'best_sellers' | 'on_sale';
+  section_type: 'promotional_cards' | 'category_carousel' | 'featured_products' | 'best_sellers' | 'on_sale' | 'special_highlight' | 'thematic_collections';
   title: string;
   subtitle?: string | null;
   is_active: boolean;

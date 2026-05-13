@@ -38,7 +38,7 @@ export function BrickStoreProductCard({
     <Link to={`/produto/${id}`}>
       <div className="bg-white rounded-2xl border border-border overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-1 hover:border-[#FFD200] transition-all duration-200 h-full flex flex-col">
         {/* Image Area */}
-        <div className="relative bg-[#F8FAFC] h-[180px] flex items-center justify-center p-4">
+        <div className="relative bg-white h-[320px] w-full flex items-center justify-center p-0">
           {badge && (
             <Badge className={`absolute top-2 left-2 text-[10px] font-extrabold px-2 py-1 ${badgeColors[badge]}`}>
               {badge}
@@ -57,7 +57,7 @@ export function BrickStoreProductCard({
               loading="lazy"
             />
           ) : (
-            <div className="w-32 h-32 bg-gradient-to-br from-[#0057D9]/20 to-[#FFD200]/20 rounded-lg" />
+            <div className="w-full h-full bg-white" />
           )}
         </div>
 
@@ -69,7 +69,7 @@ export function BrickStoreProductCard({
           </span>
 
           {/* Name */}
-          <h3 className="font-bold text-sm line-clamp-2 text-foreground">
+          <h3 className="font-bold text-base md:text-lg line-clamp-2 text-foreground leading-tight">
             {name}
           </h3>
 

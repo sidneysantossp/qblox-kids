@@ -44,6 +44,7 @@ function CheckoutForm() {
   const [isLoadingCEP, setIsLoadingCEP] = useState(false);
   const [activePaymentMethods, setActivePaymentMethods] = useState<any[]>([]);
   const [isLoadingPaymentMethods, setIsLoadingPaymentMethods] = useState(true);
+  const [isUsingFallbackShipping, setIsUsingFallbackShipping] = useState(false);
   const numberInputRef = useRef<HTMLInputElement>(null);
 
   // Estados para dados do cartão de crédito
@@ -168,13 +169,15 @@ function CheckoutForm() {
           const options = await calculateShipping(cleanCEP, cartTotal);
           console.log('[Checkout] Opções de frete recebidas:', options);
           setShippingOptions(options);
-          
-          // Selecionar primeira opção automaticamente
+          setIsUsingFallbackShipping(options.some(option => option.isFallback));
+
           if (options.length > 0) {
-            setSelectedShipping(options[0].id);
-            setShippingCost(options[0].price);
-            console.log('[Checkout] Frete selecionado:', options[0]);
+            const cheapestOption = [...options].sort((a, b) => a.price - b.price)[0];
+            setSelectedShipping(cheapestOption.id);
+            setShippingCost(cheapestOption.price);
+            console.log('[Checkout] Frete selecionado:', cheapestOption);
           } else {
+            setIsUsingFallbackShipping(false);
             console.warn('[Checkout] Nenhuma opção de frete retornada');
           }
         } catch (error) {
@@ -187,11 +190,13 @@ function CheckoutForm() {
             price: 15.90,
             delivery_time: '5-10 dias úteis',
             company: 'Correios',
+            isFallback: true,
           };
-          
+
           setShippingOptions([defaultShipping]);
           setSelectedShipping(defaultShipping.id);
           setShippingCost(defaultShipping.price);
+          setIsUsingFallbackShipping(true);
           
           toast({
             title: 'Aviso',
@@ -206,6 +211,7 @@ function CheckoutForm() {
         setShippingOptions([]);
         setSelectedShipping('');
         setShippingCost(0);
+        setIsUsingFallbackShipping(false);
       }
     };
 
@@ -584,17 +590,17 @@ function CheckoutForm() {
                   </div>
                 </div>
                 <div>
-                  <Label htmlFor="cpf">CPF {['pix', 'boleto'].includes(paymentMethod) && '*'}</Label>
+                  <Label htmlFor="cpf">CPF *</Label>
                   <Input
                     id="cpf"
                     name="cpf"
                     value={formData.cpf}
                     onChange={handleInputChange}
                     placeholder="000.000.000-00"
-                    required={['pix', 'boleto'].includes(paymentMethod)}
+                    required
                   />
                   <p className="text-xs text-muted-foreground mt-1">
-                    Obrigatório para pagamentos via PIX e Boleto
+                    Obrigatório para processar pagamentos com Asaas
                   </p>
                 </div>
               </CardContent>
@@ -757,6 +763,11 @@ function CheckoutForm() {
                     </div>
                   )}
 
+                  {isUsingFallbackShipping && shippingOptions.length > 0 && (
+                    <p className="mb-3 text-xs text-amber-600">
+                      Estamos exibindo uma estimativa de frete enquanto a cotação online não responde.
+                    </p>
+                  )}
                   {isLoadingShipping ? (
                     <div className="flex items-center justify-center py-8">
                       <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />

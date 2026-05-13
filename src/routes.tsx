@@ -41,6 +41,7 @@ import AdminBanners from './pages/admin/AdminBanners';
 import AdminBannersPage from './pages/admin/AdminBannersPage';
 import BannerFormPage from './pages/admin/BannerFormPage';
 import AdminSections from './pages/admin/AdminSections';
+import AdminThematicCollections from './pages/admin/AdminThematicCollections';
 import AdminBlog from './pages/admin/AdminBlog';
 import AdminPayments from './pages/admin/AdminPayments';
 import AdminReports from './pages/admin/AdminReports';
@@ -359,6 +360,12 @@ const routes: RouteConfig[] = [
         name: 'Admin Sections',
         path: 'secoes',
         element: <AdminSections />,
+        visible: false
+      },
+      {
+        name: 'Admin Thematic Collections',
+        path: 'colecoes-tematicas',
+        element: <AdminThematicCollections />,
         visible: false
       },
       {

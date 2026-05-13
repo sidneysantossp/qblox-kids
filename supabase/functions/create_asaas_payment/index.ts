@@ -198,6 +198,16 @@ Deno.serve(async (req) => {
 
     const asaasPayment = await paymentResponse.json();
 
+    let orderStatus = 'pending';
+    let completedAt: string | null = null;
+
+    if (asaasPayment.status === 'RECEIVED' || asaasPayment.status === 'CONFIRMED') {
+      orderStatus = 'completed';
+      completedAt = new Date().toISOString();
+    } else if (asaasPayment.status === 'OVERDUE' || asaasPayment.status === 'REFUNDED') {
+      orderStatus = 'cancelled';
+    }
+
     // Obter QR Code do Pix se for pagamento via Pix
     let pixQrCode = null;
     let pixCopyPaste = null;
@@ -242,7 +252,7 @@ Deno.serve(async (req) => {
         payment_method: paymentMethod.toLowerCase(),
         payment_method_type: paymentMethod.toLowerCase(),
         payment_gateway: "asaas",
-        status: paymentMethod === "CREDIT_CARD" ? "completed" : "pending",
+        status: orderStatus,
         shipping_address: {
           name: customer.name,
           email: customer.email,
@@ -265,8 +275,7 @@ Deno.serve(async (req) => {
         asaas_bank_slip_url: asaasPayment.bankSlipUrl,
         asaas_pix_qr_code: pixQrCode,
         asaas_pix_copy_paste: pixCopyPaste,
-        completed_at:
-          paymentMethod === "CREDIT_CARD" ? new Date().toISOString() : null,
+        completed_at: completedAt,
       })
       .select()
       .single();

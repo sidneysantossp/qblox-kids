@@ -28,6 +28,7 @@ const bannerSchema = z.object({
   button_text: z.string().optional(),
   link_url: z.string().optional(),
   image_url: z.string().optional(),
+  background_position_y: z.number().int().min(0).max(100),
   display_order: z.number().int().min(0, 'Ordem não pode ser negativa'),
   is_active: z.boolean(),
 });
@@ -50,6 +51,7 @@ export default function BannerFormPage() {
       button_text: 'VER LANÇAMENTOS',
       link_url: '/categoria/lancamentos',
       image_url: '',
+      background_position_y: 50,
       display_order: 0,
       is_active: true,
     },
@@ -77,6 +79,7 @@ export default function BannerFormPage() {
           button_text: data.button_text || 'VER LANÇAMENTOS',
           link_url: data.link_url || '/categoria/lancamentos',
           image_url: data.image_url || '',
+          background_position_y: data.background_position_y ?? 50,
           display_order: data.display_order || 0,
           is_active: data.is_active,
         });
@@ -186,10 +189,14 @@ export default function BannerFormPage() {
                   <FormItem>
                     <FormLabel>Título *</FormLabel>
                     <FormControl>
-                      <Input placeholder="COLECIONE. MONTE. AVENTURE-SE!" {...field} />
+                      <Textarea
+                        placeholder="<p>COLECIONE <strong>AGORA</strong><br>COM ESTILO</p>"
+                        rows={4}
+                        {...field}
+                      />
                     </FormControl>
                     <FormDescription>
-                      Use pontos (.) para separar partes do título
+                      Aceita apenas as tags HTML &lt;strong&gt;, &lt;br&gt; e &lt;p&gt;.
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -247,6 +254,7 @@ export default function BannerFormPage() {
                       src={imagePreview}
                       alt="Preview"
                       className="w-full h-48 object-cover rounded-lg"
+                      style={{ objectPosition: `center ${form.watch('background_position_y')}%` }}
                     />
                     <Button
                       type="button"
@@ -279,6 +287,37 @@ export default function BannerFormPage() {
                   </div>
                 )}
               </div>
+
+              <FormField
+                control={form.control}
+                name="background_position_y"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Posição vertical da imagem</FormLabel>
+                    <FormControl>
+                      <div className="space-y-3">
+                        <Input
+                          type="range"
+                          min="0"
+                          max="100"
+                          step="1"
+                          value={field.value}
+                          onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                        />
+                        <div className="flex items-center justify-between text-sm text-muted-foreground">
+                          <span>Topo</span>
+                          <span>{field.value}%</span>
+                          <span>Base</span>
+                        </div>
+                      </div>
+                    </FormControl>
+                    <FormDescription>
+                      Ajuste a imagem para cima ou para baixo dentro do slide.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
               <FormField
                 control={form.control}

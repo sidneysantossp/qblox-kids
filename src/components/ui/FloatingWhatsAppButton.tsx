@@ -11,8 +11,6 @@ export function FloatingWhatsAppButton() {
     const loadSettings = async () => {
       try {
         const data = await getWhatsAppSettings();
-        console.log('WhatsApp Settings carregadas:', data);
-        console.log('show_button value:', data?.show_button);
         setSettings(data);
       } catch (error) {
         console.error('Erro ao carregar configurações do WhatsApp:', error);
@@ -35,17 +33,13 @@ export function FloatingWhatsAppButton() {
 
   // Não mostrar se não há configurações ou se está inativo
   if (!settings || !settings.is_active) {
-    console.log('Botão WhatsApp oculto: sem configurações ou inativo');
     return null;
   }
 
   // Não mostrar se show_button está explicitamente definido como false
   if (settings.show_button === false) {
-    console.log('Botão WhatsApp oculto: show_button = false');
     return null;
   }
-
-  console.log('Botão WhatsApp visível');
 
   const handleClick = () => {
     let phone = settings.phone_number.replace(/\D/g, '');

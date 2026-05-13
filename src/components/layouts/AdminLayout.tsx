@@ -32,6 +32,7 @@ const navigation = [
   { name: 'Cupons', href: '/admin/cupons', icon: Ticket },
   { name: 'Banners Hero', href: '/admin/banners', icon: Image },
   { name: 'Seções Home', href: '/admin/secoes', icon: LayoutGrid },
+  { name: 'Coleções Temáticas', href: '/admin/colecoes-tematicas', icon: LayoutGrid },
   { name: 'Blog', href: '/admin/blog', icon: FileText },
   { name: 'Pagamentos', href: '/admin/pagamentos', icon: CreditCard },
   { name: 'Relatórios', href: '/admin/relatorios', icon: BarChart3 },

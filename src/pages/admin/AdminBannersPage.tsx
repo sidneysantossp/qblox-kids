@@ -31,6 +31,8 @@ interface HeroBanner {
 export default function AdminBannersPage() {
   const navigate = useNavigate();
   const [banners, setBanners] = useState<HeroBanner[]>([]);
+
+  const stripHtml = (value: string) => value.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
   const [loading, setLoading] = useState(true);
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
@@ -114,7 +116,7 @@ export default function AdminBannersPage() {
           <Card key={banner.id}>
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle className="text-lg">{banner.title}</CardTitle>
+                <CardTitle className="text-lg">{stripHtml(banner.title)}</CardTitle>
                 <div className="flex items-center gap-2">
                   <Button
                     variant="ghost"

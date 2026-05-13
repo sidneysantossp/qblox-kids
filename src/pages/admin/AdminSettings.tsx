@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Save, Package, TestTube, AlertCircle, Plug, Bug } from 'lucide-react';
 import { supabase } from '@/db/supabase';
+import { useAuth } from '@/contexts/AuthContext';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 interface Setting {
@@ -23,6 +24,7 @@ export default function AdminSettings() {
   const [userInfo, setUserInfo] = useState<{ email: string; role: string } | null>(null);
   const [connectionStatus, setConnectionStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [errorDetails, setErrorDetails] = useState<string>('');
+  const { profile, isAdmin } = useAuth();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -35,7 +37,7 @@ export default function AdminSettings() {
     if (user) {
       setUserInfo({
         email: user.email || '',
-        role: user.user_metadata?.role || 'user'
+        role: profile?.role || 'user'
       });
     }
   };
@@ -43,10 +45,6 @@ export default function AdminSettings() {
   const loadSettings = async () => {
     try {
       setLoading(true);
-      
-      // Check current user
-      const { data: { user } } = await supabase.auth.getUser();
-      console.log('Current user:', user?.email, 'Role:', user?.user_metadata?.role);
       
       const { data, error } = await supabase
         .from('settings')
@@ -106,15 +104,7 @@ export default function AdminSettings() {
         return;
       }
 
-      const userRole = user.user_metadata?.role;
-      console.log('=== SALVANDO CONFIGURAÇÕES ===');
-      console.log('Usuário:', user.email);
-      console.log('Role:', userRole);
-      console.log('User ID:', user.id);
-      console.log('Metadata completo:', JSON.stringify(user.user_metadata));
-
-      if (userRole !== 'admin') {
-        console.error('Usuário não é admin. Role atual:', userRole);
+      if (!isAdmin) {
         toast({
           title: 'Sem Permissão',
           description: 'Você precisa ser administrador para salvar configurações.',
@@ -134,11 +124,7 @@ export default function AdminSettings() {
         return;
       }
 
-      console.log('Salvando API Key:', correiosApiKey ? `${correiosApiKey.substring(0, 5)}***` : '(vazio)');
-      console.log('Salvando CEP Origem:', correiosCepOrigem);
-
       // Upsert Correios API Key
-      console.log('Tentando salvar API Key...');
       const { data: apiKeyData, error: apiKeyError } = await supabase
         .from('settings')
         .upsert(
@@ -155,12 +141,7 @@ export default function AdminSettings() {
         .select();
 
       if (apiKeyError) {
-        console.error('❌ ERRO ao salvar API key:', {
-          message: apiKeyError.message,
-          details: apiKeyError.details,
-          hint: apiKeyError.hint,
-          code: apiKeyError.code
-        });
+        console.error('Erro ao salvar API key:', apiKeyError);
         toast({
           title: 'Erro ao Salvar API Key',
           description: `${apiKeyError.message}${apiKeyError.hint ? ' - ' + apiKeyError.hint : ''}`,
@@ -168,10 +149,7 @@ export default function AdminSettings() {
         });
         return;
       }
-      console.log('✅ API Key salva com sucesso:', apiKeyData);
-
       // Upsert CEP Origem
-      console.log('Tentando salvar CEP Origem...');
       const { data: cepData, error: cepError } = await supabase
         .from('settings')
         .upsert(
@@ -188,12 +166,7 @@ export default function AdminSettings() {
         .select();
 
       if (cepError) {
-        console.error('❌ ERRO ao salvar CEP origem:', {
-          message: cepError.message,
-          details: cepError.details,
-          hint: cepError.hint,
-          code: cepError.code
-        });
+        console.error('Erro ao salvar CEP origem:', cepError);
         toast({
           title: 'Erro ao Salvar CEP',
           description: `${cepError.message}${cepError.hint ? ' - ' + cepError.hint : ''}`,
@@ -201,9 +174,6 @@ export default function AdminSettings() {
         });
         return;
       }
-      console.log('✅ CEP Origem salvo com sucesso:', cepData);
-
-      console.log('=== CONFIGURAÇÕES SALVAS COM SUCESSO ===');
       toast({
         title: 'Sucesso',
         description: 'Configurações salvas com sucesso',

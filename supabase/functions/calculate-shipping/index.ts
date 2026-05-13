@@ -7,18 +7,19 @@ const corsHeaders = {
 
 interface ShippingRequest {
   cep_destino: string;
-  peso: number; // em gramas
-  comprimento: number; // em cm
-  altura: number; // em cm
-  largura: number; // em cm
+  peso: number;
+  comprimento: number;
+  altura: number;
+  largura: number;
 }
 
-interface CorreiosResponse {
-  servico: string;
-  nome: string;
-  valor: number;
-  prazo: number;
-  erro?: string;
+interface ShippingOption {
+  id: string;
+  name: string;
+  price: number;
+  delivery_time: string;
+  company: string;
+  isFallback?: boolean;
 }
 
 Deno.serve(async (req) => {
@@ -116,31 +117,27 @@ Deno.serve(async (req) => {
       return false;
     };
 
-    // Calculate shipping for different services
-    // Using Correios API structure (this is a common format)
     const servicos = [
       { codigo: '04014', nome: 'SEDEX' },
       { codigo: '04510', nome: 'PAC' }
     ];
 
-    const resultados: any[] = [];
+    const options: ShippingOption[] = [];
 
-    // Adicionar opção Moto Boy - Entrega Full (somente para Grande São Paulo)
     if (isGreaterSaoPaulo(cepDestinoLimpo)) {
-      resultados.push({
-        servico: 'motoboy',
-        nome: 'Moto Boy - Entrega Full',
-        valor: 15.00,
-        prazo: 0,
+      options.push({
+        id: 'motoboy',
+        name: 'Moto Boy - Entrega Full',
+        price: 18.0,
+        delivery_time: 'Mesmo dia',
+        company: 'Moto Boy',
       });
     }
 
     for (const servico of servicos) {
       try {
-        // Call Correios API
-        // Note: The actual Correios API endpoint may vary. This is a common structure.
         const correiosUrl = `https://www.correios.com.br/preco/v1/nacional/encomenda/${cepOrigemLimpo}/${cepDestinoLimpo}`;
-        
+
         const response = await fetch(correiosUrl, {
           method: 'POST',
           headers: {
@@ -149,11 +146,11 @@ Deno.serve(async (req) => {
           },
           body: JSON.stringify({
             servico: servico.codigo,
-            peso: peso, // Already in grams
+            peso,
             comprimento,
             altura,
             largura,
-            formato: 1, // Caixa/Pacote
+            formato: 1,
             diametro: 0,
             maoPropria: 'N',
             valorDeclarado: 0,
@@ -163,47 +160,51 @@ Deno.serve(async (req) => {
 
         if (response.ok) {
           const data = await response.json();
-          
-          resultados.push({
-            servico: servico.codigo,
-            nome: servico.nome,
-            valor: parseFloat(data.valor || data.preco || '0'),
-            prazo: parseInt(data.prazo || data.prazoEntrega || '0'),
+
+          options.push({
+            id: servico.codigo,
+            name: servico.nome,
+            price: parseFloat(data.valor || data.preco || '0'),
+            delivery_time: `${parseInt(data.prazo || data.prazoEntrega || '0')} dia(s) úteis`,
+            company: 'Correios',
           });
         } else {
-          // If API fails, return estimated values for demo purposes
-          // In production, you should handle this properly
-          const valorEstimado = servico.codigo === '04014' ? 25.00 : 15.00;
-          const prazoEstimado = servico.codigo === '04014' ? 2 : 5;
-          
-          resultados.push({
-            servico: servico.codigo,
-            nome: servico.nome,
-            valor: valorEstimado,
-            prazo: prazoEstimado,
+          const estimatedPrice = servico.codigo === '04014' ? 25.0 : 15.9;
+          const estimatedDays = servico.codigo === '04014' ? 2 : 5;
+
+          options.push({
+            id: servico.codigo,
+            name: servico.nome,
+            price: estimatedPrice,
+            delivery_time: `${estimatedDays} dia(s) úteis`,
+            company: 'Correios',
+            isFallback: true,
           });
         }
       } catch (error) {
         console.error(`Erro ao calcular ${servico.nome}:`, error);
-        
-        // Return estimated values on error
-        const valorEstimado = servico.codigo === '04014' ? 25.00 : 15.00;
-        const prazoEstimado = servico.codigo === '04014' ? 2 : 5;
-        
-        resultados.push({
-          servico: servico.codigo,
-          nome: servico.nome,
-          valor: valorEstimado,
-          prazo: prazoEstimado,
+
+        const estimatedPrice = servico.codigo === '04014' ? 25.0 : 15.9;
+        const estimatedDays = servico.codigo === '04014' ? 2 : 5;
+
+        options.push({
+          id: servico.codigo,
+          name: servico.nome,
+          price: estimatedPrice,
+          delivery_time: `${estimatedDays} dia(s) úteis`,
+          company: 'Correios',
+          isFallback: true,
         });
       }
     }
 
+    options.sort((a, b) => a.price - b.price);
+
     return new Response(
-      JSON.stringify({ opcoes: resultados }),
-      { 
-        status: 200, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      JSON.stringify({ options }),
+      {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
     );
 

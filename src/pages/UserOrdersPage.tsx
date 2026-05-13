@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Package, Calendar, CreditCard, RefreshCw, ShoppingBag, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { getUserOrders, retryOrderPayment, verifyStripePayment } from '@/db/api';
+import { getUserOrders, retryOrderPayment, verifyAsaasPayment, verifyStripePayment } from '@/db/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import type { Order } from '@/types';
@@ -15,6 +15,7 @@ import UserDashboardLayout from '@/components/layouts/UserDashboardLayout';
 export default function UserOrdersPage() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [refreshingOrders, setRefreshingOrders] = useState<Set<string>>(new Set());
@@ -44,13 +45,18 @@ export default function UserOrdersPage() {
     }
   };
 
-  const handleRetryPayment = async (orderId: string) => {
+  const handleRetryPayment = async (order: Order) => {
     try {
-      const response = await retryOrderPayment(orderId);
+      if (order.payment_gateway === 'asaas' && order.asaas_payment_id) {
+        navigate(`/pagamento-asaas?payment_id=${order.asaas_payment_id}&order_id=${order.id}`);
+        return;
+      }
 
-      if (response?.data?.url) {
-        window.open(response.data.url, '_blank');
-        
+      const response = await retryOrderPayment(order.id);
+
+      if (response?.url) {
+        window.open(response.url, '_blank');
+
         toast({
           title: "Redirecionando para pagamento",
           description: "Você será redirecionado para completar o pagamento.",
@@ -67,38 +73,54 @@ export default function UserOrdersPage() {
   };
 
   const handleRefreshOrder = async (order: Order) => {
-    if (!order.stripe_session_id) {
-      toast({
-        title: "Erro",
-        description: "Pedido não possui sessão de pagamento",
-        variant: "destructive",
-      });
-      return;
-    }
-
     try {
       setRefreshingOrders(prev => new Set(prev).add(order.id));
+
+      if (order.payment_gateway === 'asaas') {
+        if (!order.asaas_payment_id) {
+          throw new Error('Pedido não possui identificador de pagamento Asaas');
+        }
+
+        const response = await verifyAsaasPayment(order.asaas_payment_id);
+
+        if (response?.verified) {
+          toast({
+            title: response.status === 'completed' ? 'Pagamento confirmado!' : 'Pedido atualizado',
+            description:
+              response.status === 'completed'
+                ? 'O status do pedido foi atualizado.'
+                : 'O pedido ainda está aguardando pagamento.',
+          });
+          await loadOrders();
+        }
+
+        return;
+      }
+
+      if (!order.stripe_session_id) {
+        throw new Error('Pedido não possui sessão de pagamento');
+      }
 
       const response = await verifyStripePayment(order.stripe_session_id);
 
       if (response?.data?.verified) {
         toast({
-          title: "Pagamento confirmado!",
-          description: "O status do pedido foi atualizado.",
+          title: 'Pagamento confirmado!',
+          description: 'O status do pedido foi atualizado.',
         });
-        await loadOrders(); // Recarregar pedidos
+        await loadOrders();
       } else {
         toast({
-          title: "Pagamento pendente",
-          description: "O pagamento ainda não foi confirmado.",
+          title: 'Pagamento pendente',
+          description: 'O pagamento ainda não foi confirmado.',
         });
       }
     } catch (error: any) {
       console.error('Erro ao atualizar pedido:', error);
       toast({
-        title: "Erro ao atualizar pedido",
+        title: 'Erro ao atualizar pedido',
         description: error.message,
-        variant: "destructive",
+        variant: 'destructive',
       });
     } finally {
       setRefreshingOrders(prev => {
@@ -131,6 +153,11 @@ export default function UserOrdersPage() {
       style: 'currency',
       currency: 'BRL',
     }).format(amount);
+  };
+
+  const getOrderItemTotal = (order: Order, item: Order['items'][number]) => {
+    const unitPrice = order.payment_gateway === 'stripe' ? item.price / 100 : item.price;
+    return unitPrice * item.quantity;
   };
 
   const formatDate = (dateString: string) => {
@@ -212,7 +239,7 @@ export default function UserOrdersPage() {
                 </div>
                 <div className="flex items-center gap-3">
                   {getStatusBadge(order.status)}
-                  {order.status === 'pending' && order.stripe_session_id && (
+                  {order.status === 'pending' && (order.stripe_session_id || order.asaas_payment_id) && (
                     <Button
                       size="sm"
                       variant="outline"
@@ -259,7 +286,7 @@ export default function UserOrdersPage() {
                         </div>
                       </div>
                       <span className="font-medium">
-                        {formatCurrency((item.price / 100) * item.quantity)}
+                        {formatCurrency(getOrderItemTotal(order, item))}
                       </span>
                     </div>
                   ))}
@@ -316,7 +343,7 @@ export default function UserOrdersPage() {
                     <span>Pagamento pendente. Complete o pagamento para processar o pedido.</span>
                     <Button
                       size="sm"
-                      onClick={() => handleRetryPayment(order.id)}
+                      onClick={() => handleRetryPayment(order)}
                       className="ml-4"
                     >
                       Pagar Agora

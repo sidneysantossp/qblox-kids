@@ -1,27 +1,64 @@
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
+import { Textarea } from '@/components/ui/textarea';
+import { Dropzone, DropzoneContent, DropzoneEmptyState } from '@/components/dropzone';
+import { useSupabaseUpload } from '@/hooks/use-supabase-upload';
+import { supabase } from '@/db/supabase';
 import { useToast } from '@/hooks/use-toast';
-import { 
-  getAllHomepageSections, 
-  updateHomepageSection 
+import {
+  getAllHomepageSections,
+  updateHomepageSection
 } from '@/db/admin-api';
-import { 
-  ArrowUp, 
-  ArrowDown, 
-  Pencil, 
-  Check, 
-  X 
+import {
+  ArrowUp,
+  ArrowDown,
+  Pencil,
+  Check,
+  X,
+  Settings,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import type { HomepageSection } from '@/types';
+
+interface SpecialHighlightConfig {
+  badge_text?: string;
+  headline?: string;
+  description?: string;
+  features?: string[];
+  image_url?: string;
+  price_prefix?: string;
+  price_value?: string;
+  primary_cta_text?: string;
+  primary_cta_url?: string;
+  secondary_cta_text?: string;
+  secondary_cta_url?: string;
+}
+
+const getDefaultSpecialHighlightConfig = (): SpecialHighlightConfig => ({
+  badge_text: 'EDIÇÃO LIMITADA',
+  headline: 'Coleção Guardiões Galácticos',
+  description: 'Uma seleção exclusiva de minifiguras inspiradas em aventuras espaciais, perfeita para colecionadores que buscam peças únicas.',
+  features: ['6 personagens exclusivos', 'Acessórios especiais inclusos', 'Embalagem colecionável'],
+  image_url: '',
+  price_prefix: 'A partir de',
+  price_value: 'R$ 149,90',
+  primary_cta_text: 'Comprar agora',
+  primary_cta_url: '/produto/colecao-guardioes-galacticos',
+  secondary_cta_text: 'Ver detalhes',
+  secondary_cta_url: '/produto/colecao-guardioes-galacticos',
+});
 
 export default function AdminSections() {
   const [sections, setSections] = useState<HomepageSection[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState('');
+  const [expandedConfigId, setExpandedConfigId] = useState<string | null>(null);
+  const [specialHighlightConfig, setSpecialHighlightConfig] = useState<SpecialHighlightConfig>(getDefaultSpecialHighlightConfig());
   const { toast } = useToast();
 
   useEffect(() => {
@@ -86,6 +123,44 @@ export default function AdminSections() {
     }
   };
 
+  const specialHighlightImageUpload = useSupabaseUpload({
+    bucketName: 'images',
+    path: 'sections',
+    allowedMimeTypes: ['image/*'],
+    maxFileSize: 5 * 1024 * 1024,
+    maxFiles: 1,
+    upsert: false,
+    supabase,
+  });
+
+  useEffect(() => {
+    const fileToUpload = specialHighlightImageUpload.files[0];
+    const alreadyUploaded = fileToUpload && specialHighlightImageUpload.successes.includes(fileToUpload.name);
+
+    if (!fileToUpload || fileToUpload.errors.length > 0 || alreadyUploaded || specialHighlightImageUpload.loading) {
+      return;
+    }
+
+    void specialHighlightImageUpload.onUpload();
+  }, [specialHighlightImageUpload.files, specialHighlightImageUpload.successes, specialHighlightImageUpload.loading, specialHighlightImageUpload.onUpload]);
+
+  useEffect(() => {
+    const uploadedFile = specialHighlightImageUpload.files[0];
+    const uploadedSuccessfully = uploadedFile && specialHighlightImageUpload.successes.includes(uploadedFile.name);
+
+    if (!uploadedSuccessfully) {
+      return;
+    }
+
+    const filePath = `sections/${uploadedFile.name}`;
+    const { data } = supabase.storage.from('images').getPublicUrl(filePath);
+    setSpecialHighlightConfig((prev) => ({ ...prev, image_url: data.publicUrl }));
+    toast({
+      title: 'Sucesso',
+      description: 'Imagem enviada com sucesso',
+    });
+  }, [specialHighlightImageUpload.files, specialHighlightImageUpload.successes, toast]);
+
   const handleToggleActive = async (section: HomepageSection) => {
     try {
       const newStatus = !section.is_active;
@@ -148,11 +223,9 @@ export default function AdminSections() {
     const nextOrder = nextSection.display_order;
 
     try {
-      // Troca as ordens
       await updateHomepageSection(section.id, { display_order: nextOrder });
       await updateHomepageSection(nextSection.id, { display_order: currentOrder });
 
-      // Atualiza o estado local
       const newSections = [...sections];
       newSections[index] = { ...section, display_order: nextOrder };
       newSections[index + 1] = { ...nextSection, display_order: currentOrder };
@@ -168,6 +241,54 @@ export default function AdminSections() {
       toast({
         title: 'Erro',
         description: 'Não foi possível alterar a ordem',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleToggleConfig = (section: HomepageSection) => {
+    if (expandedConfigId === section.id) {
+      setExpandedConfigId(null);
+      setSpecialHighlightConfig(getDefaultSpecialHighlightConfig());
+      specialHighlightImageUpload.setFiles([]);
+      specialHighlightImageUpload.setErrors([]);
+      return;
+    }
+
+    setExpandedConfigId(section.id);
+    setSpecialHighlightConfig({
+      ...getDefaultSpecialHighlightConfig(),
+      ...(section.config || {}),
+    });
+    specialHighlightImageUpload.setFiles([]);
+    specialHighlightImageUpload.setErrors([]);
+  };
+
+  const handleFeatureChange = (index: number, value: string) => {
+    setSpecialHighlightConfig((prev) => {
+      const features = [...(prev.features || [])];
+      features[index] = value;
+      return { ...prev, features };
+    });
+  };
+
+  const handleSaveSpecialHighlightConfig = async (sectionId: string) => {
+    try {
+      await updateHomepageSection(sectionId, { config: specialHighlightConfig as Record<string, any> });
+      setSections((prev) =>
+        prev.map((section) =>
+          section.id === sectionId ? { ...section, config: specialHighlightConfig as Record<string, any> } : section
+        )
+      );
+      toast({
+        title: 'Sucesso',
+        description: 'Configuração do Destaque Especial atualizada com sucesso',
+      });
+    } catch (error) {
+      console.error('Erro ao atualizar configuração:', error);
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível salvar a configuração do Destaque Especial',
         variant: 'destructive',
       });
     }
@@ -208,7 +329,8 @@ export default function AdminSections() {
             </thead>
             <tbody>
               {sections.map((section, index) => (
-                <tr key={section.id} className="border-b last:border-0 hover:bg-muted/30">
+                <Fragment key={section.id}>
+                <tr className="border-b last:border-0 hover:bg-muted/30">
                   <td className="p-4">
                     {editingId === section.id ? (
                       <div className="flex items-center gap-2">
@@ -277,6 +399,17 @@ export default function AdminSections() {
                   </td>
                   <td className="p-4">
                     <div className="flex items-center justify-center gap-1">
+                      {section.section_type === 'special_highlight' && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleToggleConfig(section)}
+                          title="Configurar Destaque Especial"
+                          className="hover:bg-muted [&_svg]:!text-muted-foreground hover:[&_svg]:!text-foreground"
+                        >
+                          {expandedConfigId === section.id ? <ChevronUp className="h-4 w-4" /> : <Settings className="h-4 w-4" />}
+                        </Button>
+                      )}
                       <Button
                         size="sm"
                         variant="outline"
@@ -300,6 +433,131 @@ export default function AdminSections() {
                     </div>
                   </td>
                 </tr>
+                {section.section_type === 'special_highlight' && expandedConfigId === section.id && (
+                  <tr className="border-b last:border-0 bg-muted/20">
+                    <td colSpan={5} className="p-6">
+                      <div className="grid gap-6 lg:grid-cols-2">
+                        <div className="space-y-4">
+                          <div>
+                            <label className="text-sm font-medium">Badge</label>
+                            <Input
+                              value={specialHighlightConfig.badge_text || ''}
+                              onChange={(e) => setSpecialHighlightConfig((prev) => ({ ...prev, badge_text: e.target.value }))}
+                            />
+                          </div>
+                          <div>
+                            <label className="text-sm font-medium">Headline</label>
+                            <Input
+                              value={specialHighlightConfig.headline || ''}
+                              onChange={(e) => setSpecialHighlightConfig((prev) => ({ ...prev, headline: e.target.value }))}
+                            />
+                          </div>
+                          <div>
+                            <label className="text-sm font-medium">Descrição</label>
+                            <Textarea
+                              rows={4}
+                              value={specialHighlightConfig.description || ''}
+                              onChange={(e) => setSpecialHighlightConfig((prev) => ({ ...prev, description: e.target.value }))}
+                            />
+                          </div>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <label className="text-sm font-medium">Prefixo do preço</label>
+                              <Input
+                                value={specialHighlightConfig.price_prefix || ''}
+                                onChange={(e) => setSpecialHighlightConfig((prev) => ({ ...prev, price_prefix: e.target.value }))}
+                              />
+                            </div>
+                            <div>
+                              <label className="text-sm font-medium">Preço</label>
+                              <Input
+                                value={specialHighlightConfig.price_value || ''}
+                                onChange={(e) => setSpecialHighlightConfig((prev) => ({ ...prev, price_value: e.target.value }))}
+                              />
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <label className="text-sm font-medium">CTA principal</label>
+                              <Input
+                                value={specialHighlightConfig.primary_cta_text || ''}
+                                onChange={(e) => setSpecialHighlightConfig((prev) => ({ ...prev, primary_cta_text: e.target.value }))}
+                              />
+                            </div>
+                            <div>
+                              <label className="text-sm font-medium">URL CTA principal</label>
+                              <Input
+                                value={specialHighlightConfig.primary_cta_url || ''}
+                                onChange={(e) => setSpecialHighlightConfig((prev) => ({ ...prev, primary_cta_url: e.target.value }))}
+                              />
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <label className="text-sm font-medium">CTA secundário</label>
+                              <Input
+                                value={specialHighlightConfig.secondary_cta_text || ''}
+                                onChange={(e) => setSpecialHighlightConfig((prev) => ({ ...prev, secondary_cta_text: e.target.value }))}
+                              />
+                            </div>
+                            <div>
+                              <label className="text-sm font-medium">URL CTA secundário</label>
+                              <Input
+                                value={specialHighlightConfig.secondary_cta_url || ''}
+                                onChange={(e) => setSpecialHighlightConfig((prev) => ({ ...prev, secondary_cta_url: e.target.value }))}
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="space-y-4">
+                          <div>
+                            <label className="text-sm font-medium">Imagem</label>
+                            {specialHighlightConfig.image_url && (
+                              <div className="relative mt-2 w-full h-48 rounded-lg overflow-hidden border bg-muted">
+                                <img src={specialHighlightConfig.image_url} alt="Preview" className="w-full h-full object-cover" />
+                                <Button
+                                  type="button"
+                                  variant="destructive"
+                                  size="icon"
+                                  className="absolute top-2 right-2"
+                                  onClick={() => setSpecialHighlightConfig((prev) => ({ ...prev, image_url: '' }))}
+                                >
+                                  <X className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            )}
+                            <div className="mt-3">
+                              <Dropzone {...specialHighlightImageUpload} className="bg-background">
+                                <DropzoneEmptyState />
+                                <DropzoneContent />
+                              </Dropzone>
+                            </div>
+                          </div>
+
+                          <div className="space-y-3">
+                            <label className="text-sm font-medium">Benefícios</label>
+                            {[0, 1, 2].map((featureIndex) => (
+                              <Input
+                                key={featureIndex}
+                                value={specialHighlightConfig.features?.[featureIndex] || ''}
+                                onChange={(e) => handleFeatureChange(featureIndex, e.target.value)}
+                                placeholder={`Benefício ${featureIndex + 1}`}
+                              />
+                            ))}
+                          </div>
+
+                          <div className="pt-2">
+                            <Button onClick={() => handleSaveSpecialHighlightConfig(section.id)}>
+                              Salvar configuração do Destaque Especial
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                )}
+                </Fragment>
               ))}
             </tbody>
           </table>

@@ -65,7 +65,33 @@ pnpm dev
 
 # Build para produção
 pnpm build
+
+# Validar build localmente
+pnpm preview
 ```
+
+## 🚀 Deploy em Apache/XAMPP
+
+A aplicação é uma SPA React + Vite publicada como arquivos estáticos.
+
+### Fluxo recomendado
+
+```bash
+pnpm build
+```
+
+Depois publique o conteúdo da pasta `dist/` na raiz do domínio configurado no Apache.
+
+### Rewrite para SPA
+
+O arquivo `public/.htaccess` já inclui o fallback necessário para rotas como:
+
+- `/checkout`
+- `/produto/:id`
+- `/admin`
+- `/central-de-ajuda`
+
+Sem esse rewrite, refresh e acesso direto a rotas internas retornarão 404 no Apache.
 
 ## ⚙️ Configuração
 
@@ -80,18 +106,20 @@ VITE_SUPABASE_ANON_KEY=sua-chave-anonima-do-supabase
 VITE_STRIPE_PUBLIC_KEY=pk_test_placeholder
 ```
 
-### 2. Configurar Stripe
+### 2. Configurar Pagamentos
 
-1. Crie uma conta em [stripe.com](https://stripe.com)
-2. Acesse o Dashboard do Stripe
-3. Vá em **Developers** > **API keys**
-4. Copie a **Publishable key** (começa com `pk_test_` ou `pk_live_`)
-5. Substitua `pk_test_placeholder` no arquivo `.env` pela sua chave
+#### Asaas (gateway principal no lançamento)
 
-**Importante**: 
-- Use `pk_test_` para ambiente de testes
-- Use `pk_live_` apenas em produção
-- Nunca compartilhe suas chaves secretas (Secret key)
+1. Acesse `/admin/pagamentos`
+2. Preencha `asaas_api_key`
+3. Escolha `sandbox` ou `production`
+4. Salve as configurações
+
+O checkout principal usa Asaas para PIX, boleto e cartão.
+
+#### Stripe (suporte legado)
+
+O projeto ainda contém integração com Stripe, mas ela não é o fluxo principal do go-live.
 
 ### 3. Banco de Dados Supabase
 
@@ -101,8 +129,9 @@ O projeto já está configurado com as seguintes tabelas:
 - `cart_items` - Itens do carrinho
 - `profiles` - Perfis de usuários com endereço
 - `coupons` - Cupons de desconto
-- `orders` - Pedidos realizados (com integração Stripe)
-  - Campos Stripe: `stripe_session_id`, `stripe_payment_intent_id`
+- `orders` - Pedidos realizados
+  - Campos Stripe legados: `stripe_session_id`, `stripe_payment_intent_id`
+  - Campos Asaas: `asaas_payment_id`, `asaas_invoice_url`, `asaas_bank_slip_url`, `asaas_pix_qr_code`, `asaas_pix_copy_paste`
   - Informações do cliente: `customer_email`, `customer_name`
   - Status: `pending`, `completed`, `cancelled`, `refunded`
   - Timestamps: `created_at`, `updated_at`, `completed_at`
@@ -128,46 +157,28 @@ Ao digitar o CEP no formulário de registro:
 
 ## 💳 Sistema de Pagamento
 
-### Stripe Integration
+### Asaas Integration
 
-O pagamento é processado via Stripe com os seguintes passos:
+O checkout principal usa Asaas com os seguintes passos:
 
-1. **Checkout**: Usuário clica em "Finalizar Compra" no carrinho
-2. **Redirecionamento**: Sistema cria uma sessão de checkout no Stripe e redireciona o usuário
-3. **Pagamento Seguro**: Usuário insere dados do cartão na página segura do Stripe
-4. **Verificação**: Após pagamento, sistema verifica e confirma a transação
-5. **Confirmação**: Pedido é marcado como concluído e usuário recebe confirmação
-6. **Histórico**: Pedido fica disponível em "Meus Pedidos"
+1. **Checkout**: Usuário informa entrega, frete e método de pagamento
+2. **Criação da cobrança**: O frontend chama a Edge Function `create_asaas_payment`
+3. **Pagamento**: O cliente conclui PIX, boleto ou cartão
+4. **Verificação**: A página `/pagamento-asaas` consulta o status da cobrança
+5. **Confirmação**: O pedido é atualizado conforme o retorno do Asaas
+6. **Histórico**: O pedido fica disponível em "Meus Pedidos"
 
 ### Funcionalidades de Pagamento
 
-- ✅ **Checkout Seguro**: Processamento via Stripe Checkout
-- ✅ **Verificação Automática**: Confirmação de pagamento em tempo real
-- ✅ **Histórico de Pedidos**: Página "Meus Pedidos" para acompanhamento
-- ✅ **Retry de Pagamento**: Possibilidade de retentar pagamento de pedidos pendentes
-- ✅ **Atualização Manual**: Botão para atualizar status de pedidos pendentes
-- ✅ **Painel Admin**: Visualização de todos os pedidos com detalhes de pagamento
-- ✅ **Múltiplas Moedas**: Suporte a BRL e outras moedas
-- ✅ **Guest Checkout**: Compra sem necessidade de cadastro (opcional)
+- ✅ **PIX, boleto e cartão** via Asaas
+- ✅ **Verificação de pagamento** via Edge Function
+- ✅ **Histórico de pedidos** com dados do gateway principal
+- ✅ **Painel Admin** para configurar credenciais do Asaas
+- ✅ **Fluxo de pagamento hospedado pelo backend Supabase**
 
-### Configuração do Stripe
+### Stripe (legado)
 
-Para configurar o sistema de pagamentos, siga o guia completo em [STRIPE_SETUP.md](./STRIPE_SETUP.md).
-
-**Resumo rápido**:
-
-1. Crie uma conta em [stripe.com](https://stripe.com)
-2. Obtenha sua **Secret Key** (sk_test_... ou sk_live_...)
-3. Configure no Supabase:
-   - Acesse **Settings** → **Edge Functions** → **Secrets**
-   - Adicione `STRIPE_SECRET_KEY` com sua chave
-4. Teste com cartões de teste do Stripe
-
-**Cartões de Teste**:
-- Sucesso: `4242 4242 4242 4242`
-- Falha: `4000 0000 0000 0002`
-
-**Nota**: O sistema usa Supabase Edge Functions para processar pagamentos de forma segura, mantendo as chaves secretas protegidas no servidor.
+O projeto ainda contém integração com Stripe para compatibilidade, mas o lançamento inicial deve operar com Asaas como fluxo principal.
 
 ## 🎫 Sistema de Cupons
 

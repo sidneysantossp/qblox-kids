@@ -1,7 +1,6 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 
 import routes from './routes';
-import { Navbar } from '@/components/layouts/Navbar';
 import { TopBar } from '@/components/brickstore/TopBar';
 import { BrickStoreHeader } from '@/components/brickstore/BrickStoreHeader';
 import { PageLayout } from '@/components/layouts/PageLayout';
@@ -55,8 +54,6 @@ function App() {
             />
           ))}
 
-          {/* Fallback redirect */}
-          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
         <Toaster />
       </CartProvider>

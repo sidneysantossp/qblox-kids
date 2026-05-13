@@ -137,11 +137,17 @@ export async function deleteHeroBanner(id: string) {
 
 // ==================== MINI BANNERS ====================
 
-export async function getAllMiniBanners() {
-  const { data, error } = await supabase
+export async function getAllMiniBanners(placement?: string) {
+  let query = supabase
     .from('mini_banners')
     .select('*')
     .order('display_order', { ascending: true });
+
+  if (placement) {
+    query = query.eq('placement', placement);
+  }
+
+  const { data, error } = await query;
 
   if (error) throw error;
   return Array.isArray(data) ? data : [];

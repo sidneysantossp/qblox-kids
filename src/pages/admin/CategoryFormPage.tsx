@@ -8,6 +8,9 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
+import { Dropzone, DropzoneContent, DropzoneEmptyState } from '@/components/dropzone';
+import { useSupabaseUpload } from '@/hooks/use-supabase-upload';
+import { supabase } from '@/db/supabase';
 import {
   Form,
   FormControl,
@@ -18,13 +21,12 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { toast } from 'sonner';
-import { ArrowLeft, Upload, X, Loader2, Trash2 } from 'lucide-react';
+import { ArrowLeft, X, Loader2, Trash2 } from 'lucide-react';
 import {
   getAllCategories,
   createCategory,
   updateCategory,
   deleteCategory,
-  uploadImage,
 } from '@/db/admin-api';
 import type { Category } from '@/types';
 import {
@@ -57,7 +59,6 @@ export default function CategoryFormPage() {
 
   const [isLoading, setIsLoading] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [uploadingImage, setUploadingImage] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [imagePreview, setImagePreview] = useState<string>('');
 
@@ -112,41 +113,48 @@ export default function CategoryFormPage() {
     }
   };
 
-  // Upload de imagem
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const categoryImageUpload = useSupabaseUpload({
+    bucketName: 'images',
+    path: 'categories',
+    allowedMimeTypes: ['image/*'],
+    maxFileSize: 5 * 1024 * 1024,
+    maxFiles: 1,
+    upsert: false,
+    supabase,
+  });
 
-    // Validar tamanho (máx 1MB)
-    if (file.size > 1024 * 1024) {
-      toast.error('Imagem muito grande. Tamanho máximo: 1MB');
+  useEffect(() => {
+    const fileToUpload = categoryImageUpload.files[0];
+    const alreadyUploaded = fileToUpload && categoryImageUpload.successes.includes(fileToUpload.name);
+
+    if (!fileToUpload || fileToUpload.errors.length > 0 || alreadyUploaded || categoryImageUpload.loading) {
       return;
     }
 
-    // Validar tipo
-    if (!file.type.startsWith('image/')) {
-      toast.error('Arquivo deve ser uma imagem');
+    void categoryImageUpload.onUpload();
+  }, [categoryImageUpload.files, categoryImageUpload.successes, categoryImageUpload.loading, categoryImageUpload.onUpload]);
+
+  useEffect(() => {
+    const uploadedFile = categoryImageUpload.files[0];
+    const uploadedSuccessfully = uploadedFile && categoryImageUpload.successes.includes(uploadedFile.name);
+
+    if (!uploadedSuccessfully) {
       return;
     }
 
-    try {
-      setUploadingImage(true);
-      const imageUrl = await uploadImage(file, 'images');
-      form.setValue('image_url', imageUrl);
-      setImagePreview(imageUrl);
-      toast.success('Imagem enviada com sucesso');
-    } catch (error) {
-      console.error('Erro ao fazer upload:', error);
-      toast.error('Erro ao fazer upload da imagem');
-    } finally {
-      setUploadingImage(false);
-    }
-  };
+    const filePath = `categories/${uploadedFile.name}`;
+    const { data } = supabase.storage.from('images').getPublicUrl(filePath);
+    form.setValue('image_url', data.publicUrl, { shouldDirty: true });
+    setImagePreview(data.publicUrl);
+    toast.success('Imagem enviada com sucesso');
+  }, [categoryImageUpload.files, categoryImageUpload.successes, form]);
 
   // Remover imagem
   const handleRemoveImage = () => {
     form.setValue('image_url', '');
     setImagePreview('');
+    categoryImageUpload.setFiles([]);
+    categoryImageUpload.setErrors([]);
   };
 
   // Gerar slug automaticamente a partir do nome
@@ -389,42 +397,10 @@ export default function CategoryFormPage() {
                               </div>
                             )}
 
-                            {/* Upload button */}
-                            <div className="flex items-center gap-4">
-                              <Input
-                                type="file"
-                                accept="image/*"
-                                onChange={handleImageUpload}
-                                disabled={uploadingImage}
-                                className="hidden"
-                                id="image-upload"
-                              />
-                              <label htmlFor="image-upload">
-                                <Button
-                                  type="button"
-                                  variant="outline"
-                                  disabled={uploadingImage}
-                                  asChild
-                                >
-                                  <span>
-                                    {uploadingImage ? (
-                                      <>
-                                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                        Enviando...
-                                      </>
-                                    ) : (
-                                      <>
-                                        <Upload className="h-4 w-4 mr-2" />
-                                        Escolher Imagem
-                                      </>
-                                    )}
-                                  </span>
-                                </Button>
-                              </label>
-                              <span className="text-sm text-muted-foreground">
-                                Tamanho máximo: 1MB
-                              </span>
-                            </div>
+                            <Dropzone {...categoryImageUpload} className="bg-background">
+                              <DropzoneEmptyState />
+                              <DropzoneContent />
+                            </Dropzone>
 
                             {/* URL manual */}
                             <div className="space-y-2">

@@ -471,11 +471,17 @@ export const getSiteSettingByKey = async (key: string): Promise<SiteSetting | nu
 export const updateSiteSetting = async (key: string, value: string) => {
   const { data, error } = await supabase
     .from('site_settings')
-    .update({ setting_value: value, updated_at: new Date().toISOString() })
-    .eq('setting_key', key)
+    .upsert(
+      {
+        setting_key: key,
+        setting_value: value,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: 'setting_key' }
+    )
     .select()
     .maybeSingle();
-  
+
   if (error) throw error;
   return data;
 };
@@ -495,13 +501,14 @@ export const getActiveHeroBanners = async (): Promise<HeroBanner[]> => {
 
 // ========== Mini Banners ==========
 
-export const getActiveMiniBanners = async (): Promise<MiniBanner[]> => {
+export const getActiveMiniBanners = async (placement = 'promo_mini', limit = 2): Promise<MiniBanner[]> => {
   const { data, error } = await supabase
     .from('mini_banners')
     .select('*')
     .eq('is_active', true)
+    .eq('placement', placement)
     .order('display_order', { ascending: true })
-    .limit(2);
+    .limit(limit);
 
   if (error) throw error;
   return Array.isArray(data) ? data : [];
@@ -528,7 +535,84 @@ export interface ShippingOption {
   price: number;
   delivery_time: string;
   company: string;
+  isFallback?: boolean;
 }
+
+const FREE_SHIPPING_THRESHOLD = 99;
+const STANDARD_SHIPPING_PRICE = 15.9;
+const MOTOBOY_SHIPPING_PRICE = 18;
+
+const isGreaterSaoPaulo = (cep: string): boolean => {
+  const cleanCep = cep.replace(/\D/g, '');
+  const cepNum = parseInt(cleanCep.substring(0, 5));
+
+  if ((cepNum >= 1000 && cepNum <= 5999) || (cepNum >= 8000 && cepNum <= 8499)) {
+    return true;
+  }
+
+  if (cepNum >= 9000 && cepNum <= 9999) {
+    return true;
+  }
+
+  if (cepNum >= 7000 && cepNum <= 7299) {
+    return true;
+  }
+
+  if (cepNum >= 6000 && cepNum <= 6299) {
+    return true;
+  }
+
+  if (cepNum >= 6300 && cepNum <= 6899) {
+    return true;
+  }
+
+  if (cepNum >= 8700 && cepNum <= 8899) {
+    return true;
+  }
+
+  return false;
+};
+
+const buildFallbackShippingOptions = (destinationCep: string, cartTotal: number): ShippingOption[] => {
+  const isFreeShipping = cartTotal >= FREE_SHIPPING_THRESHOLD;
+  const options: ShippingOption[] = [
+    {
+      id: 'standard',
+      name: 'Frete Padrão',
+      price: isFreeShipping ? 0 : STANDARD_SHIPPING_PRICE,
+      delivery_time: '5-10 dias úteis',
+      company: 'Correios',
+      isFallback: true,
+    },
+  ];
+
+  if (isGreaterSaoPaulo(destinationCep)) {
+    options.push({
+      id: 'motoboy',
+      name: 'Moto Boy - Entrega Full',
+      price: MOTOBOY_SHIPPING_PRICE,
+      delivery_time: 'Disponível apenas para Grande São Paulo',
+      company: 'Moto Boy',
+      isFallback: true,
+    });
+  }
+
+  return options.sort((a, b) => a.price - b.price);
+};
+
+const normalizeShippingOptions = (options: ShippingOption[], cartTotal: number) => {
+  const isFreeShipping = cartTotal >= FREE_SHIPPING_THRESHOLD;
+
+  return options
+    .map((option) => ({
+      ...option,
+      price:
+        isFreeShipping && (option.company?.toLowerCase().includes('correio') || option.id === 'standard')
+          ? 0
+          : option.price,
+    }))
+    .sort((a, b) => a.price - b.price);
+};
 
 export const calculateShipping = async (
   destinationCep: string,
@@ -536,53 +620,7 @@ export const calculateShipping = async (
 ): Promise<ShippingOption[]> => {
   try {
     console.log('[API] calculateShipping chamado:', { destinationCep, cartTotal });
-    
-    // Verificar se há frete grátis (compras acima de R$ 99,00)
-    const isFreeShipping = cartTotal >= 99;
-    if (isFreeShipping) {
-      console.log('[API] Frete grátis aplicado (total >= R$ 99,00) - calculando todas as opções com preço zero');
-    }
-    
-    // Function to check if CEP is from Greater São Paulo
-    const isGreaterSaoPaulo = (cep: string): boolean => {
-      const cleanCep = cep.replace(/\D/g, '');
-      const cepNum = parseInt(cleanCep.substring(0, 5));
-      
-      // São Paulo capital ranges
-      if ((cepNum >= 1000 && cepNum <= 5999) || (cepNum >= 8000 && cepNum <= 8499)) {
-        return true;
-      }
-      
-      // ABC Region
-      if (cepNum >= 9000 && cepNum <= 9999) {
-        return true;
-      }
-      
-      // Guarulhos
-      if (cepNum >= 7000 && cepNum <= 7299) {
-        return true;
-      }
-      
-      // Osasco
-      if (cepNum >= 6000 && cepNum <= 6299) {
-        return true;
-      }
-      
-      // Barueri, Carapicuíba, Cotia, Embu das Artes, Itapecerica da Serra, Taboão da Serra
-      if (cepNum >= 6300 && cepNum <= 6899) {
-        return true;
-      }
-      
-      // Mogi das Cruzes, Suzano, Poá, Ferraz de Vasconcelos, Itaquaquecetuba
-      if (cepNum >= 8700 && cepNum <= 8899) {
-        return true;
-      }
-      
-      return false;
-    };
 
-    // Buscar configurações dos Correios
-    console.log('[API] Buscando configurações dos Correios...');
     const { data: settings, error: settingsError } = await supabase
       .from('settings')
       .select('key, value')
@@ -593,58 +631,26 @@ export const calculateShipping = async (
       throw settingsError;
     }
 
-    const apiKey = settings?.find(s => s.key === 'correios_api_key')?.value;
-    const cepOrigem = settings?.find(s => s.key === 'correios_cep_origem')?.value;
+    const apiKey = settings?.find((s) => s.key === 'correios_api_key')?.value;
+    const cepOrigem = settings?.find((s) => s.key === 'correios_cep_origem')?.value;
 
-    console.log('[API] Configurações encontradas:', { 
-      hasApiKey: !!apiKey, 
-      cepOrigem: cepOrigem || 'não configurado' 
-    });
-
-    // Se não houver configurações, retornar frete padrão
     if (!apiKey || !cepOrigem) {
       console.warn('[API] Configurações dos Correios não encontradas, usando frete padrão');
-      const defaultOptions = [
-        {
-          id: 'standard',
-          name: 'Frete Padrão',
-          price: isFreeShipping ? 0 : 15.90,
-          delivery_time: '5-10 dias úteis',
-          company: 'Correios',
-        }
-      ];
-      
-      // Adicionar Moto Boy apenas para Grande São Paulo (sempre R$ 18,00)
-      if (isGreaterSaoPaulo(destinationCep)) {
-        defaultOptions.unshift({
-          id: 'motoboy',
-          name: 'Moto Boy - Entrega Full',
-          price: 18.00,
-          delivery_time: 'Disponível apenas para Grande São Paulo',
-          company: 'Moto Boy',
-        });
-      }
-      
-      return defaultOptions;
+      return buildFallbackShippingOptions(destinationCep, cartTotal);
     }
 
-    // Limpar CEPs
     const cleanOriginCep = cepOrigem.replace(/\D/g, '');
     const cleanDestCep = destinationCep.replace(/\D/g, '');
 
-    // Validar CEPs
     if (cleanOriginCep.length !== 8 || cleanDestCep.length !== 8) {
-      console.error('[API] CEP inválido:', { cleanOriginCep, cleanDestCep });
       throw new Error('CEP inválido');
     }
 
-    console.log('[API] Chamando Edge Function calculate-shipping...');
-    // Chamar API dos Correios via Edge Function
     const { data, error } = await supabase.functions.invoke('calculate-shipping', {
       body: {
         cep_origem: cleanOriginCep,
         cep_destino: cleanDestCep,
-        peso: 300, // Peso padrão em gramas (300g)
+        peso: 300,
         comprimento: 20,
         altura: 10,
         largura: 15,
@@ -654,118 +660,29 @@ export const calculateShipping = async (
 
     if (error) {
       console.error('[API] Erro ao calcular frete:', error);
-      // Retornar frete padrão em caso de erro
-      const errorOptions = [
-        {
-          id: 'standard',
-          name: 'Frete Padrão',
-          price: isFreeShipping ? 0 : 15.90,
-          delivery_time: '5-10 dias úteis',
-          company: 'Correios',
-        }
-      ];
-      
-      // Adicionar Moto Boy apenas para Grande São Paulo (sempre R$ 18,00)
-      if (isGreaterSaoPaulo(destinationCep)) {
-        errorOptions.unshift({
-          id: 'motoboy',
-          name: 'Moto Boy - Entrega Full',
-          price: 18.00,
-          delivery_time: 'Disponível apenas para Grande São Paulo',
-          company: 'Moto Boy',
-        });
-      }
-      
-      return errorOptions;
+      return buildFallbackShippingOptions(destinationCep, cartTotal);
     }
 
-    console.log('[API] Resposta da Edge Function:', data);
-    
-    // Retornar opções de frete
-    let options = data?.options || [];
-    
-    // Se não houver opções, retornar padrão
-    if (options.length === 0) {
-      const fallbackOptions = [
-        {
-          id: 'standard',
-          name: 'Frete Padrão',
-          price: isFreeShipping ? 0 : 15.90,
-          delivery_time: '5-10 dias úteis',
-          company: 'Correios',
-        }
-      ];
-      
-      // Adicionar Moto Boy apenas para Grande São Paulo (sempre R$ 18,00)
-      if (isGreaterSaoPaulo(destinationCep)) {
-        fallbackOptions.unshift({
-          id: 'motoboy',
-          name: 'Moto Boy - Entrega Full',
-          price: 18.00,
-          delivery_time: 'Disponível apenas para Grande São Paulo',
-          company: 'Moto Boy',
-        });
-      }
-      
-      return fallbackOptions;
+    const rawOptions = Array.isArray(data?.options)
+      ? data.options
+      : Array.isArray(data?.opcoes)
+        ? data.opcoes.map((option: any) => ({
+            id: String(option.servico),
+            name: option.nome,
+            price: Number(option.valor),
+            delivery_time: option.prazo === 0 ? 'Mesmo dia' : `${option.prazo} dia(s) úteis`,
+            company: option.servico === 'motoboy' ? 'Moto Boy' : 'Correios',
+          }))
+        : [];
+
+    if (rawOptions.length === 0) {
+      return buildFallbackShippingOptions(destinationCep, cartTotal);
     }
-    
-    // Se frete grátis, zerar o preço apenas das opções dos Correios
-    if (isFreeShipping) {
-      options = options.map((option: ShippingOption) => ({
-        ...option,
-        price: option.company?.toLowerCase().includes('correio') || option.id === 'standard' ? 0 : option.price
-      }));
-    }
-    
-    console.log('[API] Retornando opções:', options);
-    return options;
+
+    return normalizeShippingOptions(rawOptions, cartTotal);
   } catch (error) {
     console.error('[API] Erro ao calcular frete:', error);
-    
-    // Verificar se há frete grátis
-    const isFreeShipping = cartTotal >= 99;
-    
-    // Retornar frete padrão em caso de erro
-    const catchOptions = [
-      {
-        id: 'standard',
-        name: 'Frete Padrão',
-        price: isFreeShipping ? 0 : 15.90,
-        delivery_time: '5-10 dias úteis',
-        company: 'Correios',
-      }
-    ];
-    
-    // Adicionar Moto Boy apenas para Grande São Paulo (sempre R$ 18,00)
-    const isGSP = (() => {
-      try {
-        const cleanCep = destinationCep.replace(/\D/g, '');
-        const cepNum = parseInt(cleanCep.substring(0, 5));
-        return (
-          (cepNum >= 1000 && cepNum <= 5999) ||
-          (cepNum >= 8000 && cepNum <= 8499) ||
-          (cepNum >= 9000 && cepNum <= 9999) ||
-          (cepNum >= 7000 && cepNum <= 7299) ||
-          (cepNum >= 6000 && cepNum <= 6899) ||
-          (cepNum >= 8700 && cepNum <= 8899)
-        );
-      } catch {
-        return false;
-      }
-    })();
-    
-    if (isGSP) {
-      catchOptions.unshift({
-        id: 'motoboy',
-        name: 'Moto Boy - Entrega Full',
-        price: 18.00,
-        delivery_time: 'Disponível apenas para Grande São Paulo',
-        company: 'Moto Boy',
-      });
-    }
-    
-    return catchOptions;
+    return buildFallbackShippingOptions(destinationCep, cartTotal);
   }
 };
 
@@ -850,8 +767,6 @@ export const applyCoupon = async (
 
 // Configurações do WhatsApp
 export const getWhatsAppSettings = async () => {
-  console.log('Buscando configurações do WhatsApp...');
-  
   const { data, error } = await supabase
     .from('whatsapp_settings')
     .select('*')
@@ -859,16 +774,9 @@ export const getWhatsAppSettings = async () => {
     .maybeSingle();
 
   if (error) {
-    console.error('Erro ao buscar configurações do WhatsApp:', error);
     throw error;
   }
-  
-  if (!data) {
-    console.warn('Nenhuma configuração ativa do WhatsApp encontrada');
-  } else {
-    console.log('Configurações do WhatsApp carregadas:', data);
-  }
-  
+
   return data;
 };
 

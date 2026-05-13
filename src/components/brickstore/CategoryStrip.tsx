@@ -53,8 +53,8 @@ export function CategoryStrip() {
 
   if (loading) {
     return (
-      <div className="container mx-auto px-4 -mt-9 relative z-10">
-        <div className="bg-white rounded-2xl shadow-lg p-5 md:p-8">
+      <div className="container mx-auto px-4 mt-6 md:mt-8 relative z-10">
+        <div className="p-2 md:p-4">
           <div className="hidden md:grid grid-cols-4 lg:grid-cols-8 gap-6">
             {[...Array(8)].map((_, i) => (
               <div key={i} className="flex flex-col items-center gap-3">
@@ -69,8 +69,8 @@ export function CategoryStrip() {
   }
 
   return (
-    <div className="container mx-auto px-4 -mt-9 relative z-10">
-      <div className="bg-white rounded-2xl shadow-lg p-5 md:p-8">
+    <div className="container mx-auto px-4 mt-6 md:mt-8 relative z-10">
+      <div className="p-2 md:p-4">
         {/* Desktop - Grid */}
         <div className="hidden md:grid grid-cols-4 lg:grid-cols-8 gap-6">
           {categories.map((category) => {
@@ -90,6 +90,8 @@ export function CategoryStrip() {
                       alt={category.name}
                       className="w-full h-full object-cover"
                     />
+                  ) : category.icon ? (
+                    <span className="text-3xl leading-none">{category.icon}</span>
                   ) : (
                     <Icon className="w-9 h-9" />
                   )}
@@ -122,6 +124,8 @@ export function CategoryStrip() {
                         alt={category.name}
                         className="w-full h-full object-cover"
                       />
+                    ) : category.icon ? (
+                      <span className="text-2xl leading-none">{category.icon}</span>
                     ) : (
                       <Icon className="w-7 h-7" />
                     )}

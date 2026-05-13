@@ -1,6 +1,6 @@
 import { BrickStoreProductCard } from './BrickStoreProductCard';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
+import Autoplay from 'embla-carousel-autoplay';
 
 const newProducts = [
   {
@@ -70,40 +70,34 @@ export function LaunchesSection() {
         </p>
       </div>
 
-      {/* Desktop - Grid with arrows */}
-      <div className="hidden md:block relative">
-        <div className="grid grid-cols-3 lg:grid-cols-6 gap-4 md:gap-5">
-          {newProducts.map((product) => (
-            <BrickStoreProductCard key={product.id} {...product} />
-          ))}
-        </div>
-
-        {/* Navigation Arrows */}
-        <Button
-          variant="outline"
-          size="icon"
-          className="absolute -left-4 top-1/2 -translate-y-1/2 bg-white shadow-lg hover:bg-gray-50 rounded-full w-10 h-10"
+      <div className="relative">
+        <Carousel
+          opts={{
+            align: 'start',
+            loop: true,
+          }}
+          plugins={[
+            Autoplay({
+              delay: 3500,
+              stopOnInteraction: false,
+              stopOnMouseEnter: true,
+            }),
+          ]}
+          className="w-full"
         >
-          <ChevronLeft className="w-5 h-5" />
-        </Button>
-        <Button
-          variant="outline"
-          size="icon"
-          className="absolute -right-4 top-1/2 -translate-y-1/2 bg-white shadow-lg hover:bg-gray-50 rounded-full w-10 h-10"
-        >
-          <ChevronRight className="w-5 h-5" />
-        </Button>
-      </div>
-
-      {/* Mobile - Horizontal Scroll */}
-      <div className="md:hidden overflow-x-auto scrollbar-hide -mx-4 px-4">
-        <div className="flex gap-4 pb-2">
-          {newProducts.map((product) => (
-            <div key={product.id} className="w-[160px] shrink-0">
-              <BrickStoreProductCard {...product} />
-            </div>
-          ))}
-        </div>
+          <CarouselContent className="-ml-4">
+            {newProducts.map((product) => (
+              <CarouselItem
+                key={product.id}
+                className="pl-4 basis-[75%] sm:basis-[45%] md:basis-[32%] lg:basis-[25%]"
+              >
+                <BrickStoreProductCard {...product} />
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+          <CarouselPrevious className="hidden xl:flex -left-12 bg-white shadow-lg hover:bg-gray-100" />
+          <CarouselNext className="hidden xl:flex -right-12 bg-white shadow-lg hover:bg-gray-100" />
+        </Carousel>
       </div>
     </section>
   );

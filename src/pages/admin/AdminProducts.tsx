@@ -15,7 +15,7 @@ export default function AdminProducts() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    loadProducts();
+    void loadProducts();
   }, []);
 
   const loadProducts = async () => {
@@ -36,7 +36,6 @@ export default function AdminProducts() {
       const duplicated = await duplicateProduct(product.id);
       toast.success('Produto duplicado com sucesso!');
       await loadProducts();
-      // Navigate to edit the duplicated product
       navigate(`/admin/produtos/${duplicated.id}`);
     } catch (error) {
       console.error('Erro ao duplicar produto:', error);
@@ -96,15 +95,17 @@ export default function AdminProducts() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-3xl font-bold">Produtos</h1>
           <p className="text-muted-foreground">Gerencie o catálogo de produtos</p>
         </div>
-        <Button onClick={() => navigate('/admin/produtos/novo')}>
-          <Plus className="h-4 w-4 mr-2" />
-          Novo Produto
-        </Button>
+        <div className="flex flex-col sm:flex-row gap-2 md:shrink-0">
+          <Button onClick={() => navigate('/admin/produtos/novo')}>
+            <Plus className="h-4 w-4 mr-2" />
+            Novo Produto
+          </Button>
+        </div>
       </div>
 
       <DataTable

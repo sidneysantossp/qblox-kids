@@ -1,11 +1,11 @@
 import { supabase } from './supabase';
-import type { 
-  Category, 
+import type {
+  Category,
   HeroBanner,
   MiniBanner,
-  HomepageSection, 
-  BlogPost, 
-  PaymentMethod, 
+  HomepageSection,
+  BlogPost,
+  PaymentMethod,
   Product,
   Order,
   UserProfile,
@@ -499,14 +499,17 @@ export async function deleteProduct(id: string) {
 }
 
 export async function bulkUpdateProducts(ids: string[], updates: Partial<Product>) {
-  const { data, error } = await supabase
-    .from('products')
-    .update(updates)
-    .in('id', ids)
-    .select();
+  const products = await getAllProducts();
+  const targetProducts = products.filter((product) => ids.includes(product.id));
 
-  if (error) throw error;
-  return data;
+  const results = await Promise.all(
+    targetProducts.map((product) => {
+      const merged = { ...product, ...updates };
+      return updateProduct(product.id, merged);
+    })
+  );
+
+  return results;
 }
 
 // ==================== ORDERS (Admin) ====================

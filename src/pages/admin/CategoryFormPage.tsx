@@ -75,10 +75,9 @@ export default function CategoryFormPage() {
     },
   });
 
-  // Carregar dados da categoria se estiver editando
   useEffect(() => {
     if (isEditing && id) {
-      loadCategory(id);
+      void loadCategory(id);
     }
   }, [id, isEditing]);
 
@@ -149,7 +148,6 @@ export default function CategoryFormPage() {
     toast.success('Imagem enviada com sucesso');
   }, [categoryImageUpload.files, categoryImageUpload.successes, form]);
 
-  // Remover imagem
   const handleRemoveImage = () => {
     form.setValue('image_url', '');
     setImagePreview('');
@@ -157,21 +155,19 @@ export default function CategoryFormPage() {
     categoryImageUpload.setErrors([]);
   };
 
-  // Gerar slug automaticamente a partir do nome
   const handleNameChange = (value: string) => {
     form.setValue('name', value);
     if (!isEditing) {
       const slug = value
         .toLowerCase()
         .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[̀-ͯ]/g, '')
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/(^-|-$)/g, '');
       form.setValue('slug', slug);
     }
   };
 
-  // Salvar categoria
   const onSubmit = async (data: CategoryFormData) => {
     try {
       setIsLoading(true);
@@ -193,7 +189,6 @@ export default function CategoryFormPage() {
     }
   };
 
-  // Excluir categoria
   const handleDelete = async () => {
     if (!id) return;
 
@@ -213,52 +208,27 @@ export default function CategoryFormPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => navigate('/admin/categorias')}
-          >
+          <Button variant="ghost" size="icon" onClick={() => navigate('/admin/categorias')}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold">
-              {isEditing ? 'Editar Categoria' : 'Nova Categoria'}
-            </h1>
-            <p className="text-muted-foreground">
-              {isEditing ? 'Atualize os dados da categoria' : 'Preencha os dados da nova categoria'}
-            </p>
+            <h1 className="text-3xl font-bold">{isEditing ? 'Editar Categoria' : 'Nova Categoria'}</h1>
+            <p className="text-muted-foreground">{isEditing ? 'Atualize os dados da categoria' : 'Preencha os dados da nova categoria'}</p>
           </div>
         </div>
 
         {isEditing && (
-          <Button
-            variant="destructive"
-            onClick={() => setDeleteDialogOpen(true)}
-            disabled={isDeleting}
-          >
-            {isDeleting ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Excluindo...
-              </>
-            ) : (
-              <>
-                <Trash2 className="h-4 w-4 mr-2" />
-                Excluir
-              </>
-            )}
+          <Button variant="destructive" onClick={() => setDeleteDialogOpen(true)} disabled={isDeleting}>
+            {isDeleting ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Excluindo...</> : <><Trash2 className="h-4 w-4 mr-2" />Excluir</>}
           </Button>
         )}
       </div>
 
-      {/* Form */}
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-            {/* Informações Básicas */}
             <div className="xl:col-span-2 space-y-6">
               <Card>
                 <CardHeader>
@@ -266,224 +236,131 @@ export default function CategoryFormPage() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="name"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Nome *</FormLabel>
-                          <FormControl>
-                            <Input
-                              {...field}
-                              placeholder="Super Heróis"
-                              onChange={(e) => handleNameChange(e.target.value)}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="slug"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Slug *</FormLabel>
-                          <FormControl>
-                            <Input {...field} placeholder="super-herois" />
-                          </FormControl>
-                          <FormDescription>
-                            URL amigável (gerado automaticamente)
-                          </FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  <FormField
-                    control={form.control}
-                    name="description"
-                    render={({ field }) => (
+                    <FormField control={form.control} name="name" render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Descrição</FormLabel>
+                        <FormLabel>Nome *</FormLabel>
                         <FormControl>
-                          <Textarea
-                            {...field}
-                            placeholder="Descrição da categoria"
-                            rows={4}
-                          />
+                          <Input {...field} placeholder="Super Heróis" onChange={(e) => handleNameChange(e.target.value)} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
-                    )}
-                  />
+                    )} />
+
+                    <FormField control={form.control} name="slug" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Slug *</FormLabel>
+                        <FormControl>
+                          <Input {...field} placeholder="super-herois" />
+                        </FormControl>
+                        <FormDescription>URL amigável (gerado automaticamente)</FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                  </div>
+
+                  <FormField control={form.control} name="description" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Descrição</FormLabel>
+                      <FormControl>
+                        <Textarea {...field} placeholder="Descrição da categoria" rows={4} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
 
                   <div className="grid grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="icon"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Ícone (emoji)</FormLabel>
-                          <FormControl>
-                            <Input {...field} placeholder="🦸" maxLength={2} />
-                          </FormControl>
-                          <FormDescription>
-                            Emoji para representar a categoria
-                          </FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                    <FormField control={form.control} name="icon" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Ícone (emoji)</FormLabel>
+                        <FormControl>
+                          <Input {...field} placeholder="🦸" maxLength={2} />
+                        </FormControl>
+                        <FormDescription>Emoji para representar a categoria</FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
 
-                    <FormField
-                      control={form.control}
-                      name="display_order"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Ordem de Exibição *</FormLabel>
-                          <FormControl>
-                            <Input
-                              {...field}
-                              type="number"
-                              min="0"
-                              onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
-                            />
-                          </FormControl>
-                          <FormDescription>
-                            Ordem de exibição no site
-                          </FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                    <FormField control={form.control} name="display_order" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Ordem de Exibição *</FormLabel>
+                        <FormControl>
+                          <Input {...field} type="number" min="0" onChange={(e) => field.onChange(parseInt(e.target.value) || 0)} />
+                        </FormControl>
+                        <FormDescription>Ordem de exibição no site</FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
                   </div>
                 </CardContent>
               </Card>
 
-              {/* Imagem da Categoria */}
               <Card>
                 <CardHeader>
                   <CardTitle>Imagem da Categoria</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <FormField
-                    control={form.control}
-                    name="image_url"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Imagem Principal</FormLabel>
-                        <FormControl>
-                          <div className="space-y-4">
-                            {/* Preview da imagem */}
-                            {imagePreview && (
-                              <div className="relative w-full h-48 border rounded-lg overflow-hidden bg-muted">
-                                <img
-                                  src={imagePreview}
-                                  alt="Preview"
-                                  className="w-full h-full object-cover"
-                                />
-                                <Button
-                                  type="button"
-                                  variant="destructive"
-                                  size="icon"
-                                  className="absolute top-2 right-2"
-                                  onClick={handleRemoveImage}
-                                >
-                                  <X className="h-4 w-4" />
-                                </Button>
-                              </div>
-                            )}
-
-                            <Dropzone {...categoryImageUpload} className="bg-background">
-                              <DropzoneEmptyState />
-                              <DropzoneContent />
-                            </Dropzone>
-
-                            {/* URL manual */}
-                            <div className="space-y-2">
-                              <FormLabel>Ou insira a URL da imagem</FormLabel>
-                              <Input
-                                {...field}
-                                placeholder="https://exemplo.com/imagem.jpg"
-                                onChange={(e) => {
-                                  field.onChange(e);
-                                  setImagePreview(e.target.value);
-                                }}
-                              />
+                  <FormField control={form.control} name="image_url" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Imagem Principal</FormLabel>
+                      <FormControl>
+                        <div className="space-y-4">
+                          {imagePreview && (
+                            <div className="relative w-full h-48 border rounded-lg overflow-hidden bg-muted">
+                              <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                              <Button type="button" variant="destructive" size="icon" className="absolute top-2 right-2" onClick={handleRemoveImage}>
+                                <X className="h-4 w-4" />
+                              </Button>
                             </div>
+                          )}
+
+                          <Dropzone {...categoryImageUpload} className="bg-background">
+                            <DropzoneEmptyState />
+                            <DropzoneContent />
+                          </Dropzone>
+
+                          <div className="space-y-2">
+                            <FormLabel>Ou insira a URL da imagem</FormLabel>
+                            <Input {...field} placeholder="https://exemplo.com/imagem.jpg" onChange={(e) => { field.onChange(e); setImagePreview(e.target.value); }} />
                           </div>
-                        </FormControl>
-                        <FormDescription>
-                          Imagem circular exibida na seção "Explore por Categorias"
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                        </div>
+                      </FormControl>
+                      <FormDescription>Imagem circular exibida na seção "Explore por Categorias"</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
                 </CardContent>
               </Card>
             </div>
 
-            {/* Configurações */}
             <div className="space-y-6">
               <Card>
                 <CardHeader>
                   <CardTitle>Configurações</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <FormField
-                    control={form.control}
-                    name="is_active"
-                    render={({ field }) => (
-                      <FormItem className="flex items-center justify-between rounded-lg border p-4">
-                        <div className="space-y-0.5">
-                          <FormLabel className="text-base">Ativo</FormLabel>
-                          <FormDescription>
-                            Categoria visível no site
-                          </FormDescription>
-                        </div>
-                        <FormControl>
-                          <Switch
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
+                  <FormField control={form.control} name="is_active" render={({ field }) => (
+                    <FormItem className="flex items-center justify-between rounded-lg border p-4">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-base">Ativo</FormLabel>
+                        <FormDescription>Categoria visível no site</FormDescription>
+                      </div>
+                      <FormControl>
+                        <Switch checked={field.value} onCheckedChange={field.onChange} />
+                      </FormControl>
+                    </FormItem>
+                  )} />
                 </CardContent>
               </Card>
 
-              {/* Ações */}
               <Card>
                 <CardHeader>
                   <CardTitle>Ações</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <Button
-                    type="submit"
-                    className="w-full"
-                    disabled={isLoading}
-                  >
-                    {isLoading ? (
-                      <>
-                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        Salvando...
-                      </>
-                    ) : (
-                      'Salvar Categoria'
-                    )}
+                  <Button type="submit" className="w-full" disabled={isLoading}>
+                    {isLoading ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Salvando...</> : 'Salvar Categoria'}
                   </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="w-full"
-                    onClick={() => navigate('/admin/categorias')}
-                    disabled={isLoading}
-                  >
+                  <Button type="button" variant="outline" className="w-full" onClick={() => navigate('/admin/categorias')} disabled={isLoading}>
                     Cancelar
                   </Button>
                 </CardContent>
@@ -493,7 +370,6 @@ export default function CategoryFormPage() {
         </form>
       </Form>
 
-      {/* Delete Confirmation Dialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -504,10 +380,7 @@ export default function CategoryFormPage() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDelete}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
+            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
               Excluir
             </AlertDialogAction>
           </AlertDialogFooter>

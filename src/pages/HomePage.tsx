@@ -404,17 +404,20 @@ export default function HomePage() {
           opts={{
             align: 'start',
             loop: true,
+            slidesToScroll: 1,
           }}
           plugins={[
             Autoplay({
-              delay: 3000,
+              delay: 3200,
+              stopOnInteraction: false,
+              stopOnMouseEnter: true,
             }) as any,
           ]}
           className="w-full"
         >
           <CarouselContent className="-ml-4">
-            {categories.map((category, index) => (
-              <CarouselItem key={index} className="pl-4 basis-1/3 md:basis-1/3 lg:basis-1/4 xl:basis-1/5">
+            {categories.slice(0, 7).map((category, index) => (
+              <CarouselItem key={index} className="pl-4 basis-1/3 md:basis-1/3 lg:basis-[16.6667%] xl:basis-[16.6667%]">
                 <CategoryCard 
                   name={category.name} 
                   slug={category.slug} 
@@ -424,8 +427,8 @@ export default function HomePage() {
               </CarouselItem>
             ))}
           </CarouselContent>
-          <CarouselPrevious className="hidden xl:flex" />
-          <CarouselNext className="hidden xl:flex" />
+          <CarouselPrevious className="hidden" />
+          <CarouselNext className="hidden" />
         </Carousel>
       </div>
 

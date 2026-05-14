@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Save, Package, TestTube, AlertCircle, Plug, Bug, Image as ImageIcon, Globe } from 'lucide-react';
+import { Loader2, Save, Package, AlertCircle, Plug, Bug, Image as ImageIcon, Globe } from 'lucide-react';
 import { supabase } from '@/db/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -27,6 +27,8 @@ export default function AdminSettings() {
   const [footerLogoUrl, setFooterLogoUrl] = useState('');
   const [siteMetaTitle, setSiteMetaTitle] = useState('');
   const [siteMetaDescription, setSiteMetaDescription] = useState('');
+  const [globalMarginType, setGlobalMarginType] = useState('');
+  const [globalMarginValue, setGlobalMarginValue] = useState('');
   const [userInfo, setUserInfo] = useState<{ email: string; role: string } | null>(null);
   const [connectionStatus, setConnectionStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [errorDetails, setErrorDetails] = useState('');
@@ -68,6 +70,8 @@ export default function AdminSettings() {
       setFooterLogoUrl(findSiteSettingValue('footer_logo_url'));
       setSiteMetaTitle(findSiteSettingValue('site_meta_title'));
       setSiteMetaDescription(findSiteSettingValue('site_meta_description'));
+      setGlobalMarginType(findSiteSettingValue('global_margin_type'));
+      setGlobalMarginValue(findSiteSettingValue('global_margin_value'));
     } catch (error) {
       console.error('Erro ao carregar configurações:', error);
       toast({ title: 'Erro', description: 'Não foi possível carregar as configurações', variant: 'destructive' });

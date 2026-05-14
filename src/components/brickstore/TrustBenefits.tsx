@@ -36,9 +36,9 @@ export function TrustBenefits() {
           return (
             <div
               key={index}
-              className="bg-[#F8FAFC] rounded-2xl p-6 text-center border border-slate-100 transition-colors hover:bg-white"
+              className="rounded-2xl p-6 text-center border border-slate-100/70 bg-transparent transition-colors"
             >
-              <div className={`inline-flex items-center justify-center w-14 h-14 rounded-full bg-white mb-4 ${benefit.color}`}>
+              <div className={`inline-flex items-center justify-center w-14 h-14 rounded-full bg-slate-50 mb-4 ${benefit.color}`}>
                 <Icon className="w-7 h-7" />
               </div>
               <h3 className="font-bold text-foreground mb-2">{benefit.title}</h3>

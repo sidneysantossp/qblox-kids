@@ -58,9 +58,15 @@ export function WeeklyDealsCard({ product }: WeeklyDealsCardProps) {
 
       {/* Informações do Produto */}
       <div className="p-4 flex flex-col flex-grow">
-        <h3 className="text-sm font-medium text-gray-800 mb-3 line-clamp-2 hover:text-[#FF6B35] transition-colors min-h-[40px]">
+        <h3 className="text-sm font-medium text-gray-800 mb-2 line-clamp-2 hover:text-[#FF6B35] transition-colors min-h-[40px]">
           {product.name}
         </h3>
+
+        {product.sku ? (
+          <p className="text-[10px] text-gray-500 font-mono uppercase mb-3">
+            SKU: {product.sku}
+          </p>
+        ) : null}
 
         {/* Preços */}
         <div className="mb-3">

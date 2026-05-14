@@ -1,4 +1,5 @@
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
+import Autoplay from 'embla-carousel-autoplay';
 import { WeeklyDealsCard } from './WeeklyDealsCard';
 import type { Product } from '@/types';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -14,7 +15,7 @@ export function WeeklyDeals({ products, loading = false }: WeeklyDealsProps) {
       <div className="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 py-8 xl:py-12">
         <div className="max-w-7xl mx-auto px-4">
           <h2 className="text-xl md:text-2xl xl:text-3xl font-bold text-left mb-8 text-black">
-            Séries da TV
+            Novidades da Semana
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
             {[...Array(5)].map((_, index) => (
@@ -41,7 +42,7 @@ export function WeeklyDeals({ products, loading = false }: WeeklyDealsProps) {
     <div className="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 py-8 xl:py-12">
       <div className="max-w-7xl mx-auto px-4">
         <h2 className="text-xl md:text-2xl xl:text-3xl font-bold text-left mb-8 text-black">
-          Séries da TV
+          Novidades da Semana
         </h2>
         
         <div className="relative">
@@ -49,7 +50,15 @@ export function WeeklyDeals({ products, loading = false }: WeeklyDealsProps) {
             opts={{
               align: 'start',
               loop: true,
+              slidesToScroll: 1,
             }}
+            plugins={[
+              Autoplay({
+                delay: 3200,
+                stopOnInteraction: false,
+                stopOnMouseEnter: true,
+              }) as any,
+            ]}
             className="w-full"
           >
             <CarouselContent className="-ml-4">

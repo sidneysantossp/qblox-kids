@@ -5,6 +5,7 @@ import ProductDetailPage from './pages/ProductDetailPage';
 import CategoryPage from './pages/CategoryPage';
 import ShopPage from './pages/ShopPage';
 import AboutUsPage from './pages/AboutUsPage';
+import AuthorQbloxEditorialPage from './pages/AuthorQbloxEditorialPage';
 import BuildingFiguresPillarPage from './pages/BuildingFiguresPillarPage';
 import SuperHeroesPillarPage from './pages/SuperHeroesPillarPage';
 import RobloxPillarPage from './pages/RobloxPillarPage';
@@ -106,6 +107,12 @@ const routes: RouteConfig[] = [
     path: '/quem-somos',
     element: <AboutUsPage />,
     visible: true
+  },
+  {
+    name: 'Author QBLOX Editorial',
+    path: '/autor/qblox-editorial',
+    element: <AuthorQbloxEditorialPage />,
+    visible: false
   },
   {
     name: 'Building Figures Pillar',

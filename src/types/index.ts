@@ -107,6 +107,7 @@ export interface BlogPost {
   category?: string | null;
   tags?: string[] | null;
   keywords?: string[] | null;
+  faq?: FAQItem[] | null;
   meta_title?: string | null;
   meta_description?: string | null;
   is_published: boolean;

@@ -46,6 +46,7 @@ export interface ArticleSchema {
   datePublished?: string;
   dateModified?: string;
   author?: string;
+  authorUrl?: string;
 }
 
 /**
@@ -228,8 +229,9 @@ export function generateArticleSchema(article: ArticleSchema): string {
     datePublished: article.datePublished,
     dateModified: article.dateModified || article.datePublished,
     author: {
-      '@type': 'Organization',
+      '@type': 'Person',
       name: article.author || BRAND_NAME,
+      url: article.authorUrl,
     },
     publisher: {
       '@type': 'Organization',

@@ -156,6 +156,81 @@ All colors MUST be HSL.
   }
 }
 
+@layer components {
+  .prose {
+    color: hsl(var(--foreground));
+  }
+
+  .prose h1,
+  .prose h2,
+  .prose h3,
+  .prose h4 {
+    color: hsl(var(--foreground));
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .prose h1 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+  }
+
+  .prose h2 {
+    font-size: 1.5rem;
+    margin-top: 2rem;
+    margin-bottom: 0.875rem;
+  }
+
+  .prose h3 {
+    font-size: 1.25rem;
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .prose p,
+  .prose ul,
+  .prose ol,
+  .prose blockquote {
+    margin-bottom: 1rem;
+    line-height: 1.8;
+  }
+
+  .prose ul,
+  .prose ol {
+    padding-left: 1.5rem;
+  }
+
+  .prose ul {
+    list-style-type: disc;
+  }
+
+  .prose ol {
+    list-style-type: decimal;
+  }
+
+  .prose li + li {
+    margin-top: 0.375rem;
+  }
+
+  .prose strong {
+    color: hsl(var(--foreground));
+    font-weight: 700;
+  }
+
+  .prose a {
+    color: hsl(var(--primary));
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .prose blockquote {
+    border-left: 4px solid hsl(var(--border));
+    padding-left: 1rem;
+    color: hsl(var(--muted-foreground));
+    font-style: italic;
+  }
+}
+
 @layer utilities {
   .gradient-logo-text {
     background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--secondary)) 100%);
@@ -164,20 +239,20 @@ All colors MUST be HSL.
     -webkit-text-fill-color: transparent;
     color: transparent;
   }
-  
+
   .diagonal-shape {
     clip-path: polygon(0 0, 85% 0, 100% 100%, 0 100%);
   }
-  
+
   .diagonal-shape-reverse {
     clip-path: polygon(15% 0, 100% 0, 100% 100%, 0 100%);
   }
-  
+
   .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
-  
+
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }

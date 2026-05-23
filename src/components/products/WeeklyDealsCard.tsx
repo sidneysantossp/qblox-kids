@@ -1,6 +1,6 @@
 import { Heart } from 'lucide-react';
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useFavorites } from '@/contexts/FavoritesContext';
 import type { Product } from '@/types';
 import { getProductPath } from '@/lib/urls';
 
@@ -9,7 +9,7 @@ interface WeeklyDealsCardProps {
 }
 
 export function WeeklyDealsCard({ product }: WeeklyDealsCardProps) {
-  const [isFavorite, setIsFavorite] = useState(false);
+  const { isFavorite, toggleFavorite } = useFavorites();
 
   // Só mostrar desconto se original_price estiver configurado e for maior que o preço atual
   const hasDiscount = product.original_price && product.original_price > product.price;
@@ -44,14 +44,17 @@ export function WeeklyDealsCard({ product }: WeeklyDealsCardProps) {
 
         {/* Botão de Favorito */}
         <button
-          onClick={(e) => {
+          onClick={async (e) => {
             e.preventDefault();
-            setIsFavorite(!isFavorite);
+            const toggled = await toggleFavorite(product);
+            if (!toggled) {
+              window.location.href = '/login';
+            }
           }}
           className="absolute top-3 right-3 bg-white rounded-full p-2 shadow-md hover:scale-110 transition-transform"
         >
           <Heart
-            className={`w-5 h-5 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-600'}`}
+            className={`w-5 h-5 ${isFavorite(product.id) ? 'fill-red-500 text-red-500' : 'text-gray-600'}`}
           />
         </button>
       </div>

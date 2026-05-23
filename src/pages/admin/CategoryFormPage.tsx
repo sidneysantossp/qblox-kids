@@ -46,6 +46,7 @@ const categorySchema = z.object({
   description: z.string().optional(),
   icon: z.string().optional(),
   image_url: z.string().optional(),
+  mini_thumb_url: z.string().optional(),
   display_order: z.number().int().min(0, 'Ordem não pode ser negativa'),
   is_active: z.boolean(),
 });
@@ -61,6 +62,7 @@ export default function CategoryFormPage() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [imagePreview, setImagePreview] = useState<string>('');
+  const [miniThumbPreview, setMiniThumbPreview] = useState<string>('');
 
   const form = useForm<CategoryFormData>({
     resolver: zodResolver(categorySchema),
@@ -70,6 +72,7 @@ export default function CategoryFormPage() {
       description: '',
       icon: '',
       image_url: '',
+      mini_thumb_url: '',
       display_order: 0,
       is_active: true,
     },
@@ -94,11 +97,15 @@ export default function CategoryFormPage() {
           description: category.description || '',
           icon: category.icon || '',
           image_url: category.image_url || '',
+          mini_thumb_url: category.mini_thumb_url || '',
           display_order: category.display_order,
           is_active: category.is_active,
         });
         if (category.image_url) {
           setImagePreview(category.image_url);
+        }
+        if (category.mini_thumb_url) {
+          setMiniThumbPreview(category.mini_thumb_url);
         }
       } else {
         toast.error('Categoria não encontrada');
@@ -122,6 +129,16 @@ export default function CategoryFormPage() {
     supabase,
   });
 
+  const categoryMiniThumbUpload = useSupabaseUpload({
+    bucketName: 'images',
+    path: 'categories/thumbs',
+    allowedMimeTypes: ['image/*'],
+    maxFileSize: 2 * 1024 * 1024,
+    maxFiles: 1,
+    upsert: false,
+    supabase,
+  });
+
   useEffect(() => {
     const fileToUpload = categoryImageUpload.files[0];
     const alreadyUploaded = fileToUpload && categoryImageUpload.successes.includes(fileToUpload.name);
@@ -132,6 +149,17 @@ export default function CategoryFormPage() {
 
     void categoryImageUpload.onUpload();
   }, [categoryImageUpload.files, categoryImageUpload.successes, categoryImageUpload.loading, categoryImageUpload.onUpload]);
+
+  useEffect(() => {
+    const fileToUpload = categoryMiniThumbUpload.files[0];
+    const alreadyUploaded = fileToUpload && categoryMiniThumbUpload.successes.includes(fileToUpload.name);
+
+    if (!fileToUpload || fileToUpload.errors.length > 0 || alreadyUploaded || categoryMiniThumbUpload.loading) {
+      return;
+    }
+
+    void categoryMiniThumbUpload.onUpload();
+  }, [categoryMiniThumbUpload.files, categoryMiniThumbUpload.successes, categoryMiniThumbUpload.loading, categoryMiniThumbUpload.onUpload]);
 
   useEffect(() => {
     const uploadedFile = categoryImageUpload.files[0];
@@ -148,11 +176,33 @@ export default function CategoryFormPage() {
     toast.success('Imagem enviada com sucesso');
   }, [categoryImageUpload.files, categoryImageUpload.successes, form]);
 
+  useEffect(() => {
+    const uploadedFile = categoryMiniThumbUpload.files[0];
+    const uploadedSuccessfully = uploadedFile && categoryMiniThumbUpload.successes.includes(uploadedFile.name);
+
+    if (!uploadedSuccessfully) {
+      return;
+    }
+
+    const filePath = `categories/thumbs/${uploadedFile.name}`;
+    const { data } = supabase.storage.from('images').getPublicUrl(filePath);
+    form.setValue('mini_thumb_url', data.publicUrl, { shouldDirty: true });
+    setMiniThumbPreview(data.publicUrl);
+    toast.success('Mini thumb enviada com sucesso');
+  }, [categoryMiniThumbUpload.files, categoryMiniThumbUpload.successes, form]);
+
   const handleRemoveImage = () => {
     form.setValue('image_url', '');
     setImagePreview('');
     categoryImageUpload.setFiles([]);
     categoryImageUpload.setErrors([]);
+  };
+
+  const handleRemoveMiniThumb = () => {
+    form.setValue('mini_thumb_url', '');
+    setMiniThumbPreview('');
+    categoryMiniThumbUpload.setFiles([]);
+    categoryMiniThumbUpload.setErrors([]);
   };
 
   const handleNameChange = (value: string) => {
@@ -298,7 +348,7 @@ export default function CategoryFormPage() {
                 <CardHeader>
                   <CardTitle>Imagem da Categoria</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-6">
                   <FormField control={form.control} name="image_url" render={({ field }) => (
                     <FormItem>
                       <FormLabel>Imagem Principal</FormLabel>
@@ -324,7 +374,37 @@ export default function CategoryFormPage() {
                           </div>
                         </div>
                       </FormControl>
-                      <FormDescription>Imagem circular exibida na seção "Explore por Categorias"</FormDescription>
+                      <FormDescription>Imagem principal da categoria</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+
+                  <FormField control={form.control} name="mini_thumb_url" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Mini thumb da categoria</FormLabel>
+                      <FormControl>
+                        <div className="space-y-4">
+                          {miniThumbPreview && (
+                            <div className="relative w-24 h-24 border rounded-lg overflow-hidden bg-muted">
+                              <img src={miniThumbPreview} alt="Mini thumb" className="w-full h-full object-cover" />
+                              <Button type="button" variant="destructive" size="icon" className="absolute top-1 right-1 h-7 w-7" onClick={handleRemoveMiniThumb}>
+                                <X className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          )}
+
+                          <Dropzone {...categoryMiniThumbUpload} className="bg-background">
+                            <DropzoneEmptyState />
+                            <DropzoneContent />
+                          </Dropzone>
+
+                          <div className="space-y-2">
+                            <FormLabel>Ou insira a URL da mini thumb</FormLabel>
+                            <Input {...field} placeholder="https://exemplo.com/thumb-40x40.jpg" onChange={(e) => { field.onChange(e); setMiniThumbPreview(e.target.value); }} />
+                          </div>
+                        </div>
+                      </FormControl>
+                      <FormDescription>Sugestão: imagem quadrada em 40x40 px para uso no menu mobile e em miniaturas de navegação.</FormDescription>
                       <FormMessage />
                     </FormItem>
                   )} />

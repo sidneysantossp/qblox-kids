@@ -40,8 +40,8 @@ export function CartDropdown() {
     >
       <DropdownMenu open={open} onOpenChange={setOpen}>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon" className="relative h-10 w-10">
-            <ShoppingCart className="h-5 w-5" />
+          <Button variant="ghost" size="icon" className="relative h-11 w-11">
+            <ShoppingCart className="h-6 w-6" />
             {cartCount > 0 && (
               <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs bg-orange-500 text-white border-2 border-background">
                 {cartCount}
@@ -98,11 +98,6 @@ export function CartDropdown() {
 
               <div className="p-4 space-y-3">
                 <FreeShippingProgress cartTotal={cartTotal} variant="compact" />
-
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Subtotal:</span>
-                  <span className="font-bold text-lg">{formatPrice(cartTotal)}</span>
-                </div>
 
                 <div className="flex gap-2">
                   <Button asChild variant="outline" className="flex-1" size="sm">

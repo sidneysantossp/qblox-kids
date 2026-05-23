@@ -2,7 +2,7 @@ import { Star, Truck, Headset, Mail } from 'lucide-react';
 
 export function TopBar() {
   return (
-    <div className="bg-[#FFD200] text-[#1F2937]">
+    <div className="bg-[#FF6A00] text-white border-b border-white/10">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-8 text-xs md:text-[13px] font-medium">
           {/* Left/Center - Desktop */}

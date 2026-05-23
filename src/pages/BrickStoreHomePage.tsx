@@ -9,6 +9,7 @@ import { FlashSaleSection } from '@/components/brickstore/FlashSaleSection';
 import { LaunchesSection } from '@/components/brickstore/LaunchesSection';
 import { ThematicBanners } from '@/components/brickstore/ThematicBanners';
 import { TrustBenefits } from '@/components/brickstore/TrustBenefits';
+import { TestimonialsSection } from '@/components/brickstore/TestimonialsSection';
 import { Newsletter } from '@/components/brickstore/Newsletter';
 import { WeeklyDeals } from '@/components/products/WeeklyDeals';
 import { useEffect, useState } from 'react';
@@ -85,6 +86,9 @@ export default function BrickStoreHomePage() {
 
       {/* Trust Benefits */}
       <TrustBenefits />
+
+      {/* Testimonials */}
+      <TestimonialsSection />
 
       {/* Newsletter */}
       <Newsletter />

@@ -138,17 +138,21 @@ export function CategoryStrip() {
                   to={getCategoryPath(category.slug)}
                   className="flex flex-col items-center gap-2 shrink-0"
                 >
-                  <div className={`w-16 h-16 ${colorClass} rounded-full flex items-center justify-center text-white overflow-hidden`}>
-                    {category.image_url ? (
+                  <div className={`w-20 h-20 ${colorClass} rounded-full flex items-center justify-center text-white overflow-hidden`}>
+                    {category.mini_thumb_url || category.image_url ? (
                       <img
-                        src={category.image_url}
+                        src={category.mini_thumb_url || category.image_url || ''}
                         alt={category.name}
                         className="w-full h-full object-cover"
+                        width="80"
+                        height="80"
+                        loading="lazy"
+                        decoding="async"
                       />
                     ) : category.icon ? (
-                      <span className="text-2xl leading-none">{category.icon}</span>
+                      <span className="text-[30px] leading-none">{category.icon}</span>
                     ) : (
-                      <Icon className="w-7 h-7" />
+                      <Icon className="w-8 h-8" />
                     )}
                   </div>
                   <span className="text-xs font-semibold text-center text-foreground whitespace-nowrap">

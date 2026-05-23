@@ -7,6 +7,7 @@ import { PageLayout } from '@/components/layouts/PageLayout';
 import { BottomNav } from '@/components/layouts/BottomNav';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { CartProvider, useCart } from '@/contexts/CartContext';
+import { FavoritesProvider } from '@/contexts/FavoritesContext';
 import { Toaster } from '@/components/ui/toaster';
 import { ScrollToTop } from '@/components/ScrollToTop';
 import { FloatingWhatsAppButton } from '@/components/ui/FloatingWhatsAppButton';
@@ -70,9 +71,11 @@ function AppShell() {
 function App() {
   return (
     <AuthProvider>
-      <CartProvider>
-        <AppShell />
-      </CartProvider>
+      <FavoritesProvider>
+        <CartProvider>
+          <AppShell />
+        </CartProvider>
+      </FavoritesProvider>
     </AuthProvider>
   );
 }

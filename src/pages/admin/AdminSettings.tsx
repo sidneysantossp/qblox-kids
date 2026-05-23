@@ -4,11 +4,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Save, Package, AlertCircle, Plug, Bug, Image as ImageIcon, Globe } from 'lucide-react';
+import { Loader2, Save, Package, AlertCircle, Plug, Bug, Image as ImageIcon, Globe, X } from 'lucide-react';
 import { supabase } from '@/db/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Textarea } from '@/components/ui/textarea';
+import { Dropzone, DropzoneContent, DropzoneEmptyState } from '@/components/dropzone';
+import { useSupabaseUpload } from '@/hooks/use-supabase-upload';
 import { getSiteSettings, updateSiteSetting } from '@/db/api';
 
 interface Setting {
@@ -35,10 +37,80 @@ export default function AdminSettings() {
   const { profile, isAdmin } = useAuth();
   const { toast } = useToast();
 
+  const navbarLogoUpload = useSupabaseUpload({
+    bucketName: 'images',
+    path: 'branding/navbar',
+    allowedMimeTypes: ['image/*'],
+    maxFileSize: 3 * 1024 * 1024,
+    maxFiles: 1,
+    upsert: false,
+    supabase,
+  });
+
+  const footerLogoUpload = useSupabaseUpload({
+    bucketName: 'images',
+    path: 'branding/footer',
+    allowedMimeTypes: ['image/*'],
+    maxFileSize: 3 * 1024 * 1024,
+    maxFiles: 1,
+    upsert: false,
+    supabase,
+  });
+
   useEffect(() => {
     void loadSettings();
     void loadUserInfo();
   }, []);
+
+  useEffect(() => {
+    const fileToUpload = navbarLogoUpload.files[0];
+    const alreadyUploaded = fileToUpload && navbarLogoUpload.successes.includes(fileToUpload.name);
+
+    if (!fileToUpload || fileToUpload.errors.length > 0 || alreadyUploaded || navbarLogoUpload.loading) {
+      return;
+    }
+
+    void navbarLogoUpload.onUpload();
+  }, [navbarLogoUpload.files, navbarLogoUpload.successes, navbarLogoUpload.loading, navbarLogoUpload.onUpload]);
+
+  useEffect(() => {
+    const fileToUpload = footerLogoUpload.files[0];
+    const alreadyUploaded = fileToUpload && footerLogoUpload.successes.includes(fileToUpload.name);
+
+    if (!fileToUpload || fileToUpload.errors.length > 0 || alreadyUploaded || footerLogoUpload.loading) {
+      return;
+    }
+
+    void footerLogoUpload.onUpload();
+  }, [footerLogoUpload.files, footerLogoUpload.successes, footerLogoUpload.loading, footerLogoUpload.onUpload]);
+
+  useEffect(() => {
+    const uploadedFile = navbarLogoUpload.files[0];
+    const uploadedSuccessfully = uploadedFile && navbarLogoUpload.successes.includes(uploadedFile.name);
+
+    if (!uploadedSuccessfully) {
+      return;
+    }
+
+    const filePath = `branding/navbar/${uploadedFile.name}`;
+    const { data } = supabase.storage.from('images').getPublicUrl(filePath);
+    setNavbarLogoUrl(data.publicUrl);
+    toast({ title: 'Sucesso', description: 'Logo da navbar enviada com sucesso' });
+  }, [navbarLogoUpload.files, navbarLogoUpload.successes, toast]);
+
+  useEffect(() => {
+    const uploadedFile = footerLogoUpload.files[0];
+    const uploadedSuccessfully = uploadedFile && footerLogoUpload.successes.includes(uploadedFile.name);
+
+    if (!uploadedSuccessfully) {
+      return;
+    }
+
+    const filePath = `branding/footer/${uploadedFile.name}`;
+    const { data } = supabase.storage.from('images').getPublicUrl(filePath);
+    setFooterLogoUrl(data.publicUrl);
+    toast({ title: 'Sucesso', description: 'Logo do footer enviada com sucesso' });
+  }, [footerLogoUpload.files, footerLogoUpload.successes, toast]);
 
   const loadUserInfo = async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -166,6 +238,16 @@ export default function AdminSettings() {
     }
   };
 
+  const handleRemoveNavbarLogo = () => {
+    setNavbarLogoUrl('');
+    navbarLogoUpload.setFiles([]);
+  };
+
+  const handleRemoveFooterLogo = () => {
+    setFooterLogoUrl('');
+    footerLogoUpload.setFiles([]);
+  };
+
   if (loading) {
     return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
   }
@@ -215,15 +297,41 @@ export default function AdminSettings() {
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="grid gap-6 md:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="navbar-logo-url">Logo da Navbar</Label>
-              <Input id="navbar-logo-url" value={navbarLogoUrl} onChange={(e) => setNavbarLogoUrl(e.target.value)} placeholder="https://.../logo-navbar.png" />
-              {navbarLogoUrl ? <img src={navbarLogoUrl} alt="Preview navbar logo" className="h-16 rounded border p-2 bg-white" /> : null}
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label>Logo da Navbar</Label>
+                {navbarLogoUrl ? (
+                  <div className="relative flex min-h-32 items-center justify-center rounded-lg border bg-white p-4">
+                    <img src={navbarLogoUrl} alt="Preview navbar logo" className="max-h-16 w-auto object-contain" />
+                    <Button type="button" variant="destructive" size="icon" className="absolute right-2 top-2" onClick={handleRemoveNavbarLogo}>
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ) : null}
+                <Dropzone {...navbarLogoUpload} className="bg-background">
+                  <DropzoneEmptyState />
+                  <DropzoneContent />
+                </Dropzone>
+                <p className="text-sm text-muted-foreground">Arraste a logo da navbar ou clique para selecionar um arquivo.</p>
+              </div>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="footer-logo-url">Logo do Footer</Label>
-              <Input id="footer-logo-url" value={footerLogoUrl} onChange={(e) => setFooterLogoUrl(e.target.value)} placeholder="https://.../logo-footer.png" />
-              {footerLogoUrl ? <img src={footerLogoUrl} alt="Preview footer logo" className="h-16 rounded border p-2 bg-white" /> : null}
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label>Logo do Footer</Label>
+                {footerLogoUrl ? (
+                  <div className="relative flex min-h-32 items-center justify-center rounded-lg border bg-white p-4">
+                    <img src={footerLogoUrl} alt="Preview footer logo" className="max-h-16 w-auto object-contain" />
+                    <Button type="button" variant="destructive" size="icon" className="absolute right-2 top-2" onClick={handleRemoveFooterLogo}>
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ) : null}
+                <Dropzone {...footerLogoUpload} className="bg-background">
+                  <DropzoneEmptyState />
+                  <DropzoneContent />
+                </Dropzone>
+                <p className="text-sm text-muted-foreground">Arraste a logo do footer ou clique para selecionar um arquivo.</p>
+              </div>
             </div>
           </div>
           <div className="space-y-2">

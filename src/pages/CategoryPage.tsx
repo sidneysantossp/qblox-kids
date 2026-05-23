@@ -1,7 +1,7 @@
 import { ChevronRight, Filter, SlidersHorizontal } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ProductCard } from '@/components/products/ProductCard';
+import { BrickStoreProductCard, mapProductToBrickStoreProductCardProps } from '@/components/brickstore/BrickStoreProductCard';
 import { ProductFilters } from '@/components/products/ProductFilters';
 import { SEO } from '@/components/SEO';
 import { SchemaMarkup, generateItemListSchema, generateCategoryTitle, generateCategoryDescription, generateFAQSchema, type ProductListItem } from '@/lib/schema';
@@ -146,46 +146,8 @@ export default function CategoryPage() {
         <p className="text-muted-foreground text-lg">
           {isLoading ? 'Carregando...' : `${products.length} produtos encontrados na coleção ${categoryData?.name || category}`}
         </p>
-        {categoryData?.description && (
-          <p className="text-muted-foreground mt-2">
-            {categoryData.description}
-          </p>
-        )}
       </div>
 
-      {/* Long Description - SEO Content */}
-      {categoryData?.long_description && (
-        <Card className="mb-8">
-          <CardContent className="p-6">
-            <div className="prose prose-sm max-w-none">
-              <p className="whitespace-pre-line text-muted-foreground leading-relaxed">
-                {categoryData.long_description}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      <div className="grid gap-4 md:grid-cols-3 mb-8">
-        <Card>
-          <CardContent className="p-5">
-            <h2 className="font-bold mb-2">Para quem esta categoria faz sentido</h2>
-            <p className="text-sm text-muted-foreground">Ideal para quem quer navegar por um tema específico, comparar produtos parecidos e entender melhor o contexto da coleção.</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-5">
-            <h2 className="font-bold mb-2">O que observar antes da compra</h2>
-            <p className="text-sm text-muted-foreground">Compare faixa de preço, imagens, lançamentos, produtos relacionados e conteúdos satélite para escolher melhor.</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-5">
-            <h2 className="font-bold mb-2">Como aprofundar a pesquisa</h2>
-            <p className="text-sm text-muted-foreground">Use o guia principal do tema, o blog e as vitrines da loja para descobrir mais oportunidades dentro da categoria.</p>
-          </CardContent>
-        </Card>
-      </div>
 
       <div className="flex flex-col lg:flex-row gap-8">
         <aside className="hidden lg:block w-64 shrink-0">
@@ -277,7 +239,7 @@ export default function CategoryPage() {
           ) : filteredProducts.length > 0 ? (
             <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 xl:gap-6">
               {filteredProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
+                <BrickStoreProductCard key={product.id} {...mapProductToBrickStoreProductCardProps(product)} />
               ))}
             </div>
           ) : (
@@ -293,37 +255,39 @@ export default function CategoryPage() {
         </div>
       </div>
 
-      <Card className="mt-12">
-        <CardContent className="p-6">
-          <h2 className="text-2xl font-bold mb-4">Continue explorando {categoryData?.name || category}</h2>
-          <div className="grid gap-3 md:grid-cols-3">
-            <Link to="/blog" className="rounded-xl border p-4 hover:border-primary transition-colors">
-              <h3 className="font-semibold mb-1">Guias e dicas</h3>
-              <p className="text-sm text-muted-foreground">Veja conteúdos do blog para escolher melhor seus bonecos de montar.</p>
-            </Link>
-            <Link to={getPillarPathByCategory(categoryData?.slug || category || '')} className="rounded-xl border p-4 hover:border-primary transition-colors">
-              <h3 className="font-semibold mb-1">Guia principal do tema</h3>
-              <p className="text-sm text-muted-foreground">Acesse a página pilar para ampliar sua busca com contexto editorial e links estratégicos.</p>
-            </Link>
-            <Link to={primaryGuidePath} className="rounded-xl border p-4 hover:border-primary transition-colors">
-              <h3 className="font-semibold mb-1">Guia satélite</h3>
-              <p className="text-sm text-muted-foreground">Acesse um conteúdo complementar com intenção de busca ligada a este tema.</p>
-            </Link>
-            <Link to={secondaryGuidePath} className="rounded-xl border p-4 hover:border-primary transition-colors">
-              <h3 className="font-semibold mb-1">Conteúdo complementar</h3>
-              <p className="text-sm text-muted-foreground">Amplie a pesquisa com um segundo guia informacional conectado à categoria.</p>
-            </Link>
-            <Link to="/ofertas-especiais" className="rounded-xl border p-4 hover:border-primary transition-colors">
-              <h3 className="font-semibold mb-1">Ofertas especiais</h3>
-              <p className="text-sm text-muted-foreground">Descubra promoções e kits com melhor custo-benefício.</p>
-            </Link>
-            <Link to="/loja" className="rounded-xl border p-4 hover:border-primary transition-colors">
-              <h3 className="font-semibold mb-1">Todos os produtos</h3>
-              <p className="text-sm text-muted-foreground">Amplie sua busca e compare diferentes categorias da coleção.</p>
-            </Link>
-          </div>
-        </CardContent>
-      </Card>
+      {category !== 'roblox' && category !== 'jogos' && categoryData?.slug !== 'roblox' && categoryData?.slug !== 'jogos' && (
+        <Card className="mt-12">
+          <CardContent className="p-6">
+            <h2 className="text-2xl font-bold mb-4">Continue explorando {categoryData?.name || category}</h2>
+            <div className="grid gap-3 md:grid-cols-3">
+              <Link to="/blog" className="rounded-xl border p-4 hover:border-primary transition-colors">
+                <h3 className="font-semibold mb-1">Guias e dicas</h3>
+                <p className="text-sm text-muted-foreground">Veja conteúdos do blog para escolher melhor seus bonecos de montar.</p>
+              </Link>
+              <Link to={getPillarPathByCategory(categoryData?.slug || category || '')} className="rounded-xl border p-4 hover:border-primary transition-colors">
+                <h3 className="font-semibold mb-1">Guia principal do tema</h3>
+                <p className="text-sm text-muted-foreground">Acesse a página pilar para ampliar sua busca com contexto editorial e links estratégicos.</p>
+              </Link>
+              <Link to={primaryGuidePath} className="rounded-xl border p-4 hover:border-primary transition-colors">
+                <h3 className="font-semibold mb-1">Guia satélite</h3>
+                <p className="text-sm text-muted-foreground">Acesse um conteúdo complementar com intenção de busca ligada a este tema.</p>
+              </Link>
+              <Link to={secondaryGuidePath} className="rounded-xl border p-4 hover:border-primary transition-colors">
+                <h3 className="font-semibold mb-1">Conteúdo complementar</h3>
+                <p className="text-sm text-muted-foreground">Amplie a pesquisa com um segundo guia informacional conectado à categoria.</p>
+              </Link>
+              <Link to="/ofertas-especiais" className="rounded-xl border p-4 hover:border-primary transition-colors">
+                <h3 className="font-semibold mb-1">Ofertas especiais</h3>
+                <p className="text-sm text-muted-foreground">Descubra promoções e kits com melhor custo-benefício.</p>
+              </Link>
+              <Link to="/loja" className="rounded-xl border p-4 hover:border-primary transition-colors">
+                <h3 className="font-semibold mb-1">Todos os produtos</h3>
+                <p className="text-sm text-muted-foreground">Amplie sua busca e compare diferentes categorias da coleção.</p>
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* FAQ Section */}
       {categoryData?.faq && categoryData.faq.length > 0 && (

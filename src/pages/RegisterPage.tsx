@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -35,23 +35,29 @@ export default function RegisterPage() {
     state: '',
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [isLoadingCep, setIsLoadingCep] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const { signUp } = useAuth();
+  const { signUp, signInWithGoogle, user, profile } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
   const numberInputRef = useRef<HTMLInputElement>(null);
 
-  const from = (location.state as any)?.from?.pathname || '/';
+  const returnUrl = (location.state as any)?.returnUrl || (location.state as any)?.from?.pathname || '/';
+
+  useEffect(() => {
+    if (user && profile) {
+      navigate(returnUrl, { replace: true });
+    }
+  }, [user, profile, returnUrl, navigate]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    
+
     let maskedValue = value;
-    
-    // Aplicar máscaras
+
     if (name === 'cpf') {
       maskedValue = cpfMask(value);
     } else if (name === 'phone') {
@@ -59,13 +65,13 @@ export default function RegisterPage() {
     } else if (name === 'zipCode') {
       maskedValue = cepMask(value);
     }
-    
+
     setFormData(prev => ({ ...prev, [name]: maskedValue }));
   };
 
   const fetchAddressByCep = async (cep: string) => {
     const cleanCep = cep.replace(/\D/g, '');
-    
+
     if (cleanCep.length !== 8) return;
 
     setIsLoadingCep(true);
@@ -82,7 +88,6 @@ export default function RegisterPage() {
           state: data.uf || '',
         }));
 
-        // Focar no campo de número após preencher o endereço
         setTimeout(() => {
           numberInputRef.current?.focus();
         }, 100);
@@ -152,10 +157,9 @@ export default function RegisterPage() {
       return;
     }
 
-    // Salvar dados do usuário no perfil
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      
+
       if (user) {
         const { error: profileError } = await supabase
           .from('profiles')
@@ -184,7 +188,7 @@ export default function RegisterPage() {
         variant: 'success',
       });
 
-      navigate(from, { replace: true });
+      navigate(returnUrl, { replace: true });
     } catch (error) {
       console.error('Erro ao salvar dados:', error);
       toast({
@@ -192,7 +196,9 @@ export default function RegisterPage() {
         description: 'Mas houve um erro ao salvar seus dados. Por favor, atualize seu perfil.',
         variant: 'destructive',
       });
-      navigate(from, { replace: true });
+      navigate(returnUrl, { replace: true });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -206,8 +212,39 @@ export default function RegisterPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          <div className="mb-4">
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full"
+              disabled={isLoading || isGoogleLoading}
+              onClick={async () => {
+                setIsGoogleLoading(true);
+                const { error } = await signInWithGoogle(returnUrl);
+                if (error) {
+                  toast({
+                    title: 'Erro ao entrar com Google',
+                    description: error.message || 'Tente novamente mais tarde',
+                    variant: 'destructive',
+                  });
+                  setIsGoogleLoading(false);
+                }
+              }}
+            >
+              {isGoogleLoading ? 'Redirecionando para o Google...' : 'Continuar com Google'}
+            </Button>
+          </div>
+
+          <div className="relative my-4">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-card px-2 text-muted-foreground">ou crie conta com e-mail</span>
+            </div>
+          </div>
+
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Dados de Login */}
             <div className="space-y-4">
               <h3 className="font-semibold text-lg">Dados de Acesso</h3>
               <div className="grid grid-cols-1 gap-4">
@@ -221,7 +258,7 @@ export default function RegisterPage() {
                     value={formData.email}
                     onChange={handleInputChange}
                     required
-                    disabled={isLoading}
+                    disabled={isLoading || isGoogleLoading}
                   />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -231,12 +268,12 @@ export default function RegisterPage() {
                       <Input
                         id="password"
                         name="password"
-                        type={showPassword ? "text" : "password"}
+                        type={showPassword ? 'text' : 'password'}
                         placeholder="Mínimo 6 caracteres"
                         value={formData.password}
                         onChange={handleInputChange}
                         required
-                        disabled={isLoading}
+                        disabled={isLoading || isGoogleLoading}
                         className="pr-10"
                       />
                       <button
@@ -254,12 +291,12 @@ export default function RegisterPage() {
                       <Input
                         id="confirmPassword"
                         name="confirmPassword"
-                        type={showConfirmPassword ? "text" : "password"}
+                        type={showConfirmPassword ? 'text' : 'password'}
                         placeholder="Repita a senha"
                         value={formData.confirmPassword}
                         onChange={handleInputChange}
                         required
-                        disabled={isLoading}
+                        disabled={isLoading || isGoogleLoading}
                         className="pr-10"
                       />
                       <button
@@ -275,179 +312,84 @@ export default function RegisterPage() {
               </div>
             </div>
 
-            {/* Dados Pessoais */}
-            <div className="space-y-4">
+            <div className="space-y-4 pt-4 border-t">
               <h3 className="font-semibold text-lg">Dados Pessoais</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
+                <div className="space-y-2 md:col-span-2">
                   <Label htmlFor="name">Nome Completo *</Label>
-                  <Input
-                    id="name"
-                    name="name"
-                    type="text"
-                    placeholder="Seu nome completo"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    required
-                    disabled={isLoading}
-                  />
+                  <Input id="name" name="name" value={formData.name} onChange={handleInputChange} required disabled={isLoading} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="phone">Telefone *</Label>
-                  <Input
-                    id="phone"
-                    name="phone"
-                    type="tel"
-                    placeholder="(00) 00000-0000"
-                    value={formData.phone}
-                    onChange={handleInputChange}
-                    required
-                    disabled={isLoading}
-                  />
+                  <Input id="phone" name="phone" value={formData.phone} onChange={handleInputChange} required disabled={isLoading} />
                 </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="cpf">CPF</Label>
-                <Input
-                  id="cpf"
-                  name="cpf"
-                  type="text"
-                  placeholder="000.000.000-00"
-                  value={formData.cpf}
-                  onChange={handleInputChange}
-                  disabled={isLoading}
-                />
-                <p className="text-xs text-muted-foreground">
-                  Necessário para pagamentos via PIX e Boleto
-                </p>
+                <div className="space-y-2">
+                  <Label htmlFor="cpf">CPF *</Label>
+                  <Input id="cpf" name="cpf" value={formData.cpf} onChange={handleInputChange} required disabled={isLoading} />
+                </div>
               </div>
             </div>
 
-            {/* Endereço */}
-            <div className="space-y-4">
-              <h3 className="font-semibold text-lg">Endereço de Entrega</h3>
-              <div className="grid grid-cols-1 gap-4">
+            <div className="space-y-4 pt-4 border-t">
+              <h3 className="font-semibold text-lg">Endereço</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="zipCode">CEP *</Label>
-                  <Input
-                    id="zipCode"
-                    name="zipCode"
-                    type="text"
-                    placeholder="00000-000"
-                    value={formData.zipCode}
-                    onChange={handleInputChange}
-                    onBlur={handleCepBlur}
-                    required
-                    disabled={isLoading || isLoadingCep}
-                    maxLength={9}
-                  />
-                  {isLoadingCep && (
-                    <p className="text-sm text-muted-foreground">Buscando endereço...</p>
-                  )}
+                  <Input id="zipCode" name="zipCode" value={formData.zipCode} onChange={handleInputChange} onBlur={handleCepBlur} required disabled={isLoading || isLoadingCep} />
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-2 md:col-span-2">
                   <Label htmlFor="address">Endereço *</Label>
-                  <Input
-                    id="address"
-                    name="address"
-                    type="text"
-                    placeholder="Rua, Avenida, etc."
-                    value={formData.address}
-                    onChange={handleInputChange}
-                    required
-                    disabled={isLoading}
-                  />
+                  <Input id="address" name="address" value={formData.address} onChange={handleInputChange} required disabled={isLoading || isLoadingCep} />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="number">Número *</Label>
-                    <Input
-                      ref={numberInputRef}
-                      id="number"
-                      name="number"
-                      type="text"
-                      placeholder="123"
-                      value={formData.number}
-                      onChange={handleInputChange}
-                      required
-                      disabled={isLoading}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="complement">Complemento</Label>
-                    <Input
-                      id="complement"
-                      name="complement"
-                      type="text"
-                      placeholder="Apto, Bloco, etc."
-                      value={formData.complement}
-                      onChange={handleInputChange}
-                      disabled={isLoading}
-                    />
-                  </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="number">Número *</Label>
+                  <Input ref={numberInputRef} id="number" name="number" value={formData.number} onChange={handleInputChange} required disabled={isLoading} />
                 </div>
+                <div className="space-y-2 md:col-span-2">
+                  <Label htmlFor="complement">Complemento</Label>
+                  <Input id="complement" name="complement" value={formData.complement} onChange={handleInputChange} disabled={isLoading} />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="neighborhood">Bairro *</Label>
-                  <Input
-                    id="neighborhood"
-                    name="neighborhood"
-                    type="text"
-                    placeholder="Seu bairro"
-                    value={formData.neighborhood}
-                    onChange={handleInputChange}
-                    required
-                    disabled={isLoading}
-                  />
+                  <Input id="neighborhood" name="neighborhood" value={formData.neighborhood} onChange={handleInputChange} required disabled={isLoading || isLoadingCep} />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="city">Cidade *</Label>
-                    <Input
-                      id="city"
-                      name="city"
-                      type="text"
-                      placeholder="Sua cidade"
-                      value={formData.city}
-                      onChange={handleInputChange}
-                      required
-                      disabled={isLoading}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="state">Estado *</Label>
-                    <Select
-                      value={formData.state}
-                      onValueChange={(value) => setFormData(prev => ({ ...prev, state: value }))}
-                      disabled={isLoading}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {BRAZILIAN_STATES.map((state) => (
-                          <SelectItem key={state.value} value={state.value}>
-                            {state.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                <div className="space-y-2">
+                  <Label htmlFor="city">Cidade *</Label>
+                  <Input id="city" name="city" value={formData.city} onChange={handleInputChange} required disabled={isLoading || isLoadingCep} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="state">Estado *</Label>
+                  <Select value={formData.state} onValueChange={(value) => setFormData(prev => ({ ...prev, state: value }))} disabled={isLoading || isLoadingCep}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {BRAZILIAN_STATES.map((state) => (
+                        <SelectItem key={state.value} value={state.value}>
+                          {state.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
             </div>
 
-            <Button
-              type="submit"
-              className="w-full bg-[#FF6B35] hover:bg-[#FF5722] text-white"
-              disabled={isLoading}
-            >
+            <Button type="submit" className="w-full bg-[#FF6B35] hover:bg-[#FF5722] text-white" disabled={isLoading}>
               {isLoading ? 'Criando conta...' : 'Criar Conta'}
             </Button>
           </form>
+
           <div className="mt-4 text-center text-sm">
             <span className="text-muted-foreground">Já tem uma conta? </span>
             <Link to="/login" className="text-[#FF6B35] hover:underline font-medium">
-              Fazer login
+              Entrar
             </Link>
           </div>
         </CardContent>

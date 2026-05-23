@@ -84,6 +84,7 @@ export interface Category {
   description?: string | null;
   long_description?: string | null; // 300-500 palavras para SEO
   image_url?: string | null;
+  mini_thumb_url?: string | null;
   icon?: string | null;
   display_order?: number;
   is_active?: boolean;

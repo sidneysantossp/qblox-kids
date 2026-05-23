@@ -149,44 +149,48 @@ const useSupabaseUpload = (options: UseSupabaseUploadOptions) => {
   const onUpload = useCallback(async () => {
     setLoading(true)
 
-    // [Joshen] This is to support handling partial successes
-    // If any files didn't upload for any reason, hitting "Upload" again will only upload the files that had errors
-    const filesWithErrors = errors.map((x) => x.name)
-    const filesToUpload =
-      filesWithErrors.length > 0
-        ? [
-            ...files.filter((f) => filesWithErrors.includes(f.name)),
-            ...files.filter((f) => !successes.includes(f.name)),
-          ]
-        : files
+    try {
+      const filesWithErrors = errors.map((x) => x.name)
+      const filesToUpload =
+        filesWithErrors.length > 0
+          ? [
+              ...files.filter((f) => filesWithErrors.includes(f.name)),
+              ...files.filter((f) => !successes.includes(f.name)),
+            ]
+          : files
 
-    const responses = await Promise.all(
-      filesToUpload.map(async (file) => {
-        const { error } = await supabase.storage
-          .from(bucketName)
-          .upload(!!path ? `${path}/${file.name}` : file.name, file, {
-            cacheControl: cacheControl.toString(),
-            upsert,
-          })
-        if (error) {
-          return { name: file.name, message: error.message }
-        } else {
-          return { name: file.name, message: undefined }
-        }
-      })
-    )
+      const responses = await Promise.all(
+        filesToUpload.map(async (file) => {
+          try {
+            const { error } = await supabase.storage
+              .from(bucketName)
+              .upload(!!path ? `${path}/${file.name}` : file.name, file, {
+                cacheControl: cacheControl.toString(),
+                upsert,
+              })
 
-    const responseErrors = responses.filter((x) => x.message !== undefined)
-    // if there were errors previously, this function tried to upload the files again so we should clear/overwrite the existing errors.
-    setErrors(responseErrors)
+            if (error) {
+              return { name: file.name, message: error.message }
+            }
 
-    const responseSuccesses = responses.filter((x) => x.message === undefined)
-    const newSuccesses = Array.from(
-      new Set([...successes, ...responseSuccesses.map((x) => x.name)])
-    )
-    setSuccesses(newSuccesses)
+            return { name: file.name, message: undefined }
+          } catch (error: any) {
+            return { name: file.name, message: error?.message || 'Erro inesperado ao enviar arquivo' }
+          }
+        })
+      )
 
-    setLoading(false)
+      const responseErrors = responses.filter((x) => x.message !== undefined)
+      setErrors(responseErrors)
+
+      const responseSuccesses = responses.filter((x) => x.message === undefined)
+      const newSuccesses = Array.from(
+        new Set([...successes, ...responseSuccesses.map((x) => x.name)])
+      )
+      setSuccesses(newSuccesses)
+    } finally {
+      setLoading(false)
+    }
   }, [files, path, bucketName, errors, successes])
 
   useEffect(() => {

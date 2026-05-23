@@ -1,7 +1,7 @@
 import { ChevronRight, Clock, Zap, TrendingDown } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ProductCard } from '@/components/products/ProductCard';
+import { BrickStoreProductCard, mapProductToBrickStoreProductCardProps } from '@/components/brickstore/BrickStoreProductCard';
 import { SEO } from '@/components/SEO';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getFlashSaleProducts } from '@/db/api';
@@ -123,7 +123,7 @@ export default function SpecialOffersPage() {
 
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
                 {products.map((product) => (
-                  <ProductCard key={product.id} product={product} />
+                  <BrickStoreProductCard key={product.id} {...mapProductToBrickStoreProductCardProps(product)} />
                 ))}
               </div>
             </>

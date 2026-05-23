@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Filter, Grid3x3, LayoutGrid, SlidersHorizontal } from 'lucide-react';
 import { SEO } from '@/components/SEO';
+import { BrickStoreProductCard, mapProductToBrickStoreProductCardProps } from '@/components/brickstore/BrickStoreProductCard';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
@@ -25,7 +26,6 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { getProducts, getAllCategories } from '@/db/api';
 import type { Product, Category } from '@/types';
-import { getProductPath } from '@/lib/urls';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -282,7 +282,7 @@ export default function ShopPage() {
                   </Sheet>
 
                   {/* Results Count */}
-                  <p className="text-sm text-muted-foreground">
+                  <div className="text-sm text-muted-foreground">
                     {isLoading ? (
                       <Skeleton className="h-5 w-32 bg-muted" />
                     ) : (
@@ -290,7 +290,7 @@ export default function ShopPage() {
                         {filteredProducts.length} {filteredProducts.length === 1 ? 'produto' : 'produtos'}
                       </span>
                     )}
-                  </p>
+                  </div>
                 </div>
 
                 <div className="flex items-center gap-3 w-full sm:w-auto">
@@ -387,50 +387,7 @@ export default function ShopPage() {
               ) : (
                 <div className={`grid grid-cols-2 md:grid-cols-${gridCols} gap-4 md:gap-6`}>
                   {filteredProducts.map((product) => (
-                    <Link key={product.id} to={getProductPath(product)}>
-                      <Card className="h-full hover:shadow-lg transition-shadow group">
-                        <CardContent className="p-4 flex flex-col h-full">
-                          {/* Image */}
-                          <div className="relative aspect-square mb-3 overflow-hidden rounded-lg bg-muted">
-                            <img
-                              src={product.image_url}
-                              alt={product.name}
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                            />
-                            {product.is_on_sale && (
-                              <Badge className="absolute top-2 right-2 bg-destructive">
-                                OFERTA
-                              </Badge>
-                            )}
-                          </div>
-
-                          {/* Content */}
-                          <div className="flex-1 flex flex-col">
-                            <h3 className="font-semibold text-sm md:text-base mb-2 line-clamp-2 text-balance">
-                              {product.name}
-                            </h3>
-
-                            {/* Price */}
-                            <div className="mt-auto">
-                              {product.original_price && product.original_price > product.price ? (
-                                <div className="space-y-1">
-                                  <p className="text-xs text-muted-foreground line-through">
-                                    R$ {product.original_price.toFixed(2)}
-                                  </p>
-                                  <p className="text-lg font-bold text-primary">
-                                    R$ {product.price.toFixed(2)}
-                                  </p>
-                                </div>
-                              ) : (
-                                <p className="text-lg font-bold text-primary">
-                                  R$ {product.price.toFixed(2)}
-                                </p>
-                              )}
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </Link>
+                    <BrickStoreProductCard key={product.id} {...mapProductToBrickStoreProductCardProps(product)} />
                   ))}
                 </div>
               )}

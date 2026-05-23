@@ -13,8 +13,9 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [waitingForProfile, setWaitingForProfile] = useState(false);
-  const { signIn, user, profile } = useAuth();
+  const { signIn, signInWithGoogle, user, profile } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
@@ -23,12 +24,14 @@ export default function LoginPage() {
   const returnUrl = (location.state as any)?.returnUrl || (location.state as any)?.from?.pathname || '/';
 
   useEffect(() => {
-    if (waitingForProfile && user && profile) {
-      toast({
-        title: 'Login realizado com sucesso!',
-        description: 'Bem-vindo de volta!',
-        variant: 'success',
-      });
+    if (user && profile) {
+      if (waitingForProfile) {
+        toast({
+          title: 'Login realizado com sucesso!',
+          description: 'Bem-vindo de volta!',
+          variant: 'success',
+        });
+      }
       navigate(returnUrl, { replace: true });
     }
   }, [waitingForProfile, user, profile, returnUrl, navigate, toast]);
@@ -76,6 +79,38 @@ export default function LoginPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          <div className="mb-4">
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full"
+              disabled={isLoading || isGoogleLoading || waitingForProfile}
+              onClick={async () => {
+                setIsGoogleLoading(true);
+                const { error } = await signInWithGoogle(returnUrl);
+                if (error) {
+                  toast({
+                    title: 'Erro ao entrar com Google',
+                    description: error.message || 'Tente novamente mais tarde',
+                    variant: 'destructive',
+                  });
+                  setIsGoogleLoading(false);
+                }
+              }}
+            >
+              {isGoogleLoading ? 'Redirecionando para o Google...' : 'Continuar com Google'}
+            </Button>
+          </div>
+
+          <div className="relative my-4">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-card px-2 text-muted-foreground">ou entre com e-mail</span>
+            </div>
+          </div>
+
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">E-mail</Label>

@@ -4,7 +4,7 @@ import { ChevronRight } from 'lucide-react';
 import { SEO } from '@/components/SEO';
 import { SchemaMarkup, generateFAQSchema, generateItemListSchema, type ProductListItem } from '@/lib/schema';
 import { Card, CardContent } from '@/components/ui/card';
-import { ProductCard } from '@/components/products/ProductCard';
+import { BrickStoreProductCard, mapProductToBrickStoreProductCardProps } from '@/components/brickstore/BrickStoreProductCard';
 import { getProductsByCategory } from '@/db/api';
 import type { Product } from '@/types';
 import { getProductCanonicalUrl } from '@/lib/urls';
@@ -98,7 +98,7 @@ export default function SuperHeroesPillarPage() {
             {isLoading ? (
               <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 xl:gap-6">{[...Array(4)].map((_, index) => <div key={index} className="aspect-[3/4] rounded-2xl bg-muted animate-pulse" />)}</div>
             ) : (
-              <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 xl:gap-6">{products.map((product) => <ProductCard key={product.id} product={product} />)}</div>
+              <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 xl:gap-6">{products.map((product) => <BrickStoreProductCard key={product.id} {...mapProductToBrickStoreProductCardProps(product)} />)}</div>
             )}
           </section>
         </section>

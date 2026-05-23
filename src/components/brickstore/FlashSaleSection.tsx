@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel';
 import { CountdownTimer } from '@/components/products/CountdownTimer';
 import { getFlashSaleProducts } from '@/db/api';
-import { ProductCard } from '@/components/products/ProductCard';
+import { BrickStoreProductCard, mapProductToBrickStoreProductCardProps } from '@/components/brickstore/BrickStoreProductCard';
 import type { Product } from '@/types';
 
 export function FlashSaleSection() {
@@ -58,13 +58,14 @@ export function FlashSaleSection() {
                 opts={{
                   align: 'start',
                   loop: true,
+                  slidesToScroll: 1,
                 }}
                 className="w-full"
               >
                 <CarouselContent className="-ml-4">
                   {flashSaleProducts.map((product) => (
-                    <CarouselItem key={product.id} className="pl-4 basis-full">
-                      <ProductCard product={product} />
+                    <CarouselItem key={product.id} className="pl-4 basis-[75%] sm:basis-[45%] md:basis-[32%] lg:basis-[25%]">
+                      <BrickStoreProductCard {...mapProductToBrickStoreProductCardProps(product)} />
                     </CarouselItem>
                   ))}
                 </CarouselContent>
@@ -72,7 +73,7 @@ export function FlashSaleSection() {
             </div>
             <div className="hidden xl:grid grid-cols-5 gap-4">
               {flashSaleProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
+                <BrickStoreProductCard key={product.id} {...mapProductToBrickStoreProductCardProps(product)} />
               ))}
             </div>
           </>

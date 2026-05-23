@@ -7,6 +7,7 @@ import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { verifyAsaasPayment } from '@/db/api';
 import { useToast } from '@/hooks/use-toast';
+import { formatOrderNumber } from '@/lib/orders';
 import type { Order } from '@/types';
 import QRCode from 'qrcode';
 
@@ -177,7 +178,7 @@ export default function AsaasPaymentPage() {
                 <div className="grid gap-2">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Número do Pedido:</span>
-                    <span className="font-mono">{order.id.slice(0, 8)}</span>
+                    <span className="font-mono">{formatOrderNumber(order.id)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Método de Pagamento:</span>
@@ -195,11 +196,18 @@ export default function AsaasPaymentPage() {
                 <div className="space-y-3">
                   <h3 className="font-semibold">Itens:</h3>
                   {order.items.map((item, index) => (
-                    <div key={index} className="flex justify-between text-sm">
-                      <span>
-                        {item.name} x {item.quantity}
-                      </span>
-                      <span>R$ {(item.price * item.quantity).toFixed(2)}</span>
+                    <div key={index} className="flex items-start gap-3 text-sm">
+                      <img
+                        src={item.image_url || ''}
+                        alt={item.name}
+                        className="h-14 w-14 rounded-md object-cover bg-muted shrink-0"
+                      />
+                      <div className="min-w-0 flex-1">
+                        <p className="line-clamp-2 leading-snug">
+                          {item.name} x {item.quantity}
+                        </p>
+                      </div>
+                      <span className="whitespace-nowrap shrink-0">R$ {(item.price * item.quantity).toFixed(2)}</span>
                     </div>
                   ))}
                 </div>

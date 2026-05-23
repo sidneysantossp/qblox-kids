@@ -8,7 +8,7 @@ import type { Product } from '@/types';
 import { CardImageGallery } from '@/components/products/CardImageGallery';
 import { getProductPath } from '@/lib/urls';
 
-interface BrickStoreProductCardProps {
+export interface BrickStoreProductCardProps {
   id: string;
   name: string;
   category: string;
@@ -21,6 +21,26 @@ interface BrickStoreProductCardProps {
   images?: string[];
   badge?: 'MAIS VENDIDO' | 'NOVO' | 'OFERTA';
   discount?: number;
+}
+
+export function mapProductToBrickStoreProductCardProps(product: Product): BrickStoreProductCardProps {
+  return {
+    id: product.id,
+    name: product.name,
+    category: product.category,
+    price: product.price,
+    oldPrice: product.original_price || undefined,
+    rating: Math.round(product.rating || 0),
+    reviews: product.reviews_count || 0,
+    sku: product.sku,
+    image: product.image_url,
+    images: product.images,
+    badge: product.is_bestseller ? 'MAIS VENDIDO' : product.is_on_sale || product.is_flash_sale ? 'OFERTA' : 'NOVO',
+    discount:
+      product.original_price && product.original_price > product.price
+        ? Math.round(((product.original_price - product.price) / product.original_price) * 100)
+        : undefined,
+  };
 }
 
 export function BrickStoreProductCard({
@@ -235,8 +255,8 @@ export function BrickStoreProductCard({
                 onClick={(event) => void handleAddToCart(event)}
                 disabled={isAddingToCart}
               >
-                <ShoppingCart className="w-3.5 h-3.5 mr-1.5 shrink-0" />
-                {isAddingToCart ? 'ADICIONANDO...' : 'ADICIONAR'}
+                <ShoppingCart className="w-3.5 h-3.5 shrink-0 md:mr-1.5" />
+                <span className="hidden md:inline">{isAddingToCart ? 'ADICIONANDO...' : 'ADICIONAR'}</span>
               </Button>
             </div>
 

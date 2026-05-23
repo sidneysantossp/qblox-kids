@@ -4,7 +4,7 @@ import { ChevronRight } from 'lucide-react';
 import { SEO } from '@/components/SEO';
 import { SchemaMarkup, generateFAQSchema, generateItemListSchema, generateOrganizationSchema, generateWebsiteSchema, type ProductListItem } from '@/lib/schema';
 import { Card, CardContent } from '@/components/ui/card';
-import { ProductCard } from '@/components/products/ProductCard';
+import { BrickStoreProductCard, mapProductToBrickStoreProductCardProps } from '@/components/brickstore/BrickStoreProductCard';
 import { getFeaturedProducts } from '@/db/api';
 import type { Product } from '@/types';
 import { getProductCanonicalUrl } from '@/lib/urls';
@@ -161,7 +161,7 @@ export default function BuildingFiguresPillarPage() {
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 xl:gap-6">
                 {featuredProducts.slice(0, 8).map((product) => (
-                  <ProductCard key={product.id} product={product} />
+                  <BrickStoreProductCard key={product.id} {...mapProductToBrickStoreProductCardProps(product)} />
                 ))}
               </div>
             )}

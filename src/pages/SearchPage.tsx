@@ -1,7 +1,7 @@
 import { ChevronRight, Filter, Search, SlidersHorizontal } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { ProductCard } from '@/components/products/ProductCard';
+import { BrickStoreProductCard, mapProductToBrickStoreProductCardProps } from '@/components/brickstore/BrickStoreProductCard';
 import { ProductFilters } from '@/components/products/ProductFilters';
 import { SEO } from '@/components/SEO';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -218,7 +218,7 @@ export default function SearchPage() {
           ) : filteredProducts.length > 0 ? (
             <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 xl:gap-6">
               {filteredProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
+                <BrickStoreProductCard key={product.id} {...mapProductToBrickStoreProductCardProps(product)} />
               ))}
             </div>
           ) : (

@@ -1,6 +1,7 @@
 import {
   ChevronRight,
   Facebook,
+  Heart,
   MessageSquare,
   Minus,
   Plus,
@@ -37,6 +38,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { useCart } from '@/contexts/CartContext';
+import { useFavorites } from '@/contexts/FavoritesContext';
 import { getProductById, getProductsByCategory } from '@/db/api';
 import type { Product } from '@/types';
 import { FreeShippingProgress } from '@/components/cart/FreeShippingProgress';
@@ -63,6 +65,7 @@ export default function ProductDetailPage() {
   const [selectedBundleProductIds, setSelectedBundleProductIds] = useState<string[]>([]);
   const [isAddingBundle, setIsAddingBundle] = useState(false);
   const { addToCart, cartTotal } = useCart();
+  const { isFavorite, toggleFavorite } = useFavorites();
 
   useEffect(() => {
     const loadProduct = async () => {
@@ -358,6 +361,19 @@ export default function ProductDetailPage() {
               </p>
 
               <div className="flex items-center gap-2 mb-6">
+                <button
+                  type="button"
+                  onClick={async () => {
+                    const toggled = await toggleFavorite(product);
+                    if (!toggled) {
+                      window.location.href = '/login';
+                    }
+                  }}
+                  className="w-9 h-9 rounded-full bg-white border hover:bg-muted flex items-center justify-center transition-colors"
+                  aria-label={isFavorite(product.id) ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
+                >
+                  <Heart className={`w-4 h-4 ${isFavorite(product.id) ? 'fill-red-500 text-red-500' : 'text-gray-600'}`} />
+                </button>
                 <span className="text-sm text-muted-foreground mr-2">Compartilhar:</span>
                 <button onClick={() => handleShare('facebook')} className="w-9 h-9 rounded-full bg-[#1877F2] hover:bg-[#166FE5] text-white flex items-center justify-center transition-colors" aria-label="Compartilhar no Facebook"><Facebook className="w-4 h-4" /></button>
                 <button onClick={() => handleShare('twitter')} className="w-9 h-9 rounded-full bg-[#1DA1F2] hover:bg-[#1A94DA] text-white flex items-center justify-center transition-colors" aria-label="Compartilhar no Twitter"><Twitter className="w-4 h-4" /></button>

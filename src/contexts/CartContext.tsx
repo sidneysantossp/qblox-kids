@@ -1,5 +1,6 @@
 import { createContext, type ReactNode, useContext, useEffect, useState } from 'react';
 import { addToCart as addToCartDB, clearCart as clearCartDB, getCartItems, removeFromCart as removeFromCartDB, updateCartItemQuantity } from '@/db/api';
+import { supabase } from '@/db/supabase';
 import { useToast } from '@/hooks/use-toast';
 import type { CartItem, Product } from '@/types';
 
@@ -31,11 +32,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
-  const sessionId = getSessionId();
+  const [sessionId, setSessionId] = useState(() => getSessionId());
 
-  const refreshCart = async () => {
+  const refreshCart = async (showLoader = true) => {
     try {
-      setIsLoading(true);
+      if (showLoader) {
+        setIsLoading(true);
+      }
       const items = await getCartItems(sessionId);
       setCartItems(items);
     } catch (error) {
@@ -46,13 +49,47 @@ export function CartProvider({ children }: { children: ReactNode }) {
         variant: 'destructive',
       });
     } finally {
-      setIsLoading(false);
+      if (showLoader) {
+        setIsLoading(false);
+      }
     }
   };
 
   useEffect(() => {
     refreshCart();
-  }, []);
+  }, [sessionId]);
+
+  useEffect(() => {
+    const syncCartSessionWithUser = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session?.user) return;
+
+        const userSessionId = `user_${session.user.id}`;
+        if (sessionId === userSessionId) return;
+
+        const anonymousItems = await getCartItems(sessionId);
+        const userItems = await getCartItems(userSessionId);
+
+        for (const item of anonymousItems) {
+          const existing = userItems.find((userItem) => userItem.product_id === item.product_id);
+          const quantityToAdd = existing ? item.quantity : item.quantity;
+          await addToCartDB(userSessionId, item.product_id, quantityToAdd);
+        }
+
+        if (anonymousItems.length > 0) {
+          await clearCartDB(sessionId);
+        }
+
+        localStorage.setItem('cart_session_id', userSessionId);
+        setSessionId(userSessionId);
+      } catch (error) {
+        console.error('Erro ao sincronizar carrinho com usuário autenticado:', error);
+      }
+    };
+
+    syncCartSessionWithUser();
+  }, [sessionId]);
 
   const addToCart = async (
     product: Product,
@@ -87,10 +124,18 @@ export function CartProvider({ children }: { children: ReactNode }) {
   };
 
   const updateQuantity = async (itemId: string, quantity: number) => {
+    const previousItems = cartItems;
+
     try {
+      setCartItems((currentItems) =>
+        currentItems.map((item) =>
+          item.id === itemId ? { ...item, quantity } : item
+        )
+      );
       await updateCartItemQuantity(itemId, quantity);
-      await refreshCart();
+      await refreshCart(false);
     } catch (error) {
+      setCartItems(previousItems);
       console.error('Erro ao atualizar quantidade:', error);
       toast({
         title: 'Erro',

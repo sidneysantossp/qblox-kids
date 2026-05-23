@@ -1,6 +1,6 @@
 import { ChevronRight, Minus, Plus, ShoppingBag, Trash2 } from 'lucide-react';
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { SEO } from '@/components/SEO';
 import { getProductPath } from '@/lib/urls';
 import { 
@@ -18,11 +18,11 @@ import { useCart } from '@/contexts/CartContext';
 
 export default function CartPage() {
   const { cartItems, cartTotal, updateQuantity, removeItem, isLoading } = useCart();
+  const navigate = useNavigate();
   const [isCheckingOut] = useState(false);
 
   const handleCheckout = () => {
-    // Redirecionar para página de checkout (Asaas - PIX e Boleto)
-    window.location.href = '/checkout';
+    navigate('/checkout');
   };
 
   if (isLoading) {

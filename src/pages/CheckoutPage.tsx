@@ -351,8 +351,8 @@ function CheckoutForm() {
 
       // Garantir que o desconto não exceda o subtotal dos produtos
       const maxDiscount = Math.min(result.discount_amount || 0, cartTotal);
-      
-      // Aplicar desconto
+
+      // Aplicar desconto do cupom
       setAppliedCoupon(result);
       setDiscount(maxDiscount);
       
@@ -465,7 +465,7 @@ function CheckoutForm() {
         },
         paymentMethod: asaasPaymentMethod,
         shipping_cost: shippingCost,
-        discount: discount,
+        discount: totalDiscount,
         coupon_code: couponCode || null,
       };
 
@@ -515,9 +515,11 @@ function CheckoutForm() {
     }
   };
 
-  // Cálculo do total: (Subtotal - Desconto) + Frete
-  // O desconto é aplicado APENAS ao subtotal dos produtos, não ao frete
-  const total = cartTotal - discount + shippingCost;
+  const pixDiscount = paymentMethod === 'pix' ? Number((cartTotal * 0.05).toFixed(2)) : 0;
+  const totalDiscount = discount + pixDiscount;
+
+  // Cálculo do total: (Subtotal - Descontos) + Frete
+  const total = cartTotal - totalDiscount + shippingCost;
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -724,21 +726,21 @@ function CheckoutForm() {
                 </CardHeader>
                 <CardContent>
                   {/* Progress bar para frete grátis */}
-                  {cartTotal < 99 ? (
+                  {cartTotal < 199 ? (
                     <div className="mb-6 p-4 bg-gradient-to-r from-orange-50 to-green-50 dark:from-orange-950/20 dark:to-green-950/20 rounded-lg border border-orange-200 dark:border-orange-800">
                       <div className="flex justify-between items-center mb-2">
                         <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                          Faltam <strong className="text-[#FF6B35]">R$ {(99 - cartTotal).toFixed(2)}</strong> para frete grátis
+                          Faltam <strong className="text-[#FF6B35]">R$ {(199 - cartTotal).toFixed(2)}</strong> para frete grátis
                         </span>
                         <span className="text-sm font-bold text-[#FF6B35]">
-                          {Math.round((cartTotal / 99) * 100)}%
+                          {Math.round((cartTotal / 199) * 100)}%
                         </span>
                       </div>
                       <div className="relative h-4 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden shadow-inner">
                         <div
                           className="absolute top-0 left-0 h-full rounded-full transition-all duration-500 ease-out shadow-md"
                           style={{
-                            width: `${(cartTotal / 99) * 100}%`,
+                            width: `${(cartTotal / 199) * 100}%`,
                             background: `linear-gradient(to right, 
                               ${cartTotal < 49.5 ? '#FF6B35' : cartTotal < 74.25 ? '#FFA726' : '#66BB6A'}, 
                               ${cartTotal < 49.5 ? '#FFA726' : cartTotal < 74.25 ? '#66BB6A' : '#4CAF50'})`
@@ -987,11 +989,21 @@ function CheckoutForm() {
               <CardContent>
                 <div className="space-y-3 mb-4">
                   {cartItems.map((item) => (
-                    <div key={item.id} className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">
-                        {item.product?.name} x{item.quantity}
-                      </span>
-                      <span className="font-medium">
+                    <div key={item.id} className="flex items-start gap-3 text-sm">
+                      <img
+                        src={item.product?.image_url || ''}
+                        alt={item.product?.name || ''}
+                        className="h-14 w-14 rounded-md object-cover bg-muted shrink-0"
+                      />
+                      <div className="min-w-0 flex-1">
+                        <p className="text-muted-foreground line-clamp-2 leading-snug">
+                          {item.product?.name}
+                        </p>
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          Qtd: {item.quantity}
+                        </p>
+                      </div>
+                      <span className="font-medium whitespace-nowrap shrink-0">
                         R$ {((item.product?.price || 0) * item.quantity).toFixed(2)}
                       </span>
                     </div>
@@ -1072,9 +1084,17 @@ function CheckoutForm() {
                   </div>
                   {discount > 0 && (
                     <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Desconto</span>
+                      <span className="text-muted-foreground">Cupom</span>
                       <span className="font-medium text-green-600">
                         - R$ {discount.toFixed(2)}
+                      </span>
+                    </div>
+                  )}
+                  {pixDiscount > 0 && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Desconto PIX (5%)</span>
+                      <span className="font-medium text-green-600">
+                        - R$ {pixDiscount.toFixed(2)}
                       </span>
                     </div>
                   )}
@@ -1121,7 +1141,8 @@ export default function CheckoutPage() {
   // Usar useEffect para redirecionamento
   useEffect(() => {
     if (!loading && !user) {
-      navigate('/login', { state: { from: location }, replace: true });
+      const returnUrl = location.pathname + location.search;
+      navigate('/login', { state: { returnUrl }, replace: true });
     }
   }, [loading, user, navigate, location]);
 

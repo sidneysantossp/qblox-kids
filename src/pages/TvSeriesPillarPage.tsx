@@ -4,7 +4,7 @@ import { ChevronRight } from 'lucide-react';
 import { SEO } from '@/components/SEO';
 import { SchemaMarkup, generateFAQSchema, generateItemListSchema, type ProductListItem } from '@/lib/schema';
 import { Card, CardContent } from '@/components/ui/card';
-import { ProductCard } from '@/components/products/ProductCard';
+import { BrickStoreProductCard, mapProductToBrickStoreProductCardProps } from '@/components/brickstore/BrickStoreProductCard';
 import { getProductsByCategory } from '@/db/api';
 import type { Product } from '@/types';
 import { getProductCanonicalUrl } from '@/lib/urls';
@@ -61,7 +61,7 @@ export default function TvSeriesPillarPage() {
             <Card><CardContent className="p-6"><h2 className="text-xl font-bold mb-3">Comparar vitrines</h2><p className="text-muted-foreground mb-4">Acesse produtos em destaque, lançamentos e ofertas especiais.</p><div className="flex flex-col gap-3 text-sm"><Link to="/ofertas-especiais" className="font-medium hover:text-primary transition-colors">Ofertas especiais</Link><Link to="/categoria/lancamentos" className="font-medium hover:text-primary transition-colors">Lançamentos</Link></div></CardContent></Card>
             <Card><CardContent className="p-6"><h2 className="text-xl font-bold mb-3">Aprofundar a busca</h2><p className="text-muted-foreground mb-4">Veja conteúdos editoriais para filtrar melhor a sua decisão de compra.</p><div className="flex flex-col gap-3 text-sm"><Link to="/blog" className="font-medium hover:text-primary transition-colors">Acessar o blog</Link><Link to="/bonecos-de-montar" className="font-medium hover:text-primary transition-colors">Guia principal</Link></div></CardContent></Card>
           </div>
-          <section className="mb-12"><h2 className="text-2xl font-bold mb-6">Produtos em destaque de séries da TV</h2>{isLoading ? <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 xl:gap-6">{[...Array(4)].map((_, index) => <div key={index} className="aspect-[3/4] rounded-2xl bg-muted animate-pulse" />)}</div> : <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 xl:gap-6">{products.map((product) => <ProductCard key={product.id} product={product} />)}</div>}</section>
+          <section className="mb-12"><h2 className="text-2xl font-bold mb-6">Produtos em destaque de séries da TV</h2>{isLoading ? <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 xl:gap-6">{[...Array(4)].map((_, index) => <div key={index} className="aspect-[3/4] rounded-2xl bg-muted animate-pulse" />)}</div> : <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 xl:gap-6">{products.map((product) => <BrickStoreProductCard key={product.id} {...mapProductToBrickStoreProductCardProps(product)} />)}</div>}</section>
         </section>
       </div>
     </>

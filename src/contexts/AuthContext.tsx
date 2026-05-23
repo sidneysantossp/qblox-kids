@@ -1,16 +1,11 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { supabase } from '@/db/supabase';
 import type { User } from '@supabase/supabase-js';
+import type { UserProfile } from '@/types';
 
-interface Profile {
-  id: string;
-  username?: string;
-  avatar_url?: string;
-  full_name?: string;
-  email?: string;
-  phone?: string;
-  role?: 'user' | 'admin';
-}
+type Profile = UserProfile & {
+  email?: string | null;
+};
 
 export async function getProfile(userId: string): Promise<Profile | null> {
   const { data, error } = await supabase
@@ -26,6 +21,34 @@ export async function getProfile(userId: string): Promise<Profile | null> {
   return data;
 }
 
+async function ensureProfile(user: User): Promise<Profile | null> {
+  const existingProfile = await getProfile(user.id);
+  if (existingProfile) {
+    return existingProfile;
+  }
+
+  const fallbackEmail = user.email || '';
+  const fullName = (user.user_metadata?.full_name as string) || (user.user_metadata?.name as string) || '';
+  const avatarUrl = (user.user_metadata?.avatar_url as string) || (user.user_metadata?.picture as string) || '';
+  const usernameBase = (fallbackEmail.split('@')[0] || user.id.slice(0, 8)).toLowerCase();
+
+  const { error } = await supabase
+    .from('profiles')
+    .upsert({
+      id: user.id,
+      username: usernameBase,
+      full_name: fullName,
+      avatar_url: avatarUrl,
+    });
+
+  if (error) {
+    console.error('Erro ao criar perfil automaticamente:', error);
+    return null;
+  }
+
+  return await getProfile(user.id);
+}
+
 interface AuthContextType {
   user: User | null;
   profile: Profile | null;
@@ -33,6 +56,7 @@ interface AuthContextType {
   isAdmin: boolean;
   signIn: (emailOrUsername: string, password: string) => Promise<{ error: Error | null }>;
   signUp: (emailOrUsername: string, password: string) => Promise<{ error: Error | null }>;
+  signInWithGoogle: (returnUrl?: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
 }
@@ -79,7 +103,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    const profileData = await getProfile(user.id);
+    const profileData = await ensureProfile(user);
     setProfile(profileData);
   };
 
@@ -87,19 +111,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
       if (session?.user) {
-        getProfile(session.user.id).then((profileData) => {
+        ensureProfile(session.user).then((profileData) => {
           setProfile(profileData);
-          setLoading(false); // Só marca como carregado após o profile estar pronto
+          setLoading(false);
         });
       } else {
-        setLoading(false); // Se não há usuário, pode marcar como carregado imediatamente
+        setLoading(false);
       }
     });
     // In this function, do NOT use any await calls. Use `.then()` instead to avoid deadlocks.
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setUser(session?.user ?? null);
       if (session?.user) {
-        getProfile(session.user.id).then((profileData) => {
+        ensureProfile(session.user).then((profileData) => {
           setProfile(profileData);
         });
       } else {
@@ -154,6 +178,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const signInWithGoogle = async (returnUrl = '/') => {
+    try {
+      sessionStorage.setItem('auth_return_url', returnUrl);
+      const redirectTo = `${window.location.origin}/auth/callback`;
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo },
+      });
+
+      if (error) {
+        const translatedError = new Error(translateError(error.message));
+        throw translatedError;
+      }
+
+      return { error: null };
+    } catch (error) {
+      return { error: error as Error };
+    }
+  };
+
   const signOut = async () => {
     await supabase.auth.signOut();
     setUser(null);
@@ -163,7 +207,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const isAdmin = profile?.role === 'admin';
 
   return (
-    <AuthContext.Provider value={{ user, profile, loading, isAdmin, signIn: signInWithUsername, signUp: signUpWithUsername, signOut, refreshProfile }}>
+    <AuthContext.Provider value={{ user, profile, loading, isAdmin, signIn: signInWithUsername, signUp: signUpWithUsername, signInWithGoogle, signOut, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   );

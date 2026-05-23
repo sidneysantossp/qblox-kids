@@ -1,4 +1,6 @@
+import Autoplay from 'embla-carousel-autoplay';
 import { Truck, Percent, Package, Award } from 'lucide-react';
+import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel';
 
 const promoCards = [
   {
@@ -42,27 +44,49 @@ const promoCards = [
 export function PromoBenefits() {
   return (
     <div className="container mx-auto px-4 my-12">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="md:hidden">
+        <Carousel
+          opts={{ align: 'start', loop: true }}
+          plugins={[Autoplay({ delay: 3500, stopOnInteraction: false })]}
+          className="w-full"
+        >
+          <CarouselContent className="-ml-3">
+            {promoCards.map((card, index) => {
+              const Icon = card.icon;
+              return (
+                <CarouselItem key={index} className="pl-3 basis-[86%]">
+                  <div className="bg-[#F5F5F5] rounded-2xl p-5 flex items-center gap-4 border border-border">
+                    <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center shrink-0">
+                      <Icon className={`w-6 h-6 ${card.iconColor}`} />
+                    </div>
+                    <div className="flex flex-col">
+                      <h3 className="font-extrabold text-sm mb-0.5 text-[#111827]">{card.title}</h3>
+                      <p className="text-xs font-medium text-[#111827]">{card.text}</p>
+                      <p className="text-[10px] text-[#111827]/70">{card.subtext}</p>
+                    </div>
+                  </div>
+                </CarouselItem>
+              );
+            })}
+          </CarouselContent>
+        </Carousel>
+      </div>
+
+      <div className="hidden md:grid grid-cols-2 lg:grid-cols-4 gap-4">
         {promoCards.map((card, index) => {
           const Icon = card.icon;
           return (
             <div
               key={index}
-              className={`${card.bg} rounded-2xl p-5 flex items-center gap-4 border border-border hover:scale-[1.02] transition-transform duration-200 cursor-pointer`}
+              className="bg-[#F5F5F5] rounded-2xl p-5 flex items-center gap-4 border border-border hover:scale-[1.02] transition-transform duration-200 cursor-pointer"
             >
               <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center shrink-0">
                 <Icon className={`w-6 h-6 ${card.iconColor}`} />
               </div>
               <div className="flex flex-col">
-                <h3 className="font-extrabold text-sm mb-0.5 text-[#111827]">
-                  {card.title}
-                </h3>
-                <p className="text-xs font-medium text-[#111827]">
-                  {card.text}
-                </p>
-                <p className="text-[10px] text-[#111827]/70">
-                  {card.subtext}
-                </p>
+                <h3 className="font-extrabold text-sm mb-0.5 text-[#111827]">{card.title}</h3>
+                <p className="text-xs font-medium text-[#111827]">{card.text}</p>
+                <p className="text-[10px] text-[#111827]/70">{card.subtext}</p>
               </div>
             </div>
           );

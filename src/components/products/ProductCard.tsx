@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom';
 import { Heart } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { useState } from 'react';
 import type { Product } from '@/types';
+import { useFavorites } from '@/contexts/FavoritesContext';
 import { getProductPath } from '@/lib/urls';
 
 interface ProductCardProps {
@@ -10,8 +10,8 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product }: ProductCardProps) {
-  const [isFavorite, setIsFavorite] = useState(false);
-  
+  const { isFavorite, toggleFavorite } = useFavorites();
+
   const hasDiscount = product.original_price && product.original_price > product.price;
   const finalPrice = product.price;
   const originalPrice = product.original_price || product.price;
@@ -21,14 +21,10 @@ export function ProductCard({ product }: ProductCardProps) {
   
   const installmentPrice = (finalPrice / 3).toFixed(2);
 
-  const handleToggleFavorite = () => {
-    setIsFavorite(!isFavorite);
-  };
-
   return (
     <Link 
       to={getProductPath(product)}
-      className="group relative bg-card rounded-lg overflow-hidden border hover:shadow-lg transition-all duration-300 block"
+      className="group relative bg-card rounded-lg overflow-hidden border hover:shadow-lg transition-all duration-300 block h-full"
     >
       {/* Product Image */}
       <div className="relative aspect-square overflow-hidden bg-muted">
@@ -51,13 +47,13 @@ export function ProductCard({ product }: ProductCardProps) {
           type="button"
           onClick={(e) => {
             e.preventDefault();
-            handleToggleFavorite();
+            toggleFavorite(product);
           }}
           className="absolute top-2 right-2 h-8 w-8 rounded-full bg-white/90 hover:bg-white flex items-center justify-center transition-colors shadow-sm"
-          aria-label={isFavorite ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
+          aria-label={isFavorite(product.id) ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
         >
-          <Heart 
-            className={`h-4 w-4 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-600'}`}
+          <Heart
+            className={`h-4 w-4 ${isFavorite(product.id) ? 'fill-red-500 text-red-500' : 'text-gray-600'}`}
           />
         </button>
       </div>

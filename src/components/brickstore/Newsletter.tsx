@@ -4,14 +4,14 @@ import { Mail } from 'lucide-react';
 
 export function Newsletter() {
   return (
-    <section className="bg-gradient-to-br from-[#061A33] to-[#0057D9] py-16 my-16">
+    <section className="bg-gradient-to-br from-[#D94F00] to-[#FFF0E3] py-16 mt-16 mb-0">
       <div className="container mx-auto px-4">
-        <div className="max-w-3xl mx-auto text-center text-white">
-          <Mail className="w-12 h-12 mx-auto mb-4 text-[#FFD200]" />
+        <div className="max-w-3xl mx-auto text-center text-[#4B1599]">
+          <Mail className="w-12 h-12 mx-auto mb-4 text-[#4B1599]" />
           <h2 className="text-[28px] md:text-[32px] font-bold mb-3">
             Receba novidades e ofertas exclusivas
           </h2>
-          <p className="text-white/90 mb-8">
+          <p className="text-[#4B1599]/85 mb-8">
             Cadastre seu e-mail e seja o primeiro a saber sobre novos lançamentos, 
             promoções e coleções limitadas.
           </p>
@@ -31,7 +31,7 @@ export function Newsletter() {
             </Button>
           </div>
 
-          <p className="text-xs text-white/70">
+          <p className="text-xs text-[#4B1599]/70">
             Sem spam. Apenas novidades para colecionadores.
           </p>
         </div>

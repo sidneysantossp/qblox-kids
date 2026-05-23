@@ -33,9 +33,11 @@ import UserOrdersPage from './pages/UserOrdersPage';
 import UserProfilePage from './pages/UserProfilePage';
 import UserAddressesPage from './pages/UserAddressesPage';
 import UserSettingsPage from './pages/UserSettingsPage';
+import UserCouponsPage from './pages/UserCouponsPage';
 import FavoritesPage from './pages/FavoritesPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
+import AuthCallbackPage from './pages/AuthCallbackPage';
 import DashboardPage from './pages/DashboardPage';
 import OrderDetailsPage from './pages/OrderDetailsPage';
 import HelpCenterPage from './pages/HelpCenterPage';
@@ -67,7 +69,7 @@ import AdminOrderDetailPage from './pages/admin/AdminOrderDetailPage';
 import AdminUserDetailPage from './pages/admin/AdminUserDetailPage';
 import AdminDebugPage from './pages/admin/AdminDebugPage';
 import { AdminLayout } from './components/layouts/AdminLayout';
-import { ProtectedAdminRoute } from './components/admin/ProtectedAdminRoute';
+import { ProtectedAdminRoute, ProtectedUserRoute } from './components/admin/ProtectedAdminRoute';
 import type { ReactNode } from 'react';
 
 interface RouteConfig {
@@ -267,31 +269,61 @@ const routes: RouteConfig[] = [
   {
     name: 'My Orders',
     path: '/meus-pedidos',
-    element: <UserOrdersPage />,
+    element: (
+      <ProtectedUserRoute>
+        <UserOrdersPage />
+      </ProtectedUserRoute>
+    ),
     visible: false
   },
   {
     name: 'My Profile',
     path: '/perfil',
-    element: <UserProfilePage />,
+    element: (
+      <ProtectedUserRoute>
+        <UserProfilePage />
+      </ProtectedUserRoute>
+    ),
     visible: false
   },
   {
     name: 'My Addresses',
     path: '/enderecos',
-    element: <UserAddressesPage />,
+    element: (
+      <ProtectedUserRoute>
+        <UserAddressesPage />
+      </ProtectedUserRoute>
+    ),
     visible: false
   },
   {
     name: 'Settings',
     path: '/configuracoes',
-    element: <UserSettingsPage />,
+    element: (
+      <ProtectedUserRoute>
+        <UserSettingsPage />
+      </ProtectedUserRoute>
+    ),
+    visible: false
+  },
+  {
+    name: 'Coupons',
+    path: '/meus-cupons',
+    element: (
+      <ProtectedUserRoute>
+        <UserCouponsPage />
+      </ProtectedUserRoute>
+    ),
     visible: false
   },
   {
     name: 'Favorites',
     path: '/favoritos',
-    element: <FavoritesPage />,
+    element: (
+      <ProtectedUserRoute>
+        <FavoritesPage />
+      </ProtectedUserRoute>
+    ),
     visible: false
   },
   {
@@ -307,9 +339,19 @@ const routes: RouteConfig[] = [
     visible: false
   },
   {
+    name: 'Auth Callback',
+    path: '/auth/callback',
+    element: <AuthCallbackPage />,
+    visible: false
+  },
+  {
     name: 'Dashboard',
     path: '/minha-conta',
-    element: <DashboardPage />,
+    element: (
+      <ProtectedUserRoute>
+        <DashboardPage />
+      </ProtectedUserRoute>
+    ),
     visible: false
   },
   {
@@ -321,7 +363,11 @@ const routes: RouteConfig[] = [
   {
     name: 'Order Details',
     path: '/minha-conta/pedido/:orderId',
-    element: <OrderDetailsPage />,
+    element: (
+      <ProtectedUserRoute>
+        <OrderDetailsPage />
+      </ProtectedUserRoute>
+    ),
     visible: false
   },
   {

@@ -1,10 +1,10 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Package, User, MapPin, Settings, LogOut, Menu, X } from 'lucide-react';
+import { Package, User, MapPin, Settings, LogOut, Menu, Heart, TicketPercent } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { useState } from 'react';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 
 interface UserDashboardLayoutProps {
   children: React.ReactNode;
@@ -20,6 +20,16 @@ const menuItems = [
     title: 'Meu Perfil',
     href: '/perfil',
     icon: User,
+  },
+  {
+    title: 'Meus Favoritos',
+    href: '/favoritos',
+    icon: Heart,
+  },
+  {
+    title: 'Meus Cupons',
+    href: '/meus-cupons',
+    icon: TicketPercent,
   },
   {
     title: 'Endereços',
@@ -124,6 +134,8 @@ export default function UserDashboardLayout({ children }: UserDashboardLayoutPro
                   </Button>
                 </SheetTrigger>
                 <SheetContent side="left" className="p-0 w-64">
+                  <SheetTitle className="sr-only">Menu da conta</SheetTitle>
+                  <SheetDescription className="sr-only">Acesse pedidos, perfil, favoritos, cupons, endereços e configurações da sua conta.</SheetDescription>
                   <SidebarContent />
                 </SheetContent>
               </Sheet>

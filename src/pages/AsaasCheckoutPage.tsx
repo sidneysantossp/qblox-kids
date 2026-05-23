@@ -68,8 +68,9 @@ export default function AsaasCheckoutPage() {
   const location = useLocation();
 
   const [isProcessing, setIsProcessing] = useState(false);
-  const [shippingCost] = useState(15.0); // Frete fixo
   const [paymentMethod, setPaymentMethod] = useState<'PIX' | 'BOLETO' | 'CREDIT_CARD'>('PIX');
+  const shippingCost = cartTotal >= 199 ? 0 : 15.0;
+  const pixDiscount = paymentMethod === 'PIX' ? Number((cartTotal * 0.05).toFixed(2)) : 0;
 
   const form = useForm<CheckoutFormData>({
     resolver: zodResolver(checkoutSchema),
@@ -103,7 +104,8 @@ export default function AsaasCheckoutPage() {
   // Verificar autenticação e carregar dados do usuário
   useEffect(() => {
     if (!user) {
-      navigate('/login', { state: { from: location }, replace: true });
+      const returnUrl = location.pathname + location.search;
+      navigate('/login', { state: { returnUrl }, replace: true });
       return;
     }
 
@@ -157,7 +159,7 @@ export default function AsaasCheckoutPage() {
     }
   }, [cartItems, navigate, toast]);
 
-  const total = cartTotal + shippingCost;
+  const total = cartTotal + shippingCost - pixDiscount;
 
   const handleSubmit = async (data: CheckoutFormData) => {
     setIsProcessing(true);
@@ -187,6 +189,7 @@ export default function AsaasCheckoutPage() {
         },
         paymentMethod,
         shipping_cost: shippingCost,
+        discount: pixDiscount,
       };
 
       // Adicionar dados do cartão se for pagamento com cartão
@@ -639,10 +642,21 @@ export default function AsaasCheckoutPage() {
                     <span className="text-muted-foreground">Subtotal</span>
                     <span>R$ {cartTotal.toFixed(2)}</span>
                   </div>
+                  {pixDiscount > 0 && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Desconto PIX (5%)</span>
+                      <span className="text-green-600">- R$ {pixDiscount.toFixed(2)}</span>
+                    </div>
+                  )}
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Frete</span>
-                    <span>R$ {shippingCost.toFixed(2)}</span>
+                    <span>{shippingCost === 0 ? 'Grátis' : `R$ ${shippingCost.toFixed(2)}`}</span>
                   </div>
+                  {cartTotal < 199 ? (
+                    <p className="text-xs text-muted-foreground">Faltam R$ {(199 - cartTotal).toFixed(2)} para frete grátis.</p>
+                  ) : (
+                    <p className="text-xs font-medium text-green-600">Você ganhou frete grátis para todo o Brasil.</p>
+                  )}
                   <Separator />
                   <div className="flex justify-between font-bold text-lg">
                     <span>Total</span>

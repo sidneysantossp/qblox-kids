@@ -1,6 +1,6 @@
 import { ShoppingCart, Trash2, Plus, Minus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
@@ -48,6 +48,10 @@ export function VerticalCartDrawer() {
         </Button>
       </SheetTrigger>
       <SheetContent side="right" className="w-full sm:w-[440px] p-0 flex flex-col">
+        <SheetHeader className="sr-only">
+          <SheetTitle>Meu carrinho</SheetTitle>
+          <SheetDescription>Visualize os itens adicionados ao carrinho, atualize quantidades e siga para o checkout.</SheetDescription>
+        </SheetHeader>
         {/* Header */}
         <div className="p-6 border-b">
           <div className="flex items-center gap-2">

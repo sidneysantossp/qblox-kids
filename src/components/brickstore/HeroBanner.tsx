@@ -109,7 +109,7 @@ export function HeroBanner() {
     return (
       <section className="relative overflow-hidden bg-[#0f172a]">
         <div className="container mx-auto px-4 relative">
-          <div className="flex items-center justify-center min-h-[460px] md:min-h-[440px]">
+          <div className="flex items-center justify-center min-h-[600px] md:min-h-[560px]">
             <div className="animate-pulse text-white text-2xl">Carregando...</div>
           </div>
         </div>
@@ -162,7 +162,7 @@ export function HeroBanner() {
       )}
 
       <div className="container mx-auto px-4 relative">
-        <div className="flex items-center justify-center min-h-[460px] md:min-h-[440px] py-12 md:py-0">
+        <div className="flex items-center justify-center min-h-[600px] md:min-h-[560px] py-12 md:py-0">
           <div className="flex flex-col items-center text-center gap-6 z-10 max-w-3xl">
             <div
               className="hero-banner-title text-white font-extrabold leading-tight text-[32px] md:text-[52px]"

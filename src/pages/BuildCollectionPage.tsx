@@ -1,9 +1,10 @@
-import { ChevronRight, Sparkles } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { ChevronRight, Puzzle, Sparkles } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ProductCard } from '@/components/products/ProductCard';
+import { BrickStoreProductCard, mapProductToBrickStoreProductCardProps } from '@/components/brickstore/BrickStoreProductCard';
 import { SEO } from '@/components/SEO';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Card, CardContent } from '@/components/ui/card';
 import { supabase } from '@/db/supabase';
 import type { Product } from '@/types';
 
@@ -34,67 +35,98 @@ export default function BuildCollectionPage() {
     loadProducts();
   }, []);
 
-  // SEO Configuration
-  const seoTitle = 'Monte sua Coleção - Crie seu Próprio Boneco LEGO | QBLOX';
-  const seoDescription = 'Monte seu próprio boneco LEGO! Escolha cabeças, corpos, braços, pernas e acessórios. Milhares de combinações possíveis. Peças originais e de qualidade.';
-  
-  const breadcrumbs = [
-    { name: 'Início', url: '/' },
-    { name: 'Monte sua Coleção', url: '/categoria/monte-sua-colecao' },
-  ];
+  const partTypeSummary = useMemo(() => {
+    const counts = products.reduce<Record<string, number>>((acc, product) => {
+      const key = product.part_type || 'outras';
+      acc[key] = (acc[key] || 0) + 1;
+      return acc;
+    }, {});
+
+    return Object.entries(counts).slice(0, 4);
+  }, [products]);
 
   return (
     <>
       <SEO
-        title={seoTitle}
-        description={seoDescription}
+        title="Peças avulsas para montar seu boneco | QBLOX"
+        description="Compre peças avulsas para montar ou complementar seu boneco: cabeças, corpos, pernas, acessórios e itens especiais em um só lugar."
         type="website"
       />
-      
+
       <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
-        {/* Hero Section */}
-        <div className="bg-gradient-to-r from-orange-500 to-yellow-500 text-white">
-          <div className="container mx-auto px-4 py-12 xl:py-16">
+        <div className="relative bg-primary text-primary-foreground py-12 xl:py-16 px-4 overflow-hidden" style={{ backgroundImage: 'url(https://miaoda-site-img.s3cdn.medo.dev/images/f76394a2-f262-4255-921d-589980e248a1.jpg)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundBlendMode: 'overlay' }}>
+          <div className="absolute inset-0 bg-primary/50" />
+          <div className="container mx-auto max-w-6xl relative z-10">
             <nav className="flex items-center gap-2 text-sm mb-6 text-white/90">
-              <Link to="/" className="hover:text-white transition-colors">
-                Início
-              </Link>
+              <Link to="/" className="hover:text-white transition-colors">Início</Link>
               <ChevronRight className="h-4 w-4" />
-              <span className="font-medium">Monte sua Coleção</span>
+              <span className="font-medium">Peças avulsas</span>
             </nav>
 
             <div className="max-w-4xl">
               <div className="flex items-center gap-3 mb-4">
-                <Sparkles className="h-8 w-8 xl:h-10 xl:w-10" />
-                <h1 className="text-3xl xl:text-5xl font-bold">
-                  Monte sua Coleção
-                </h1>
+                <Puzzle className="h-8 w-8 xl:h-10 xl:w-10" />
+                <h1 className="text-3xl xl:text-5xl font-bold">Peças avulsas</h1>
               </div>
               <p className="text-lg xl:text-xl text-white/95 mb-6">
-                Crie seu próprio boneco único! Escolha entre centenas de cabeças, corpos, braços, pernas e acessórios. 
-                Milhares de combinações possíveis para dar vida à sua imaginação!
+                Compre apenas as peças que você precisa para completar personagens, testar combinações novas ou expandir o universo do seu boneco com mais liberdade.
               </p>
               <div className="flex flex-wrap gap-4 text-sm xl:text-base">
                 <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-full px-4 py-2">
                   <span className="font-semibold">✓</span>
-                  <span>Peças Originais</span>
+                  <span>Compra flexível</span>
                 </div>
                 <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-full px-4 py-2">
                   <span className="font-semibold">✓</span>
-                  <span>Alta Qualidade</span>
+                  <span>Peças para reposição</span>
                 </div>
                 <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-full px-4 py-2">
                   <span className="font-semibold">✓</span>
-                  <span>Combinações Infinitas</span>
+                  <span>Combinações personalizadas</span>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Products Section */}
-        <div className="container mx-auto px-4 py-8 xl:py-12">
-          {/* Products Grid */}
+        <div className="container mx-auto px-4 py-10 xl:py-12 space-y-8">
+          <div className="grid gap-4 md:grid-cols-3">
+            <Card>
+              <CardContent className="p-6">
+                <h2 className="text-lg font-bold mb-2">Quando esse modo faz sentido</h2>
+                <p className="text-sm text-muted-foreground leading-relaxed">Ideal para quem já sabe quais peças precisa, quer completar um personagem específico ou prefere comprar partes separadas antes de montar um boneco inteiro.</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-6">
+                <h2 className="text-lg font-bold mb-2">Como comprar melhor</h2>
+                <p className="text-sm text-muted-foreground leading-relaxed">Comece pelas peças principais, depois refine com acessórios ou itens complementares. Isso ajuda a evitar compras soltas sem direção visual.</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-6">
+                <h2 className="text-lg font-bold mb-2">Quer montar um personagem completo?</h2>
+                <p className="text-sm text-muted-foreground leading-relaxed">Se a sua ideia é escolher tudo em sequência, use o fluxo guiado de Monte seu Boneco para uma experiência mais divertida e simples.</p>
+                <Link to="/categoria/acessorios" className="inline-block mt-4 text-sm font-semibold text-primary hover:underline">
+                  Ir para Monte seu Boneco
+                </Link>
+              </CardContent>
+            </Card>
+          </div>
+
+          {!isLoading && partTypeSummary.length > 0 && (
+            <div className="grid gap-3 md:grid-cols-4">
+              {partTypeSummary.map(([partType, count]) => (
+                <Card key={partType}>
+                  <CardContent className="p-4 text-center">
+                    <p className="text-sm font-semibold capitalize">{partType}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{count} peça(s)</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+
           {isLoading ? (
             <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4 xl:gap-6">
               {[...Array(10)].map((_, i) => (
@@ -104,46 +136,15 @@ export default function BuildCollectionPage() {
           ) : products.length > 0 ? (
             <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4 xl:gap-6">
               {products.map((product) => (
-                <ProductCard key={product.id} product={product} />
+                <BrickStoreProductCard key={product.id} {...mapProductToBrickStoreProductCardProps(product)} />
               ))}
             </div>
           ) : (
             <div className="text-center py-16">
-              <p className="text-muted-foreground text-lg mb-4">
-                Nenhum produto encontrado nesta categoria.
-              </p>
-              <Link to="/" className="text-primary hover:underline">
-                Voltar para a página inicial
-              </Link>
+              <p className="text-muted-foreground text-lg mb-4">Nenhuma peça disponível no momento.</p>
+              <Link to="/" className="text-primary hover:underline">Voltar para a página inicial</Link>
             </div>
           )}
-        </div>
-
-        {/* CTA Section */}
-        <div className="bg-gradient-to-r from-primary to-orange-500 text-white py-12 xl:py-16 mt-12">
-          <div className="container mx-auto px-4 text-center">
-            <h2 className="text-2xl xl:text-4xl font-bold mb-4">
-              Pronto para criar seu personagem único?
-            </h2>
-            <p className="text-lg xl:text-xl text-white/95 mb-6 max-w-2xl mx-auto">
-              Adicione as peças que você gosta ao carrinho e monte o boneco dos seus sonhos!
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link 
-                to="#" 
-                onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                className="bg-white text-primary hover:bg-white/90 font-semibold px-8 py-3 rounded-full transition-colors inline-block"
-              >
-                Ver Todas as Peças
-              </Link>
-              <Link 
-                to="/" 
-                className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white font-semibold px-8 py-3 rounded-full transition-colors inline-block"
-              >
-                Voltar para Início
-              </Link>
-            </div>
-          </div>
         </div>
       </div>
     </>

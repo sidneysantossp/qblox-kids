@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Package, Calendar, CreditCard, RefreshCw, ShoppingBag, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,13 +9,13 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { getUserOrders, retryOrderPayment, verifyAsaasPayment, verifyStripePayment } from '@/db/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { formatOrderNumber, getOrderStatusLabel } from '@/lib/orders';
 import type { Order } from '@/types';
 import UserDashboardLayout from '@/components/layouts/UserDashboardLayout';
 
 export default function UserOrdersPage() {
   const { user } = useAuth();
   const { toast } = useToast();
-  const navigate = useNavigate();
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [refreshingOrders, setRefreshingOrders] = useState<Set<string>>(new Set());
@@ -36,9 +36,9 @@ export default function UserOrdersPage() {
     } catch (error: any) {
       console.error('Erro ao carregar pedidos:', error);
       toast({
-        title: "Erro ao carregar pedidos",
+        title: 'Erro ao carregar pedidos',
         description: error.message,
-        variant: "destructive",
+        variant: 'destructive',
       });
     } finally {
       setIsLoading(false);
@@ -48,7 +48,7 @@ export default function UserOrdersPage() {
   const handleRetryPayment = async (order: Order) => {
     try {
       if (order.payment_gateway === 'asaas' && order.asaas_payment_id) {
-        navigate(`/pagamento-asaas?payment_id=${order.asaas_payment_id}&order_id=${order.id}`);
+        window.location.href = `/pagamento-asaas?payment_id=${order.asaas_payment_id}&order_id=${order.id}`;
         return;
       }
 
@@ -56,18 +56,17 @@ export default function UserOrdersPage() {
 
       if (response?.url) {
         window.open(response.url, '_blank');
-
         toast({
-          title: "Redirecionando para pagamento",
-          description: "Você será redirecionado para completar o pagamento.",
+          title: 'Redirecionando para pagamento',
+          description: 'Você será redirecionado para completar o pagamento.',
         });
       }
     } catch (error: any) {
       console.error('Erro ao retentar pagamento:', error);
       toast({
-        title: "Erro ao processar pagamento",
+        title: 'Erro ao processar pagamento',
         description: error.message,
-        variant: "destructive",
+        variant: 'destructive',
       });
     }
   };
@@ -133,14 +132,17 @@ export default function UserOrdersPage() {
 
   const getStatusBadge = (status: string) => {
     const statusConfig = {
-      pending: { label: 'Pendente', variant: 'secondary' as const },
-      completed: { label: 'Concluído', variant: 'default' as const },
+      pending: { label: 'Aguardando Pagamento', variant: 'secondary' as const },
+      processing: { label: 'Processando', variant: 'default' as const },
+      shipped: { label: 'Enviado', variant: 'outline' as const },
+      delivered: { label: 'Entregue', variant: 'default' as const },
+      completed: { label: 'Confirmado', variant: 'default' as const },
       cancelled: { label: 'Cancelado', variant: 'destructive' as const },
       refunded: { label: 'Reembolsado', variant: 'outline' as const },
     };
 
-    const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.pending;
-    
+    const config = statusConfig[status as keyof typeof statusConfig] || { label: getOrderStatusLabel(status), variant: 'outline' as const };
+
     return (
       <Badge variant={config.variant} className={config.variant === 'default' ? 'bg-success' : ''}>
         {config.label}
@@ -218,7 +220,7 @@ export default function UserOrdersPage() {
       <div className="mb-8">
         <h1 className="text-3xl xl:text-4xl font-bold mb-2">Meus Pedidos</h1>
         <p className="text-muted-foreground">
-          Acompanhe o status dos seus pedidos
+          Acompanhe o status e os detalhes completos de cada pedido
         </p>
       </div>
 
@@ -230,7 +232,7 @@ export default function UserOrdersPage() {
                 <div>
                   <CardTitle className="text-lg flex items-center gap-2">
                     <Package className="h-5 w-5" />
-                    Pedido #{order.id.slice(0, 8).toUpperCase()}
+                    Pedido {formatOrderNumber(order.id)}
                   </CardTitle>
                   <p className="text-sm text-muted-foreground mt-1 flex items-center gap-2">
                     <Calendar className="h-4 w-4" />
@@ -239,7 +241,7 @@ export default function UserOrdersPage() {
                 </div>
                 <div className="flex items-center gap-3">
                   {getStatusBadge(order.status)}
-                  {order.status === 'pending' && (order.stripe_session_id || order.asaas_payment_id) && (
+                  {(order.stripe_session_id || order.asaas_payment_id) && (
                     <Button
                       size="sm"
                       variant="outline"
@@ -263,31 +265,26 @@ export default function UserOrdersPage() {
               </div>
             </CardHeader>
 
-            <CardContent className="space-y-4">
-              {/* Itens do Pedido */}
+            <CardContent className="space-y-6">
               <div>
                 <h3 className="font-semibold mb-3">Itens</h3>
-                <div className="space-y-2">
+                <div className="space-y-3">
                   {order.items.map((item: any, index: number) => (
-                    <div key={index} className="flex items-center justify-between py-2">
-                      <div className="flex items-center gap-3">
+                    <div key={index} className="flex items-center justify-between gap-4 py-2">
+                      <div className="flex items-center gap-3 min-w-0 flex-1">
                         {item.image_url && (
-                          <img 
-                            src={item.image_url} 
+                          <img
+                            src={item.image_url}
                             alt={item.name}
                             className="w-12 h-12 rounded object-cover"
                           />
                         )}
-                        <div>
-                          <p className="font-medium">{item.name}</p>
-                          <p className="text-sm text-muted-foreground">
-                            Qtd: {item.quantity}
-                          </p>
+                        <div className="min-w-0">
+                          <p className="font-medium line-clamp-2">{item.name}</p>
+                          <p className="text-sm text-muted-foreground">Qtd: {item.quantity}</p>
                         </div>
                       </div>
-                      <span className="font-medium">
-                        {formatCurrency(getOrderItemTotal(order, item))}
-                      </span>
+                      <span className="font-medium whitespace-nowrap">{formatCurrency(getOrderItemTotal(order, item))}</span>
                     </div>
                   ))}
                 </div>
@@ -295,57 +292,45 @@ export default function UserOrdersPage() {
 
               <Separator />
 
-              {/* Resumo do Pedido */}
-              <div className="space-y-2">
-                {order.shipping_cost > 0 && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Frete:</span>
-                    <span>{formatCurrency(order.shipping_cost)}</span>
+              <div className="grid gap-6 lg:grid-cols-2">
+                <div className="space-y-3">
+                  <h3 className="font-semibold">Resumo do pedido</h3>
+                  {order.shipping_cost > 0 && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Frete</span>
+                      <span>{formatCurrency(order.shipping_cost)}</span>
+                    </div>
+                  )}
+                  {order.discount > 0 && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Desconto {order.coupon_code && `(${order.coupon_code})`}</span>
+                      <span className="text-success">-{formatCurrency(order.discount)}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between font-bold text-lg">
+                    <span>Total</span>
+                    <span className="text-primary">{formatCurrency(order.total_amount)}</span>
                   </div>
-                )}
-                {order.discount > 0 && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Desconto:</span>
-                    <span className="text-success">-{formatCurrency(order.discount)}</span>
-                  </div>
-                )}
-                <div className="flex justify-between font-bold text-lg">
-                  <span>Total:</span>
-                  <span className="text-primary">{formatCurrency(order.total_amount)}</span>
+                </div>
+
+                <div className="space-y-3">
+                  <h3 className="font-semibold">Pagamento e entrega</h3>
+                  {order.customer_email && (
+                    <p className="text-sm text-muted-foreground">Email: <span className="text-foreground">{order.customer_email}</span></p>
+                  )}
+                  {order.customer_name && (
+                    <p className="text-sm text-muted-foreground">Nome: <span className="text-foreground">{order.customer_name}</span></p>
+                  )}
+                  <p className="text-sm text-muted-foreground">Status: <span className="text-foreground">{getOrderStatusLabel(order.status)}</span></p>
                 </div>
               </div>
 
-              {/* Informações de Pagamento */}
-              {order.customer_email && (
-                <div className="bg-muted/50 rounded-lg p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <CreditCard className="h-4 w-4" />
-                    <span className="font-semibold text-sm">Informações de Pagamento</span>
-                  </div>
-                  <div className="space-y-1 text-sm">
-                    {order.customer_name && (
-                      <p className="text-muted-foreground">
-                        Nome: <span className="text-foreground">{order.customer_name}</span>
-                      </p>
-                    )}
-                    <p className="text-muted-foreground">
-                      Email: <span className="text-foreground">{order.customer_email}</span>
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              {/* Ações */}
               {order.status === 'pending' && (
                 <Alert>
                   <AlertCircle className="h-4 w-4" />
-                  <AlertDescription className="flex items-center justify-between">
+                  <AlertDescription className="flex items-center justify-between gap-4">
                     <span>Pagamento pendente. Complete o pagamento para processar o pedido.</span>
-                    <Button
-                      size="sm"
-                      onClick={() => handleRetryPayment(order)}
-                      className="ml-4"
-                    >
+                    <Button size="sm" onClick={() => handleRetryPayment(order)}>
                       Pagar Agora
                     </Button>
                   </AlertDescription>

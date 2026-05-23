@@ -66,9 +66,27 @@ export default function AdminPayments() {
   };
 
   const handleSaveSettings = async () => {
+    if (!asaasApiKey.trim()) {
+      toast({
+        title: 'Erro',
+        description: 'Informe a chave de API do Asaas antes de salvar.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (!['sandbox', 'production'].includes(asaasEnvironment)) {
+      toast({
+        title: 'Erro',
+        description: 'Selecione um ambiente válido do Asaas.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     try {
       setIsSaving(true);
-      
+
       await Promise.all([
         updateSiteSetting('stripe_api_key', stripeApiKey),
         updateSiteSetting('stripe_publishable_key', stripePublishableKey),

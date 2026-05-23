@@ -48,7 +48,44 @@ interface CreatePaymentRequest {
   shipping_cost?: number;
   discount?: number;
   coupon_code?: string;
+  requestId?: string;
 }
+
+const ASAAS_CUSTOMER_TIMEOUT_MS = 10000;
+const ASAAS_PAYMENT_TIMEOUT_MS = 12000;
+const ASAAS_PIX_TIMEOUT_MS = 6000;
+
+const errorResponse = (error: string, step: string, requestId: string, status = 400) =>
+  new Response(
+    JSON.stringify({ error, step, requestId }),
+    {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      status,
+    }
+  );
+
+const fetchWithTimeout = async (
+  url: string,
+  init: RequestInit,
+  timeoutMs: number,
+  step: string,
+  requestId: string,
+) => {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(`timeout:${step}`), timeoutMs);
+
+  try {
+    console.log('[create_asaas_payment]', { requestId, step, url, timeoutMs });
+    return await fetch(url, { ...init, signal: controller.signal });
+  } catch (error) {
+    if (error instanceof DOMException && error.name === 'AbortError') {
+      throw new Error(`Timeout ao executar ${step}`);
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+};
 
 Deno.serve(async (req) => {
   // Handle CORS preflight
@@ -95,6 +132,7 @@ Deno.serve(async (req) => {
       shipping_cost = 0,
       discount = 0,
       coupon_code,
+      requestId = crypto.randomUUID(),
     }: CreatePaymentRequest = await req.json();
 
     // Validar dados obrigatórios
@@ -118,7 +156,7 @@ Deno.serve(async (req) => {
     const total = subtotal + shipping_cost - discount;
 
     // Criar cliente no Asaas (ou buscar existente)
-    const customerResponse = await fetch(
+    const customerResponse = await fetchWithTimeout(
       `${asaasBaseUrl}/customers`,
       {
         method: "POST",
@@ -138,14 +176,19 @@ Deno.serve(async (req) => {
           province: customer.province,
           externalReference: customer.email,
         }),
-      }
+      },
+      ASAAS_CUSTOMER_TIMEOUT_MS,
+      'asaas:create_customer',
+      requestId,
     );
 
     if (!customerResponse.ok) {
       const errorData = await customerResponse.json();
-      console.error("Erro ao criar cliente no Asaas:", errorData);
-      throw new Error(
-        `Erro ao criar cliente: ${errorData.errors?.[0]?.description || "Erro desconhecido"}`
+      console.error("Erro ao criar cliente no Asaas:", { requestId, errorData });
+      return errorResponse(
+        `Erro ao criar cliente: ${errorData.errors?.[0]?.description || "Erro desconhecido"}`,
+        'asaas:create_customer',
+        requestId,
       );
     }
 
@@ -176,7 +219,7 @@ Deno.serve(async (req) => {
       paymentData.creditCardHolderInfo = creditCardHolderInfo;
     }
 
-    const paymentResponse = await fetch(
+    const paymentResponse = await fetchWithTimeout(
       `${asaasBaseUrl}/payments`,
       {
         method: "POST",
@@ -185,14 +228,19 @@ Deno.serve(async (req) => {
           access_token: asaasApiKey,
         },
         body: JSON.stringify(paymentData),
-      }
+      },
+      ASAAS_PAYMENT_TIMEOUT_MS,
+      'asaas:create_payment',
+      requestId,
     );
 
     if (!paymentResponse.ok) {
       const errorData = await paymentResponse.json();
-      console.error("Erro ao criar cobrança no Asaas:", errorData);
-      throw new Error(
-        `Erro ao criar cobrança: ${errorData.errors?.[0]?.description || "Erro desconhecido"}`
+      console.error("Erro ao criar cobrança no Asaas:", { requestId, errorData });
+      return errorResponse(
+        `Erro ao criar cobrança: ${errorData.errors?.[0]?.description || "Erro desconhecido"}`,
+        'asaas:create_payment',
+        requestId,
       );
     }
 
@@ -212,19 +260,29 @@ Deno.serve(async (req) => {
     let pixQrCode = null;
     let pixCopyPaste = null;
     if (paymentMethod === "PIX") {
-      const pixResponse = await fetch(
-        `${asaasBaseUrl}/payments/${asaasPayment.id}/pixQrCode`,
-        {
-          headers: {
-            access_token: asaasApiKey,
+      try {
+        const pixResponse = await fetchWithTimeout(
+          `${asaasBaseUrl}/payments/${asaasPayment.id}/pixQrCode`,
+          {
+            headers: {
+              access_token: asaasApiKey,
+            },
           },
-        }
-      );
+          ASAAS_PIX_TIMEOUT_MS,
+          'asaas:get_pix_qr',
+          requestId,
+        );
 
-      if (pixResponse.ok) {
-        const pixData = await pixResponse.json();
-        pixQrCode = pixData.encodedImage;
-        pixCopyPaste = pixData.payload;
+        if (pixResponse.ok) {
+          const pixData = await pixResponse.json();
+          pixQrCode = pixData.encodedImage;
+          pixCopyPaste = pixData.payload;
+        } else {
+          const pixError = await pixResponse.text();
+          console.error('Erro ao buscar QR Code Pix:', { requestId, pixError });
+        }
+      } catch (pixError) {
+        console.error('Erro ao buscar QR Code Pix:', { requestId, pixError });
       }
     }
 
@@ -281,8 +339,17 @@ Deno.serve(async (req) => {
       .single();
 
     if (orderError) {
-      console.error("Erro ao criar pedido:", orderError);
-      throw new Error("Erro ao criar pedido no banco de dados");
+      console.error("Erro ao criar pedido:", {
+        requestId,
+        asaasPaymentId: asaasPayment.id,
+        externalReference: paymentData.externalReference,
+        orderError,
+      });
+      return errorResponse(
+        "Pagamento criado, mas houve falha ao registrar o pedido. Contate o suporte com o código informado no atendimento.",
+        'database:create_order',
+        requestId,
+      );
     }
 
     // Retornar resposta
@@ -304,15 +371,10 @@ Deno.serve(async (req) => {
       }
     );
   } catch (error) {
-    console.error("Erro na edge function:", error);
-    return new Response(
-      JSON.stringify({
-        error: error.message || "Erro ao processar pagamento",
-      }),
-      {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 400,
-      }
-    );
+    const message = error instanceof Error ? error.message : 'Erro ao processar pagamento';
+    const step = message.startsWith('Timeout ao executar') ? 'timeout' : 'unexpected';
+    const requestId = crypto.randomUUID();
+    console.error("Erro na edge function:", { requestId, step, error });
+    return errorResponse(message, step, requestId);
   }
 });

@@ -6,6 +6,33 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
+const ASAAS_VERIFY_TIMEOUT_MS = 10000;
+
+const errorResponse = (error: string, step: string, status = 400) =>
+  new Response(
+    JSON.stringify({ verified: false, error, step }),
+    {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      status,
+    }
+  );
+
+const fetchWithTimeout = async (url: string, init: RequestInit, timeoutMs: number, step: string) => {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(`timeout:${step}`), timeoutMs);
+
+  try {
+    return await fetch(url, { ...init, signal: controller.signal });
+  } catch (error) {
+    if (error instanceof DOMException && error.name === 'AbortError') {
+      throw new Error(`Timeout ao executar ${step}`);
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+};
+
 Deno.serve(async (req) => {
   // Handle CORS preflight
   if (req.method === "OPTIONS") {
@@ -49,17 +76,19 @@ Deno.serve(async (req) => {
     }
 
     // Buscar status do pagamento no Asaas
-    const paymentResponse = await fetch(
+    const paymentResponse = await fetchWithTimeout(
       `${asaasBaseUrl}/payments/${payment_id}`,
       {
         headers: {
           access_token: asaasApiKey,
         },
-      }
+      },
+      ASAAS_VERIFY_TIMEOUT_MS,
+      'asaas:verify_payment',
     );
 
     if (!paymentResponse.ok) {
-      throw new Error("Erro ao buscar pagamento no Asaas");
+      return errorResponse('Erro ao buscar pagamento no Asaas', 'asaas:verify_payment');
     }
 
     const asaasPayment = await paymentResponse.json();
@@ -72,7 +101,7 @@ Deno.serve(async (req) => {
       .single();
 
     if (orderError || !order) {
-      throw new Error("Pedido não encontrado");
+      return errorResponse('Pedido não encontrado', 'database:find_order', 404);
     }
 
     // Mapear status do Asaas para status do pedido
@@ -120,16 +149,9 @@ Deno.serve(async (req) => {
       }
     );
   } catch (error) {
-    console.error("Erro na edge function:", error);
-    return new Response(
-      JSON.stringify({
-        verified: false,
-        error: error.message || "Erro ao verificar pagamento",
-      }),
-      {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 400,
-      }
-    );
+    const message = error instanceof Error ? error.message : 'Erro ao verificar pagamento';
+    const step = message.startsWith('Timeout ao executar') ? 'timeout' : 'unexpected';
+    console.error("Erro na edge function:", { step, error });
+    return errorResponse(message, step);
   }
 });

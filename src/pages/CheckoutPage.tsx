@@ -385,9 +385,17 @@ function CheckoutForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    const requestId = crypto.randomUUID();
     setIsProcessing(true);
 
     try {
+      console.log('[Checkout]', {
+        requestId,
+        step: 'submit:start',
+        paymentMethod,
+        itemCount: cartItems.length,
+        cartTotal,
+      });
       // Validar CPF para pagamentos Asaas
       if (!formData.cpf) {
         toast({
@@ -443,6 +451,7 @@ function CheckoutForm() {
       }
 
       const paymentData: any = {
+        requestId,
         items: cartItems.map(item => ({
           product_id: item.product_id,
           name: item.product?.name || '',
@@ -488,9 +497,16 @@ function CheckoutForm() {
         };
       }
 
+      console.log('[Checkout]', { requestId, step: 'submit:invoke_create_payment' });
       const response = await createAsaasPayment(paymentData);
 
       if (response.success) {
+        console.log('[Checkout]', {
+          requestId,
+          step: 'submit:create_payment_success',
+          paymentId: response.paymentId,
+          orderId: response.orderId,
+        });
         await clearCart();
         
         toast({
@@ -504,13 +520,18 @@ function CheckoutForm() {
         throw new Error(response.error || 'Erro ao criar pagamento');
       }
     } catch (error: any) {
-      console.error('Erro ao processar pagamento:', error);
+      console.error('[Checkout]', {
+        requestId,
+        step: 'submit:error',
+        error: error?.message || error,
+      });
       toast({
         title: 'Erro ao processar pedido',
         description: error.message || 'Tente novamente mais tarde',
         variant: 'destructive',
       });
     } finally {
+      console.log('[Checkout]', { requestId, step: 'submit:finally' });
       setIsProcessing(false);
     }
   };

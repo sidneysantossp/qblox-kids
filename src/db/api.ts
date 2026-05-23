@@ -370,30 +370,107 @@ export const retryOrderPayment = async (orderId: string) => {
 
 // ========== Asaas Payment ==========
 
+const ASAAS_FUNCTION_TIMEOUT_MS = 25000;
+
+const withTimeout = async <T>(promise: Promise<T>, timeoutMs: number, timeoutMessage: string) => {
+  let timeoutId: ReturnType<typeof setTimeout> | undefined;
+
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<T>((_, reject) => {
+        timeoutId = setTimeout(() => reject(new Error(timeoutMessage)), timeoutMs);
+      }),
+    ]);
+  } finally {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+  }
+};
+
+const parseFunctionError = async (error: any, fallbackMessage: string) => {
+  const rawError = await error?.context?.text?.();
+
+  if (!rawError) {
+    return fallbackMessage;
+  }
+
+  try {
+    const parsed = JSON.parse(rawError);
+    if (parsed?.error && parsed?.step) {
+      return `${parsed.error} (${parsed.step})`;
+    }
+    return parsed?.error || fallbackMessage;
+  } catch {
+    return rawError;
+  }
+};
+
 export const createAsaasPayment = async (paymentData: any) => {
-  const { data, error } = await supabase.functions.invoke('create_asaas_payment', {
-    body: paymentData,
-  });
+  const requestId = paymentData?.requestId || crypto.randomUUID();
+  const startedAt = performance.now();
+
+  console.log('[Checkout]', { requestId, step: 'create_asaas_payment:start' });
+
+  const { data, error } = await withTimeout(
+    supabase.functions.invoke('create_asaas_payment', {
+      body: {
+        ...paymentData,
+        requestId,
+      },
+    }),
+    ASAAS_FUNCTION_TIMEOUT_MS,
+    'Tempo limite ao criar cobrança no Asaas'
+  );
 
   if (error) {
-    const errorMsg = await error?.context?.text();
-    console.error('Erro ao criar pagamento Asaas:', errorMsg || error?.message);
-    throw new Error(errorMsg || error?.message || 'Erro ao criar pagamento');
+    const errorMsg = await parseFunctionError(error, 'Erro ao criar pagamento');
+    console.error('[Checkout]', {
+      requestId,
+      step: 'create_asaas_payment:error',
+      elapsedMs: Math.round(performance.now() - startedAt),
+      error: errorMsg,
+    });
+    throw new Error(errorMsg);
   }
+
+  console.log('[Checkout]', {
+    requestId,
+    step: 'create_asaas_payment:success',
+    elapsedMs: Math.round(performance.now() - startedAt),
+  });
 
   return data;
 };
 
 export const verifyAsaasPayment = async (paymentId: string) => {
-  const { data, error } = await supabase.functions.invoke('verify_asaas_payment', {
-    body: { payment_id: paymentId },
-  });
+  const startedAt = performance.now();
+
+  const { data, error } = await withTimeout(
+    supabase.functions.invoke('verify_asaas_payment', {
+      body: { payment_id: paymentId },
+    }),
+    ASAAS_FUNCTION_TIMEOUT_MS,
+    'Tempo limite ao verificar pagamento no Asaas'
+  );
 
   if (error) {
-    const errorMsg = await error?.context?.text();
-    console.error('Erro ao verificar pagamento Asaas:', errorMsg || error?.message);
-    throw new Error(errorMsg || error?.message || 'Erro ao verificar pagamento');
+    const errorMsg = await parseFunctionError(error, 'Erro ao verificar pagamento');
+    console.error('[Checkout]', {
+      step: 'verify_asaas_payment:error',
+      paymentId,
+      elapsedMs: Math.round(performance.now() - startedAt),
+      error: errorMsg,
+    });
+    throw new Error(errorMsg);
   }
+
+  console.log('[Checkout]', {
+    step: 'verify_asaas_payment:success',
+    paymentId,
+    elapsedMs: Math.round(performance.now() - startedAt),
+  });
 
   return data;
 };

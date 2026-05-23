@@ -104,9 +104,13 @@ export const getWeeklyDealsProducts = async (limit = 8) => {
     .eq('is_weekly_deal', true)
     .order('created_at', { ascending: false })
     .limit(limit);
-  
+
   if (error) throw error;
   return Array.isArray(data) ? data : [];
+};
+
+export const getLaunchProducts = async (limit = 8) => {
+  return getProductsByCategory('lancamentos', limit);
 };
 
 export const getBuildCollectionProducts = async (limit = 8) => {

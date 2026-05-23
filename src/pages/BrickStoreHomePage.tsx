@@ -13,7 +13,7 @@ import { TestimonialsSection } from '@/components/brickstore/TestimonialsSection
 import { Newsletter } from '@/components/brickstore/Newsletter';
 import { WeeklyDeals } from '@/components/products/WeeklyDeals';
 import { useEffect, useState } from 'react';
-import { getBestsellerProducts, getFeaturedProducts, getWeeklyDealsProducts } from '@/db/api';
+import { getBestsellerProducts, getFeaturedProducts, getLaunchProducts, getWeeklyDealsProducts } from '@/db/api';
 import { getActiveHomepageSections } from '@/db/admin-api';
 import type { HomepageSection, Product, SpecialHighlightConfig } from '@/types';
 
@@ -21,20 +21,23 @@ export default function BrickStoreHomePage() {
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
   const [bestsellerProducts, setBestsellerProducts] = useState<Product[]>([]);
   const [weeklyDealsProducts, setWeeklyDealsProducts] = useState<Product[]>([]);
+  const [launchProducts, setLaunchProducts] = useState<Product[]>([]);
   const [homepageSections, setHomepageSections] = useState<HomepageSection[]>([]);
 
   useEffect(() => {
     const loadHomepageData = async () => {
       try {
-        const [featuredProductsData, bestsellerProductsData, weeklyDealsData, homepageSectionsData] = await Promise.all([
+        const [featuredProductsData, bestsellerProductsData, weeklyDealsData, launchProductsData, homepageSectionsData] = await Promise.all([
           getFeaturedProducts(8),
           getBestsellerProducts(8),
           getWeeklyDealsProducts(5),
+          getLaunchProducts(8),
           getActiveHomepageSections(),
         ]);
         setFeaturedProducts(featuredProductsData);
         setBestsellerProducts(bestsellerProductsData);
         setWeeklyDealsProducts(weeklyDealsData);
+        setLaunchProducts(launchProductsData);
         setHomepageSections(homepageSectionsData);
       } catch (error) {
         console.error('Erro ao carregar dados da home:', error);
@@ -82,7 +85,7 @@ export default function BrickStoreHomePage() {
       <WeeklyDeals products={weeklyDealsProducts} loading={false} />
 
       {/* Launches Section */}
-      <LaunchesSection />
+      <LaunchesSection products={launchProducts} />
 
       {/* Trust Benefits */}
       <TrustBenefits />

@@ -81,7 +81,7 @@ const promoCards = [
   {
     icon: Truck,
     title: 'Frete Grátis',
-    description: 'Em compras acima de R$ 199,00',
+    description: 'Em compras acima de R$ 99,00',
     bgColor: 'bg-orange-50',
     textColor: 'text-gray-800',
     iconBg: 'bg-orange-100',

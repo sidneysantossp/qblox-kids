@@ -8,7 +8,7 @@ const promoCards = [
     bg: 'bg-red-50',
     iconColor: 'text-[#E52421]',
     title: 'FRETE GRÁTIS',
-    text: 'Em compras acima de R$199',
+    text: 'Em compras acima de R$99',
     subtext: 'Para todo o Brasil',
     textDark: true,
   },

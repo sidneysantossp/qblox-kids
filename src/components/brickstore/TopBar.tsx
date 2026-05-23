@@ -13,14 +13,14 @@ export function TopBar() {
             </div>
             <div className="flex items-center gap-1.5">
               <Truck className="w-3.5 h-3.5" />
-              <span>Frete grátis para todo o Brasil em compras acima de R$199</span>
+              <span>Frete grátis para todo o Brasil em compras acima de R$99</span>
             </div>
           </div>
 
           {/* Mobile - Simplified */}
           <div className="flex md:hidden items-center gap-1.5">
             <Truck className="w-3.5 h-3.5" />
-            <span>Frete grátis acima de R$199</span>
+            <span>Frete grátis acima de R$99</span>
           </div>
 
           {/* Right - Desktop */}

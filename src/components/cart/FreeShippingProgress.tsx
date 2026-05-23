@@ -1,6 +1,5 @@
+import { FREE_SHIPPING_THRESHOLD } from '@/db/api';
 import { cn } from '@/lib/utils';
-
-const FREE_SHIPPING_THRESHOLD = 199;
 
 interface FreeShippingProgressProps {
   cartTotal: number;

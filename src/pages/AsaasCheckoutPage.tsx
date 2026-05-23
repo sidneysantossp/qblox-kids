@@ -27,7 +27,7 @@ import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/db/supabase';
-import { createAsaasPayment } from '@/db/api';
+import { createAsaasPayment, FREE_SHIPPING_THRESHOLD } from '@/db/api';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -69,7 +69,7 @@ export default function AsaasCheckoutPage() {
 
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<'PIX' | 'BOLETO' | 'CREDIT_CARD'>('PIX');
-  const shippingCost = cartTotal >= 199 ? 0 : 15.0;
+  const shippingCost = cartTotal >= FREE_SHIPPING_THRESHOLD ? 0 : 15.0;
   const pixDiscount = paymentMethod === 'PIX' ? Number((cartTotal * 0.05).toFixed(2)) : 0;
 
   const form = useForm<CheckoutFormData>({
@@ -652,8 +652,8 @@ export default function AsaasCheckoutPage() {
                     <span className="text-muted-foreground">Frete</span>
                     <span>{shippingCost === 0 ? 'Grátis' : `R$ ${shippingCost.toFixed(2)}`}</span>
                   </div>
-                  {cartTotal < 199 ? (
-                    <p className="text-xs text-muted-foreground">Faltam R$ {(199 - cartTotal).toFixed(2)} para frete grátis.</p>
+                  {cartTotal < FREE_SHIPPING_THRESHOLD ? (
+                    <p className="text-xs text-muted-foreground">Faltam R$ {(FREE_SHIPPING_THRESHOLD - cartTotal).toFixed(2)} para frete grátis.</p>
                   ) : (
                     <p className="text-xs font-medium text-green-600">Você ganhou frete grátis para todo o Brasil.</p>
                   )}

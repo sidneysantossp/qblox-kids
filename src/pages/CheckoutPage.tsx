@@ -16,6 +16,7 @@ import {
   BreadcrumbSeparator, 
   BreadcrumbPage 
 } from '@/components/ui/breadcrumb';
+import { FreeShippingProgress } from '@/components/cart/FreeShippingProgress';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -746,45 +747,12 @@ function CheckoutForm() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  {/* Progress bar para frete grátis */}
-                  {cartTotal < 199 ? (
-                    <div className="mb-6 p-4 bg-gradient-to-r from-orange-50 to-green-50 dark:from-orange-950/20 dark:to-green-950/20 rounded-lg border border-orange-200 dark:border-orange-800">
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                          Faltam <strong className="text-[#FF6B35]">R$ {(199 - cartTotal).toFixed(2)}</strong> para frete grátis
-                        </span>
-                        <span className="text-sm font-bold text-[#FF6B35]">
-                          {Math.round((cartTotal / 199) * 100)}%
-                        </span>
-                      </div>
-                      <div className="relative h-4 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden shadow-inner">
-                        <div
-                          className="absolute top-0 left-0 h-full rounded-full transition-all duration-500 ease-out shadow-md"
-                          style={{
-                            width: `${(cartTotal / 199) * 100}%`,
-                            background: `linear-gradient(to right, 
-                              ${cartTotal < 49.5 ? '#FF6B35' : cartTotal < 74.25 ? '#FFA726' : '#66BB6A'}, 
-                              ${cartTotal < 49.5 ? '#FFA726' : cartTotal < 74.25 ? '#66BB6A' : '#4CAF50'})`
-                          }}
-                        >
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-white/10" />
-                        </div>
-                      </div>
-                      <p className="text-xs text-muted-foreground mt-2 text-center">
-                        Continue comprando para ganhar frete grátis! 🚚
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="mb-6 p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 rounded-lg border border-green-200 dark:border-green-800">
-                      <div className="flex items-center justify-center gap-2">
-                        <span className="text-2xl">🎉</span>
-                        <span className="text-sm font-bold text-green-700 dark:text-green-400">
-                          Parabéns! Você ganhou frete grátis!
-                        </span>
-                        <span className="text-2xl">🚚</span>
-                      </div>
-                    </div>
-                  )}
+                  <div className="mb-6 rounded-lg border border-orange-200 bg-gradient-to-r from-orange-50 to-green-50 p-4 dark:border-orange-800 dark:from-orange-950/20 dark:to-green-950/20">
+                    <FreeShippingProgress cartTotal={cartTotal} />
+                    <p className="mt-2 text-center text-xs text-muted-foreground">
+                      Continue comprando para ganhar frete grátis! 🚚
+                    </p>
+                  </div>
 
                   {isUsingFallbackShipping && shippingOptions.length > 0 && (
                     <p className="mb-3 text-xs text-amber-600">

@@ -615,7 +615,7 @@ export interface ShippingOption {
   isFallback?: boolean;
 }
 
-const FREE_SHIPPING_THRESHOLD = 99;
+export const FREE_SHIPPING_THRESHOLD = 99;
 const STANDARD_SHIPPING_PRICE = 15.9;
 const MOTOBOY_SHIPPING_PRICE = 18;
 

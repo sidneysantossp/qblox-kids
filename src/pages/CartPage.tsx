@@ -14,6 +14,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import { FreeShippingProgress } from '@/components/cart/FreeShippingProgress';
 import { useCart } from '@/contexts/CartContext';
 
 export default function CartPage() {
@@ -192,37 +193,9 @@ export default function CartPage() {
                 </span>
               </div>
 
-              {cartTotal < 99 && (
-                <div className="mb-4">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-xs font-medium text-muted-foreground">
-                      Faltam R$ {(99 - cartTotal).toFixed(2)} para frete grátis
-                    </span>
-                    <span className="text-xs font-bold text-[#FF6B35]">
-                      {Math.round((cartTotal / 99) * 100)}%
-                    </span>
-                  </div>
-                  <div className="relative h-3 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                    <div
-                      className="absolute top-0 left-0 h-full rounded-full transition-all duration-500 ease-out"
-                      style={{
-                        width: `${(cartTotal / 99) * 100}%`,
-                        background: `linear-gradient(to right, 
-                          ${cartTotal < 49.5 ? '#FF6B35' : cartTotal < 74.25 ? '#FFA726' : '#66BB6A'}, 
-                          ${cartTotal < 49.5 ? '#FFA726' : cartTotal < 74.25 ? '#66BB6A' : '#4CAF50'})`
-                      }}
-                    />
-                  </div>
-                </div>
-              )}
-
-              {cartTotal >= 99 && (
-                <div className="mb-4 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-lg p-3">
-                  <p className="text-sm text-green-900 dark:text-green-100 text-center font-medium">
-                    🎉 Você ganhou frete grátis!
-                  </p>
-                </div>
-              )}
+              <div className="mb-4">
+                <FreeShippingProgress cartTotal={cartTotal} />
+              </div>
 
               <Button 
                 size="lg" 

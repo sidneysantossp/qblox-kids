@@ -1,4 +1,5 @@
-import { Routes, Route, matchPath, useLocation } from 'react-router-dom';
+import { Routes, Route, matchPath, useLocation, Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 
 import routes from './routes';
 import { TopBar } from '@/components/brickstore/TopBar';
@@ -12,6 +13,52 @@ import { Toaster } from '@/components/ui/toaster';
 import { ScrollToTop } from '@/components/ScrollToTop';
 import { FloatingWhatsAppButton } from '@/components/ui/FloatingWhatsAppButton';
 import { FreeShippingProgress } from '@/components/cart/FreeShippingProgress';
+import { Button } from '@/components/ui/button';
+
+const COOKIE_BANNER_STORAGE_KEY = 'cookie-banner-consent';
+
+function CookieBanner() {
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const consent = localStorage.getItem(COOKIE_BANNER_STORAGE_KEY);
+    setIsVisible(consent !== 'accepted');
+  }, []);
+
+  const handleAccept = () => {
+    localStorage.setItem(COOKIE_BANNER_STORAGE_KEY, 'accepted');
+    setIsVisible(false);
+  };
+
+  if (!isVisible) {
+    return null;
+  }
+
+  return (
+    <div className="fixed bottom-4 left-4 right-4 z-50 mx-auto max-w-4xl rounded-2xl border bg-white p-4 shadow-2xl">
+      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+        <div className="space-y-1">
+          <p className="text-sm font-semibold text-foreground">Cookies: usamos cookies para personalizar anúncios e melhorar sua experiência.</p>
+          <p className="text-sm text-muted-foreground">
+            Ao continuar navegando, você concorda com o nosso{' '}
+            <Link to="/politica-de-privacidade" className="font-medium text-primary hover:underline">
+              Aviso de Privacidade
+            </Link>
+            .
+          </p>
+        </div>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
+          <Button type="button" onClick={handleAccept} className="bg-[#FFD200] text-[#111827] hover:bg-[#F5C400]">
+            Aceitar
+          </Button>
+          <Button type="button" variant="outline" asChild>
+            <Link to="/politica-de-privacidade">Preferências</Link>
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function AppShell() {
   const location = useLocation();
@@ -58,6 +105,7 @@ function AppShell() {
                 </main>
                 <BottomNav />
                 <FloatingWhatsAppButton />
+                <CookieBanner />
               </div>
             }
           />

@@ -44,14 +44,13 @@ export function WeeklyDealsCard({ product }: WeeklyDealsCardProps) {
 
         {/* Botão de Favorito */}
         <button
-          onClick={async (e) => {
+          type="button"
+          onClick={(e) => {
             e.preventDefault();
-            const toggled = await toggleFavorite(product);
-            if (!toggled) {
-              window.location.href = '/login';
-            }
+            void toggleFavorite(product);
           }}
           className="absolute top-3 right-3 bg-white rounded-full p-2 shadow-md hover:scale-110 transition-transform"
+          aria-label={isFavorite(product.id) ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
         >
           <Heart
             className={`w-5 h-5 ${isFavorite(product.id) ? 'fill-red-500 text-red-500' : 'text-gray-600'}`}

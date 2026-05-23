@@ -13,26 +13,42 @@ interface CartContextType {
   updateQuantity: (itemId: string, quantity: number) => Promise<void>;
   removeItem: (itemId: string) => Promise<void>;
   clearCart: () => Promise<void>;
-  refreshCart: () => Promise<void>;
+  refreshCart: (showLoader?: boolean) => Promise<void>;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-// Gerar ou recuperar session ID
-const getSessionId = () => {
-  let sessionId = localStorage.getItem('cart_session_id');
-  if (!sessionId) {
-    sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    localStorage.setItem('cart_session_id', sessionId);
+const CART_SESSION_KEY = 'cart_session_id';
+
+const createAnonymousSessionId = () => `session_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
+
+const getStoredSessionId = () => localStorage.getItem(CART_SESSION_KEY);
+
+const getOrCreateAnonymousSessionId = () => {
+  const storedSessionId = getStoredSessionId();
+  if (storedSessionId?.startsWith('session_')) {
+    return storedSessionId;
   }
-  return sessionId;
+
+  const anonymousSessionId = createAnonymousSessionId();
+  localStorage.setItem(CART_SESSION_KEY, anonymousSessionId);
+  return anonymousSessionId;
 };
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
-  const [sessionId, setSessionId] = useState(() => getSessionId());
+  const [sessionId, setSessionId] = useState(() => getStoredSessionId() ?? getOrCreateAnonymousSessionId());
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      const nextSessionId = session?.user ? `user_${session.user.id}` : getOrCreateAnonymousSessionId();
+      setSessionId((currentSessionId) => (currentSessionId === nextSessionId ? currentSessionId : nextSessionId));
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const refreshCart = async (showLoader = true) => {
     try {
@@ -69,13 +85,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
         if (sessionId === userSessionId) return;
 
         const anonymousItems = await getCartItems(sessionId);
-        const userItems = await getCartItems(userSessionId);
-
-        for (const item of anonymousItems) {
-          const existing = userItems.find((userItem) => userItem.product_id === item.product_id);
-          const quantityToAdd = existing ? item.quantity : item.quantity;
-          await addToCartDB(userSessionId, item.product_id, quantityToAdd);
-        }
+        await Promise.all(
+          anonymousItems.map((item) => addToCartDB(userSessionId, item.product_id, item.quantity))
+        );
 
         if (anonymousItems.length > 0) {
           await clearCartDB(sessionId);
@@ -223,6 +235,7 @@ export function useCart() {
         updateQuantity: async () => {},
         removeItem: async () => {},
         clearCart: async () => {},
+        refreshCart: async () => {},
       };
     }
     throw new Error('useCart must be used within a CartProvider');

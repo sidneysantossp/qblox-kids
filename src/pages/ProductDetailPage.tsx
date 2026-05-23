@@ -43,6 +43,7 @@ import { getProductById, getProductsByCategory } from '@/db/api';
 import type { Product } from '@/types';
 import { FreeShippingProgress } from '@/components/cart/FreeShippingProgress';
 import { getCategoryCanonicalUrl, getCategoryPath, getPillarPathByCategory, getProductCanonicalUrl, getProductPath, getSatelliteGuidePathsByCategory } from '@/lib/urls';
+import { useToast } from '@/hooks/use-toast';
 
 function extractProductId(urlParam: string): string {
   const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -64,8 +65,9 @@ export default function ProductDetailPage() {
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [selectedBundleProductIds, setSelectedBundleProductIds] = useState<string[]>([]);
   const [isAddingBundle, setIsAddingBundle] = useState(false);
-  const { addToCart, cartTotal } = useCart();
+  const { addToCart, cartTotal, refreshCart } = useCart();
   const { isFavorite, toggleFavorite } = useFavorites();
+  const { toast } = useToast();
 
   useEffect(() => {
     const loadProduct = async () => {
@@ -122,9 +124,15 @@ export default function ProductDetailPage() {
     try {
       setIsAddingBundle(true);
       const selectedProducts = relatedProducts.filter((item) => selectedBundleProductIds.includes(item.id));
-      await addToCart(product, quantity, { silent: true, skipRefresh: true });
-      await Promise.all(selectedProducts.map((bundleProduct) => addToCart(bundleProduct, 1, { silent: true, skipRefresh: true })));
-      await addToCart(product, 0, { silent: false });
+      await Promise.all([
+        addToCart(product, quantity, { silent: true, skipRefresh: true }),
+        ...selectedProducts.map((bundleProduct) => addToCart(bundleProduct, 1, { silent: true, skipRefresh: true })),
+      ]);
+      await refreshCart(false);
+      toast({
+        title: 'Produtos adicionados!',
+        description: 'Os itens selecionados foram adicionados ao carrinho.',
+      });
     } finally {
       setIsAddingBundle(false);
     }
@@ -363,11 +371,8 @@ export default function ProductDetailPage() {
               <div className="flex items-center gap-2 mb-6">
                 <button
                   type="button"
-                  onClick={async () => {
-                    const toggled = await toggleFavorite(product);
-                    if (!toggled) {
-                      window.location.href = '/login';
-                    }
+                  onClick={() => {
+                    void toggleFavorite(product);
                   }}
                   className="w-9 h-9 rounded-full bg-white border hover:bg-muted flex items-center justify-center transition-colors"
                   aria-label={isFavorite(product.id) ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}

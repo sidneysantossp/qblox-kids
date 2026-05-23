@@ -1,12 +1,12 @@
-import { createContext, type ReactNode, useContext, useEffect, useMemo, useState } from 'react';
-import { supabase } from '@/db/supabase';
+import { createContext, type ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 import type { Product } from '@/types';
 
 interface FavoritesContextType {
   favorites: Product[];
-  favoriteIds: Set<string>;
   isFavorite: (productId: string) => boolean;
-  toggleFavorite: (product: Product) => Promise<boolean>;
+  toggleFavorite: (product: Product) => Promise<void>;
   removeFavorite: (productId: string) => void;
 }
 
@@ -14,16 +14,24 @@ const FavoritesContext = createContext<FavoritesContextType | undefined>(undefin
 const FAVORITES_STORAGE_KEY = 'favorites';
 
 export function FavoritesProvider({ children }: { children: ReactNode }) {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [favorites, setFavorites] = useState<Product[]>([]);
 
   useEffect(() => {
     const savedFavorites = localStorage.getItem(FAVORITES_STORAGE_KEY);
-    if (savedFavorites) {
-      try {
-        setFavorites(JSON.parse(savedFavorites));
-      } catch (error) {
-        console.error('Erro ao carregar favoritos:', error);
+    if (!savedFavorites) {
+      return;
+    }
+
+    try {
+      const parsedFavorites = JSON.parse(savedFavorites);
+      if (Array.isArray(parsedFavorites)) {
+        setFavorites(parsedFavorites);
       }
+    } catch (error) {
+      console.error('Erro ao carregar favoritos:', error);
     }
   }, []);
 
@@ -32,12 +40,17 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
   }, [favorites]);
 
   const favoriteIds = useMemo(() => new Set(favorites.map((product) => product.id)), [favorites]);
-  const isFavorite = (productId: string) => favoriteIds.has(productId);
+  const isFavorite = useCallback((productId: string) => favoriteIds.has(productId), [favoriteIds]);
 
-  const toggleFavorite = async (product: Product) => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session?.user) {
-      return false;
+  const redirectToLogin = useCallback(() => {
+    const returnUrl = `${location.pathname}${location.search}${location.hash}`;
+    navigate('/login', { state: { returnUrl }, replace: true });
+  }, [location.hash, location.pathname, location.search, navigate]);
+
+  const toggleFavorite = useCallback(async (product: Product) => {
+    if (!user) {
+      redirectToLogin();
+      return;
     }
 
     setFavorites((currentFavorites) => {
@@ -47,16 +60,19 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
       }
       return [product, ...currentFavorites];
     });
+  }, [redirectToLogin, user]);
 
-    return true;
-  };
-
-  const removeFavorite = (productId: string) => {
+  const removeFavorite = useCallback((productId: string) => {
     setFavorites((currentFavorites) => currentFavorites.filter((item) => item.id !== productId));
-  };
+  }, []);
+
+  const value = useMemo(
+    () => ({ favorites, isFavorite, toggleFavorite, removeFavorite }),
+    [favorites, isFavorite, toggleFavorite, removeFavorite]
+  );
 
   return (
-    <FavoritesContext.Provider value={{ favorites, favoriteIds, isFavorite, toggleFavorite, removeFavorite }}>
+    <FavoritesContext.Provider value={value}>
       {children}
     </FavoritesContext.Provider>
   );

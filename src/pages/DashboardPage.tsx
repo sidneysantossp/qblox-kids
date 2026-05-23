@@ -2,9 +2,11 @@ import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import UserDashboardLayout from '@/components/layouts/UserDashboardLayout';
 import { useAuth } from '@/contexts/AuthContext';
+import { useFavorites } from '@/contexts/FavoritesContext';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/db/supabase';
 import { Package, User, MapPin, Settings, Heart, TicketPercent } from 'lucide-react';
+import { formatOrderNumber, getOrderStatusLabel } from '@/lib/orders';
 
 interface DashboardOrderSummary {
   id: string;
@@ -15,8 +17,8 @@ interface DashboardOrderSummary {
 
 export default function DashboardPage() {
   const { user, profile } = useAuth();
+  const { favorites } = useFavorites();
   const [recentOrders, setRecentOrders] = useState<DashboardOrderSummary[]>([]);
-  const [favoritesCount, setFavoritesCount] = useState(0);
   const [availableCouponsCount, setAvailableCouponsCount] = useState(0);
 
   useEffect(() => {
@@ -42,16 +44,6 @@ export default function DashboardPage() {
 
       if (!couponsResponse.error) {
         setAvailableCouponsCount(couponsResponse.count || 0);
-      }
-
-      const savedFavorites = localStorage.getItem('favorites');
-      if (savedFavorites) {
-        try {
-          const parsed = JSON.parse(savedFavorites);
-          setFavoritesCount(Array.isArray(parsed) ? parsed.length : 0);
-        } catch (error) {
-          console.error('Erro ao ler favoritos do dashboard:', error);
-        }
       }
     };
 
@@ -100,7 +92,7 @@ export default function DashboardPage() {
                   <Heart className="h-5 w-5 text-primary" />
                   <h2 className="font-semibold">Meus Favoritos</h2>
                 </div>
-                <p className="text-sm text-muted-foreground">Você tem {favoritesCount} produto(s) salvo(s) para comparar ou comprar depois.</p>
+                <p className="text-sm text-muted-foreground">Você tem {favorites.length} produto(s) salvo(s) para comparar ou comprar depois.</p>
               </CardContent>
             </Card>
           </Link>
@@ -132,12 +124,12 @@ export default function DashboardPage() {
                     <Link key={order.id} to="/meus-pedidos" className="block rounded-lg border p-4 hover:border-primary transition-colors">
                       <div className="flex items-center justify-between gap-3">
                         <div>
-                          <p className="font-medium">Pedido #{order.id.slice(0, 8).toUpperCase()}</p>
+                          <p className="font-medium">Pedido {formatOrderNumber(order.id)}</p>
                           <p className="text-sm text-muted-foreground">{new Date(order.created_at).toLocaleDateString('pt-BR')}</p>
                         </div>
                         <div className="text-right">
                           <p className="font-semibold text-primary">R$ {order.total_amount.toFixed(2)}</p>
-                          <p className="text-sm text-muted-foreground capitalize">{order.status}</p>
+                          <p className="text-sm text-muted-foreground">{getOrderStatusLabel(order.status)}</p>
                         </div>
                       </div>
                     </Link>

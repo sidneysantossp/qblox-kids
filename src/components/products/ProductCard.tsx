@@ -47,7 +47,7 @@ export function ProductCard({ product }: ProductCardProps) {
           type="button"
           onClick={(e) => {
             e.preventDefault();
-            toggleFavorite(product);
+            void toggleFavorite(product);
           }}
           className="absolute top-2 right-2 h-8 w-8 rounded-full bg-white/90 hover:bg-white flex items-center justify-center transition-colors shadow-sm"
           aria-label={isFavorite(product.id) ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}

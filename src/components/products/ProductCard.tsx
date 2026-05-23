@@ -20,6 +20,7 @@ export function ProductCard({ product }: ProductCardProps) {
     : 0;
   
   const installmentPrice = (finalPrice / 3).toFixed(2);
+  const shouldShowInstallments = finalPrice >= 20;
 
   return (
     <Link 
@@ -99,9 +100,11 @@ export function ProductCard({ product }: ProductCardProps) {
             </div>
           </div>
 
-          <p className="text-xs text-muted-foreground">
-            até 3x de R$ {installmentPrice.replace('.', ',')} sem juros
-          </p>
+          {shouldShowInstallments && (
+            <p className="text-xs text-muted-foreground">
+              até 3x de R$ {installmentPrice.replace('.', ',')} sem juros
+            </p>
+          )}
         </div>
       </div>
     </Link>

@@ -18,6 +18,7 @@ export function WeeklyDealsCard({ product }: WeeklyDealsCardProps) {
     : 0;
 
   const installmentValue = product.price / 12;
+  const shouldShowInstallments = product.price >= 20;
 
   return (
     <Link 
@@ -96,9 +97,11 @@ export function WeeklyDealsCard({ product }: WeeklyDealsCardProps) {
           </div>
 
           {/* Parcelamento */}
-          <div className="text-xs text-gray-600">
-            até 12x de R$ {installmentValue.toFixed(2).replace('.', ',')} sem juros
-          </div>
+          {shouldShowInstallments && (
+            <div className="text-xs text-gray-600">
+              até 12x de R$ {installmentValue.toFixed(2).replace('.', ',')} sem juros
+            </div>
+          )}
         </div>
       </div>
     </Link>

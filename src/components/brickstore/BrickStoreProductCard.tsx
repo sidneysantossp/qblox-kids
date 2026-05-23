@@ -98,6 +98,7 @@ export function BrickStoreProductCard({
   const hasDiscount = Boolean(oldPrice && oldPrice > price);
   const displayOriginalPrice = oldPrice || price;
   const installmentPrice = (price / 3).toFixed(2);
+  const shouldShowInstallments = price >= 20;
 
   const stopNavigation = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
@@ -218,9 +219,11 @@ export function BrickStoreProductCard({
               </div>
             </div>
 
-            <p className="text-xs text-muted-foreground">
-              até 3x de R$ {installmentPrice.replace('.', ',')} sem juros
-            </p>
+            {shouldShowInstallments && (
+              <p className="text-xs text-muted-foreground">
+                até 3x de R$ {installmentPrice.replace('.', ',')} sem juros
+              </p>
+            )}
           </div>
 
           <div className="mt-2 space-y-2">

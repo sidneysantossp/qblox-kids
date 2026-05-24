@@ -5,37 +5,51 @@ import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carouse
 
 const testimonials = [
   {
-    name: 'Mariana, mãe de 2 filhos',
+    name: 'Mariana',
+    city: 'Campinas, SP',
+    context: 'Mãe de 2 filhos',
     rating: 5,
     text: 'Comprei achando que seria só mais um brinquedo, mas a qualidade surpreendeu. As peças chegaram bem embaladas, os personagens são lindos e meus filhos brincaram por horas.',
   },
   {
-    name: 'Rafael, colecionador',
+    name: 'Rafael',
+    city: 'Curitiba, PR',
+    context: 'Colecionador',
     rating: 5,
     text: 'Eu tinha receio de acabamento, mas os detalhes ficaram acima do que eu esperava. Para quem gosta de montar coleção com apelo visual, vale muito a pena.',
   },
   {
-    name: 'Bianca, presente de aniversário',
+    name: 'Bianca',
+    city: 'Belo Horizonte, MG',
+    context: 'Presente de aniversário',
     rating: 5,
     text: 'Precisava de um presente que chamasse atenção logo no primeiro olhar e acertei em cheio. A criança amou e o produto realmente parece mais premium do que o preço sugere.',
   },
   {
-    name: 'Lucas, compra no PIX',
+    name: 'Lucas',
+    city: 'Guarulhos, SP',
+    context: 'Compra no PIX',
     rating: 5,
     text: 'O checkout foi simples, consegui pagar por PIX sem dificuldade e o pedido apareceu certinho. Isso passa muita segurança para continuar comprando na loja.',
   },
   {
-    name: 'Fernanda, fã de heróis',
+    name: 'Fernanda',
+    city: 'Recife, PE',
+    context: 'Fã de heróis',
     rating: 5,
     text: 'Os personagens de super-heróis têm um apelo visual muito forte. Foi fácil escolher, o catálogo é bem organizado e a navegação ajuda a comparar melhor antes de comprar.',
   },
   {
-    name: 'Henrique, primeira compra',
+    name: 'Henrique',
+    city: 'Porto Alegre, RS',
+    context: 'Primeira compra',
     rating: 5,
     text: 'Eu não conhecia a loja e mesmo assim consegui decidir rápido. Os guias ajudam bastante, a categoria faz sentido e os produtos ficam claros sem aquele monte de informação confusa.',
   },
   {
-    name: 'Juliana, compra para coleção',
+    name: 'Juliana',
+    city: 'Salvador, BA',
+    context: 'Compra para coleção',
     rating: 5,
     text: 'Além de bonitos, os produtos têm cara de coleção mesmo. A entrega foi tranquila e a experiência inteira me deixou confortável para voltar e comprar mais peças e kits.',
   },
@@ -66,7 +80,8 @@ export function TestimonialsSection() {
                   </div>
                   <p className="text-sm leading-relaxed text-muted-foreground flex-1">“{testimonial.text}”</p>
                   <div className="mt-5 pt-4 border-t">
-                    <p className="font-semibold text-sm">{testimonial.name}</p>
+                    <p className="font-semibold text-sm">{testimonial.name} • {testimonial.city}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{testimonial.context}</p>
                   </div>
                 </CardContent>
               </Card>

@@ -56,7 +56,7 @@ export function BrickStoreHeader() {
       try {
         const data = await getAllCategories();
         const activeCategories = data
-          .filter((cat) => cat.is_active)
+          .filter((cat) => cat.is_active && cat.show_in_navbar !== false)
           .sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'));
 
         const kitsCategory = activeCategories.find((cat) => cat.slug === 'monte-sua-colecao');

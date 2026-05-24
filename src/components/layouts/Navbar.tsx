@@ -54,7 +54,7 @@ export function Navbar() {
     const loadCategories = async () => {
       try {
         const data = await getAllCategories();
-        setCategories(data);
+        setCategories(data.filter((category) => category.show_in_navbar !== false));
       } catch (error) {
         console.error('Erro ao carregar categorias:', error);
       }

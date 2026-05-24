@@ -88,6 +88,7 @@ export interface Category {
   icon?: string | null;
   display_order?: number;
   is_active?: boolean;
+  show_in_navbar?: boolean;
   parent_id?: string | null;
   faq?: FAQItem[] | null; // FAQ da categoria
   keywords?: string[] | null; // Keywords principais

@@ -49,6 +49,7 @@ const categorySchema = z.object({
   mini_thumb_url: z.string().optional(),
   display_order: z.number().int().min(0, 'Ordem não pode ser negativa'),
   is_active: z.boolean(),
+  show_in_navbar: z.boolean(),
 });
 
 type CategoryFormData = z.infer<typeof categorySchema>;
@@ -75,6 +76,7 @@ export default function CategoryFormPage() {
       mini_thumb_url: '',
       display_order: 0,
       is_active: true,
+      show_in_navbar: true,
     },
   });
 
@@ -100,6 +102,7 @@ export default function CategoryFormPage() {
           mini_thumb_url: category.mini_thumb_url || '',
           display_order: category.display_order,
           is_active: category.is_active,
+          show_in_navbar: category.show_in_navbar ?? true,
         });
         if (category.image_url) {
           setImagePreview(category.image_url);
@@ -423,6 +426,18 @@ export default function CategoryFormPage() {
                       <div className="space-y-0.5">
                         <FormLabel className="text-base">Ativo</FormLabel>
                         <FormDescription>Categoria visível no site</FormDescription>
+                      </div>
+                      <FormControl>
+                        <Switch checked={field.value} onCheckedChange={field.onChange} />
+                      </FormControl>
+                    </FormItem>
+                  )} />
+
+                  <FormField control={form.control} name="show_in_navbar" render={({ field }) => (
+                    <FormItem className="flex items-center justify-between rounded-lg border p-4">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-base">Mostrar na navbar</FormLabel>
+                        <FormDescription>Controla se a categoria aparece no menu principal da navegação</FormDescription>
                       </div>
                       <FormControl>
                         <Switch checked={field.value} onCheckedChange={field.onChange} />

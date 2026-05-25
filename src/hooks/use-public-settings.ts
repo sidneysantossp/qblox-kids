@@ -6,6 +6,15 @@ export interface PublicSettings {
   footer_logo_url: string;
   site_meta_title: string;
   site_meta_description: string;
+  storefront_home_bg_color: string;
+  storefront_header_bg_color: string;
+  storefront_header_text_color: string;
+  storefront_header_search_bg_color: string;
+  storefront_header_search_text_color: string;
+  storefront_header_search_placeholder_color: string;
+  storefront_header_search_icon_color: string;
+  storefront_topbar_bg_color: string;
+  storefront_topbar_text_color: string;
 }
 
 const defaultSettings: PublicSettings = {
@@ -13,6 +22,15 @@ const defaultSettings: PublicSettings = {
   footer_logo_url: '',
   site_meta_title: '',
   site_meta_description: '',
+  storefront_home_bg_color: '',
+  storefront_header_bg_color: '',
+  storefront_header_text_color: '',
+  storefront_header_search_bg_color: '',
+  storefront_header_search_text_color: '',
+  storefront_header_search_placeholder_color: '',
+  storefront_header_search_icon_color: '',
+  storefront_topbar_bg_color: '',
+  storefront_topbar_text_color: '',
 };
 
 export function usePublicSettings() {

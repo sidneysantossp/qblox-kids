@@ -29,6 +29,15 @@ export default function AdminSettings() {
   const [footerLogoUrl, setFooterLogoUrl] = useState('');
   const [siteMetaTitle, setSiteMetaTitle] = useState('');
   const [siteMetaDescription, setSiteMetaDescription] = useState('');
+  const [storefrontHomeBgColor, setStorefrontHomeBgColor] = useState('#4B1599');
+  const [storefrontHeaderBgColor, setStorefrontHeaderBgColor] = useState('#4B1599');
+  const [storefrontHeaderTextColor, setStorefrontHeaderTextColor] = useState('#FFFFFF');
+  const [storefrontHeaderSearchBgColor, setStorefrontHeaderSearchBgColor] = useState('#4B1599');
+  const [storefrontHeaderSearchTextColor, setStorefrontHeaderSearchTextColor] = useState('#FFFFFF');
+  const [storefrontHeaderSearchPlaceholderColor, setStorefrontHeaderSearchPlaceholderColor] = useState('rgba(255,255,255,0.75)');
+  const [storefrontHeaderSearchIconColor, setStorefrontHeaderSearchIconColor] = useState('#FFFFFF');
+  const [storefrontTopbarBgColor, setStorefrontTopbarBgColor] = useState('#4B1599');
+  const [storefrontTopbarTextColor, setStorefrontTopbarTextColor] = useState('#FFFFFF');
   const [globalMarginType, setGlobalMarginType] = useState('');
   const [globalMarginValue, setGlobalMarginValue] = useState('');
   const [userInfo, setUserInfo] = useState<{ email: string; role: string } | null>(null);
@@ -142,6 +151,15 @@ export default function AdminSettings() {
       setFooterLogoUrl(findSiteSettingValue('footer_logo_url'));
       setSiteMetaTitle(findSiteSettingValue('site_meta_title'));
       setSiteMetaDescription(findSiteSettingValue('site_meta_description'));
+      setStorefrontHomeBgColor(findSiteSettingValue('storefront_home_bg_color') || '#4B1599');
+      setStorefrontHeaderBgColor(findSiteSettingValue('storefront_header_bg_color') || '#4B1599');
+      setStorefrontHeaderTextColor(findSiteSettingValue('storefront_header_text_color') || '#FFFFFF');
+      setStorefrontHeaderSearchBgColor(findSiteSettingValue('storefront_header_search_bg_color') || '#4B1599');
+      setStorefrontHeaderSearchTextColor(findSiteSettingValue('storefront_header_search_text_color') || '#FFFFFF');
+      setStorefrontHeaderSearchPlaceholderColor(findSiteSettingValue('storefront_header_search_placeholder_color') || 'rgba(255,255,255,0.75)');
+      setStorefrontHeaderSearchIconColor(findSiteSettingValue('storefront_header_search_icon_color') || '#FFFFFF');
+      setStorefrontTopbarBgColor(findSiteSettingValue('storefront_topbar_bg_color') || '#4B1599');
+      setStorefrontTopbarTextColor(findSiteSettingValue('storefront_topbar_text_color') || '#FFFFFF');
       setGlobalMarginType(findSiteSettingValue('global_margin_type'));
       setGlobalMarginValue(findSiteSettingValue('global_margin_value'));
     } catch (error) {
@@ -180,6 +198,15 @@ export default function AdminSettings() {
         updateSiteSetting('footer_logo_url', footerLogoUrl || ''),
         updateSiteSetting('site_meta_title', siteMetaTitle || ''),
         updateSiteSetting('site_meta_description', siteMetaDescription || ''),
+        updateSiteSetting('storefront_home_bg_color', storefrontHomeBgColor || ''),
+        updateSiteSetting('storefront_header_bg_color', storefrontHeaderBgColor || ''),
+        updateSiteSetting('storefront_header_text_color', storefrontHeaderTextColor || ''),
+        updateSiteSetting('storefront_header_search_bg_color', storefrontHeaderSearchBgColor || ''),
+        updateSiteSetting('storefront_header_search_text_color', storefrontHeaderSearchTextColor || ''),
+        updateSiteSetting('storefront_header_search_placeholder_color', storefrontHeaderSearchPlaceholderColor || ''),
+        updateSiteSetting('storefront_header_search_icon_color', storefrontHeaderSearchIconColor || ''),
+        updateSiteSetting('storefront_topbar_bg_color', storefrontTopbarBgColor || ''),
+        updateSiteSetting('storefront_topbar_text_color', storefrontTopbarTextColor || ''),
       ]);
 
       toast({ title: 'Sucesso', description: 'Configurações salvas com sucesso' });
@@ -342,6 +369,54 @@ export default function AdminSettings() {
             <Label htmlFor="site-meta-description">Meta Description padrão</Label>
             <Textarea id="site-meta-description" value={siteMetaDescription} onChange={(e) => setSiteMetaDescription(e.target.value)} placeholder="Loja especializada em bonecos de montar tipo LEGO para crianças e colecionadores..." maxLength={180} rows={4} />
           </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2"><Globe className="h-5 w-5 text-primary" /><CardTitle>Tema da Storefront</CardTitle></div>
+          <CardDescription>Defina as cores da home, header, topbar, busca e ícones públicos da loja.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            <div className="space-y-2">
+              <Label htmlFor="storefront-home-bg-color">Fundo da Home</Label>
+              <Input id="storefront-home-bg-color" type="color" value={storefrontHomeBgColor} onChange={(e) => setStorefrontHomeBgColor(e.target.value)} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="storefront-header-bg-color">Fundo do Header</Label>
+              <Input id="storefront-header-bg-color" type="color" value={storefrontHeaderBgColor} onChange={(e) => setStorefrontHeaderBgColor(e.target.value)} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="storefront-header-text-color">Texto do Header</Label>
+              <Input id="storefront-header-text-color" type="color" value={storefrontHeaderTextColor} onChange={(e) => setStorefrontHeaderTextColor(e.target.value)} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="storefront-search-bg-color">Fundo da Busca</Label>
+              <Input id="storefront-search-bg-color" type="color" value={storefrontHeaderSearchBgColor} onChange={(e) => setStorefrontHeaderSearchBgColor(e.target.value)} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="storefront-search-text-color">Texto da Busca</Label>
+              <Input id="storefront-search-text-color" type="color" value={storefrontHeaderSearchTextColor} onChange={(e) => setStorefrontHeaderSearchTextColor(e.target.value)} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="storefront-search-icon-color">Ícone da Busca</Label>
+              <Input id="storefront-search-icon-color" type="color" value={storefrontHeaderSearchIconColor} onChange={(e) => setStorefrontHeaderSearchIconColor(e.target.value)} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="storefront-search-placeholder-color">Placeholder da Busca</Label>
+              <Input id="storefront-search-placeholder-color" type="text" value={storefrontHeaderSearchPlaceholderColor} onChange={(e) => setStorefrontHeaderSearchPlaceholderColor(e.target.value)} placeholder="rgba(255,255,255,0.75)" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="storefront-topbar-bg-color">Fundo da Topbar</Label>
+              <Input id="storefront-topbar-bg-color" type="color" value={storefrontTopbarBgColor} onChange={(e) => setStorefrontTopbarBgColor(e.target.value)} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="storefront-topbar-text-color">Texto da Topbar</Label>
+              <Input id="storefront-topbar-text-color" type="color" value={storefrontTopbarTextColor} onChange={(e) => setStorefrontTopbarTextColor(e.target.value)} />
+            </div>
+          </div>
+          <p className="text-sm text-muted-foreground">Use as cores desejadas para controlar o visual da home e do header público. O placeholder aceita HEX ou RGBA.</p>
         </CardContent>
       </Card>
 

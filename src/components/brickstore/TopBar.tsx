@@ -1,8 +1,13 @@
 import { Star, Truck, Headset, Mail } from 'lucide-react';
+import { usePublicSettings } from '@/hooks/use-public-settings';
 
 export function TopBar() {
+  const { storefront_topbar_bg_color, storefront_topbar_text_color } = usePublicSettings();
+  const topbarBgColor = storefront_topbar_bg_color || '#4B1599';
+  const topbarTextColor = storefront_topbar_text_color || '#FFFFFF';
+
   return (
-    <div className="bg-[#FF6A00] text-white border-b border-white/10">
+    <div className="border-b border-white/10" style={{ backgroundColor: topbarBgColor, color: topbarTextColor }}>
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-8 text-xs md:text-[13px] font-medium">
           {/* Left/Center - Desktop */}

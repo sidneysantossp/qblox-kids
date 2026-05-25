@@ -42,7 +42,22 @@ export function BrickStoreHeader() {
   const [isSearching, setIsSearching] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const { cartTotal } = useCart();
-  const { navbar_logo_url } = usePublicSettings();
+  const {
+    navbar_logo_url,
+    storefront_header_bg_color,
+    storefront_header_text_color,
+    storefront_header_search_bg_color,
+    storefront_header_search_text_color,
+    storefront_header_search_placeholder_color,
+    storefront_header_search_icon_color,
+  } = usePublicSettings();
+
+  const headerBgColor = storefront_header_bg_color || '#4B1599';
+  const headerTextColor = storefront_header_text_color || '#FFFFFF';
+  const searchBgColor = storefront_header_search_bg_color || '#4B1599';
+  const searchTextColor = storefront_header_search_text_color || '#FFFFFF';
+  const searchPlaceholderColor = storefront_header_search_placeholder_color || 'rgba(255,255,255,0.75)';
+  const searchIconColor = storefront_header_search_icon_color || '#FFFFFF';
 
   const menuItems = [
     { label: 'Início', path: '/' },
@@ -132,7 +147,9 @@ export function BrickStoreHeader() {
   };
 
   return (
-    <header className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-50 text-black">
+    <>
+      <style>{`.storefront-search::placeholder { color: ${searchPlaceholderColor}; opacity: 1; }`}</style>
+      <header className="border-b border-gray-200 shadow-sm sticky top-0 z-50" style={{ backgroundColor: headerBgColor, color: headerTextColor }}>
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-[72px] md:h-[82px] gap-4">
           <Link to="/" className="flex items-center gap-2 shrink-0">
@@ -150,9 +167,9 @@ export function BrickStoreHeader() {
                     <div className="w-3 h-3 bg-[#FFD200] rounded-sm" />
                   </div>
                 </div>
-                <div className="text-[30px] md:text-[38px] font-bold leading-none">
-                  <span className="text-black">QBLOX</span>
-                  <span className="text-black"> KIDS</span>
+                <div className="text-[30px] md:text-[38px] font-bold leading-none" style={{ color: headerTextColor }}>
+                  <span>QBLOX</span>
+                  <span> KIDS</span>
                 </div>
               </div>
             )}
@@ -172,9 +189,10 @@ export function BrickStoreHeader() {
                     setShowSuggestions(true);
                   }
                 }}
-                className="h-11 pl-4 pr-10 bg-white border-gray-300 rounded-lg text-[#111827] placeholder:text-[#6B7280]"
+                className="storefront-search h-11 pl-4 pr-10 rounded-lg border"
+                style={{ backgroundColor: searchBgColor, color: searchTextColor, borderColor: 'rgba(255,255,255,0.25)' }}
               />
-              <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-black/80" />
+              <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: searchIconColor }} />
 
               {showSuggestions && (searchTerm.trim().length >= 2) && (
                 <div className="absolute top-full mt-2 w-full rounded-xl border bg-white shadow-lg overflow-hidden z-50">
@@ -392,9 +410,10 @@ export function BrickStoreHeader() {
               placeholder="Busque por Tema ou Herói favorito"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="h-10 pl-4 pr-10 bg-[#F9FAFB] border-[#D1D5DB] rounded-lg"
+              className="h-10 pl-4 pr-10 rounded-lg border"
+              style={{ backgroundColor: searchBgColor, color: searchTextColor, borderColor: 'rgba(255,255,255,0.25)' }}
             />
-            <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-black/80" />
+            <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: searchIconColor }} />
           </form>
         </div>
 
@@ -405,11 +424,11 @@ export function BrickStoreHeader() {
                 key={item.path}
                 to={item.path}
                 className={`text-[13px] font-semibold uppercase transition-colors relative ${
-                  item.active ? 'text-black' : 'text-black hover:text-[#E52421]'
+                  item.active ? '' : 'hover:text-[#FFD200]'
                 }`}
               >
-                {item.label}
-                {item.active && <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-[#E52421]" />}
+                <span style={{ color: headerTextColor }}>{item.label}</span>
+                {item.active && <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-[#FFD200]" />}
               </Link>
             ))}
 
@@ -429,22 +448,22 @@ export function BrickStoreHeader() {
                     key={category.id || category.slug}
                     to={categoryPath}
                     className={`text-[13px] font-semibold uppercase transition-colors relative ${
-                      isActive ? 'text-black' : 'text-black hover:text-[#E52421]'
+                      isActive ? '' : 'hover:text-[#FFD200]'
                     }`}
                   >
-                    {category.name}
-                    {isActive && <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-[#E52421]" />}
+                    <span style={{ color: headerTextColor }}>{category.name}</span>
+                    {isActive && <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-[#FFD200]" />}
                   </Link>
                   {category.slug === 'viloes' && (
                     <Link
                       key="ofertas-link"
                       to="/ofertas-especiais"
                       className={`text-[13px] font-semibold uppercase transition-colors relative ${
-                        location.pathname.startsWith('/ofertas-especiais') ? 'text-black' : 'text-black hover:text-[#E52421]'
+                        location.pathname.startsWith('/ofertas-especiais') ? '' : 'hover:text-[#FFD200]'
                       }`}
                     >
-                      Ofertas
-                      {location.pathname.startsWith('/ofertas-especiais') && <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-[#E52421]" />}
+                      <span style={{ color: headerTextColor }}>Ofertas</span>
+                      {location.pathname.startsWith('/ofertas-especiais') && <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-[#FFD200]" />}
                     </Link>
                   )}
                 </>
@@ -463,5 +482,6 @@ export function BrickStoreHeader() {
         </div>
       </div>
     </header>
+    </>
   );
 }

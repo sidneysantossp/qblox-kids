@@ -13,10 +13,12 @@ import { TestimonialsSection } from '@/components/brickstore/TestimonialsSection
 import { WeeklyDeals } from '@/components/products/WeeklyDeals';
 import { useEffect, useState } from 'react';
 import { getBestsellerProducts, getFeaturedProducts, getLaunchProducts, getWeeklyDealsProducts } from '@/db/api';
+import { usePublicSettings } from '@/hooks/use-public-settings';
 import { getActiveHomepageSections } from '@/db/admin-api';
 import type { HomepageSection, Product, SpecialHighlightConfig } from '@/types';
 
 export default function BrickStoreHomePage() {
+  const { storefront_home_bg_color } = usePublicSettings();
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
   const [bestsellerProducts, setBestsellerProducts] = useState<Product[]>([]);
   const [weeklyDealsProducts, setWeeklyDealsProducts] = useState<Product[]>([]);
@@ -75,7 +77,7 @@ export default function BrickStoreHomePage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F7F8FA]">
+    <div className="min-h-screen" style={{ backgroundColor: storefront_home_bg_color || '#4B1599' }}>
       {/* Hero Banner */}
       <HeroBanner />
 

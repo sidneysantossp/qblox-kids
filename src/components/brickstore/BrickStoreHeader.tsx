@@ -58,6 +58,8 @@ export function BrickStoreHeader() {
   const searchTextColor = storefront_header_search_text_color || '#FFFFFF';
   const searchPlaceholderColor = storefront_header_search_placeholder_color || 'rgba(255,255,255,0.75)';
   const searchIconColor = storefront_header_search_icon_color || '#FFFFFF';
+  const hoverItemBackgroundColor = '#FFFFFF';
+  const hoverItemTextColor = '#4B1599';
 
   const menuItems = [
     { label: 'Início', path: '/' },
@@ -336,9 +338,23 @@ export function BrickStoreHeader() {
                         key={item.path}
                         to={item.path}
                         onClick={() => setIsMenuOpen(false)}
-                        className={`text-sm font-semibold uppercase transition-colors ${
-                          item.active ? 'text-[#E52421]' : 'text-foreground hover:text-[#E52421]'
-                        }`}
+                        className="rounded-lg px-2 py-1.5 text-sm font-semibold uppercase transition-colors"
+                        style={{
+                          backgroundColor: item.active ? hoverItemBackgroundColor : 'transparent',
+                          color: item.active ? hoverItemTextColor : headerTextColor,
+                        }}
+                        onMouseEnter={(event) => {
+                          if (!item.active) {
+                            event.currentTarget.style.backgroundColor = hoverItemBackgroundColor;
+                            event.currentTarget.style.color = hoverItemTextColor;
+                          }
+                        }}
+                        onMouseLeave={(event) => {
+                          if (!item.active) {
+                            event.currentTarget.style.backgroundColor = 'transparent';
+                            event.currentTarget.style.color = headerTextColor;
+                          }
+                        }}
                       >
                         {item.label}
                       </Link>
@@ -359,7 +375,23 @@ export function BrickStoreHeader() {
                                 key={category.id || category.slug}
                                 to={categoryPath}
                                 onClick={() => setIsMenuOpen(false)}
-                                className={`flex items-center gap-2 rounded-lg p-1.5 transition-colors ${isActive ? 'bg-primary/5 text-primary' : 'hover:bg-muted/40'}`}
+                                className="flex items-center gap-2 rounded-lg p-1.5 transition-colors"
+                                style={{
+                                  backgroundColor: isActive ? hoverItemBackgroundColor : 'transparent',
+                                  color: isActive ? hoverItemTextColor : headerTextColor,
+                                }}
+                                onMouseEnter={(event) => {
+                                  if (!isActive) {
+                                    event.currentTarget.style.backgroundColor = hoverItemBackgroundColor;
+                                    event.currentTarget.style.color = hoverItemTextColor;
+                                  }
+                                }}
+                                onMouseLeave={(event) => {
+                                  if (!isActive) {
+                                    event.currentTarget.style.backgroundColor = 'transparent';
+                                    event.currentTarget.style.color = headerTextColor;
+                                  }
+                                }}
                               >
                                 {category.mini_thumb_url || category.image_url ? (
                                   <img
@@ -417,17 +449,31 @@ export function BrickStoreHeader() {
           </form>
         </div>
 
-        <div className="hidden lg:flex items-center justify-end gap-6 min-h-[52px] border-t border-gray-200/80 pt-2 pb-2">
+        <div className="hidden lg:flex items-center justify-end gap-6 min-h-[52px] pt-2 pb-2">
           <nav className="flex items-center justify-end gap-6 overflow-x-auto whitespace-nowrap scrollbar-hide min-w-0">
             {menuItems.map((item) => (
               <Link
                 key={item.path}
                 to={item.path}
-                className={`text-[13px] font-semibold uppercase transition-colors relative ${
-                  item.active ? '' : 'hover:text-[#FFD200]'
-                }`}
+                className="rounded-md px-3 py-2 text-[13px] font-semibold uppercase transition-colors relative"
+                style={{
+                  backgroundColor: item.active ? hoverItemBackgroundColor : 'transparent',
+                  color: item.active ? hoverItemTextColor : headerTextColor,
+                }}
+                onMouseEnter={(event) => {
+                  if (!item.active) {
+                    event.currentTarget.style.backgroundColor = hoverItemBackgroundColor;
+                    event.currentTarget.style.color = hoverItemTextColor;
+                  }
+                }}
+                onMouseLeave={(event) => {
+                  if (!item.active) {
+                    event.currentTarget.style.backgroundColor = 'transparent';
+                    event.currentTarget.style.color = headerTextColor;
+                  }
+                }}
               >
-                <span style={{ color: headerTextColor }}>{item.label}</span>
+                <span>{item.label}</span>
                 {item.active && <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-[#FFD200]" />}
               </Link>
             ))}
@@ -447,22 +493,50 @@ export function BrickStoreHeader() {
                   <Link
                     key={category.id || category.slug}
                     to={categoryPath}
-                    className={`text-[13px] font-semibold uppercase transition-colors relative ${
-                      isActive ? '' : 'hover:text-[#FFD200]'
-                    }`}
+                    className="rounded-md px-3 py-2 text-[13px] font-semibold uppercase transition-colors relative"
+                    style={{
+                      backgroundColor: isActive ? hoverItemBackgroundColor : 'transparent',
+                      color: isActive ? hoverItemTextColor : headerTextColor,
+                    }}
+                    onMouseEnter={(event) => {
+                      if (!isActive) {
+                        event.currentTarget.style.backgroundColor = hoverItemBackgroundColor;
+                        event.currentTarget.style.color = hoverItemTextColor;
+                      }
+                    }}
+                    onMouseLeave={(event) => {
+                      if (!isActive) {
+                        event.currentTarget.style.backgroundColor = 'transparent';
+                        event.currentTarget.style.color = headerTextColor;
+                      }
+                    }}
                   >
-                    <span style={{ color: headerTextColor }}>{category.name}</span>
+                    <span>{category.name}</span>
                     {isActive && <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-[#FFD200]" />}
                   </Link>
                   {category.slug === 'viloes' && (
                     <Link
                       key="ofertas-link"
                       to="/ofertas-especiais"
-                      className={`text-[13px] font-semibold uppercase transition-colors relative ${
-                        location.pathname.startsWith('/ofertas-especiais') ? '' : 'hover:text-[#FFD200]'
-                      }`}
+                      className="rounded-md px-3 py-2 text-[13px] font-semibold uppercase transition-colors relative"
+                      style={{
+                        backgroundColor: location.pathname.startsWith('/ofertas-especiais') ? hoverItemBackgroundColor : 'transparent',
+                        color: location.pathname.startsWith('/ofertas-especiais') ? hoverItemTextColor : headerTextColor,
+                      }}
+                      onMouseEnter={(event) => {
+                        if (!location.pathname.startsWith('/ofertas-especiais')) {
+                          event.currentTarget.style.backgroundColor = hoverItemBackgroundColor;
+                          event.currentTarget.style.color = hoverItemTextColor;
+                        }
+                      }}
+                      onMouseLeave={(event) => {
+                        if (!location.pathname.startsWith('/ofertas-especiais')) {
+                          event.currentTarget.style.backgroundColor = 'transparent';
+                          event.currentTarget.style.color = headerTextColor;
+                        }
+                      }}
                     >
-                      <span style={{ color: headerTextColor }}>Ofertas</span>
+                      <span>Ofertas</span>
                       {location.pathname.startsWith('/ofertas-especiais') && <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-[#FFD200]" />}
                     </Link>
                   )}

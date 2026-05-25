@@ -29,7 +29,6 @@ export default function AdminSettings() {
   const [footerLogoUrl, setFooterLogoUrl] = useState('');
   const [siteMetaTitle, setSiteMetaTitle] = useState('');
   const [siteMetaDescription, setSiteMetaDescription] = useState('');
-  const [storefrontHomeBgColor, setStorefrontHomeBgColor] = useState('#4B1599');
   const [storefrontHeaderBgColor, setStorefrontHeaderBgColor] = useState('#4B1599');
   const [storefrontHeaderTextColor, setStorefrontHeaderTextColor] = useState('#FFFFFF');
   const [storefrontHeaderSearchBgColor, setStorefrontHeaderSearchBgColor] = useState('#4B1599');
@@ -151,7 +150,6 @@ export default function AdminSettings() {
       setFooterLogoUrl(findSiteSettingValue('footer_logo_url'));
       setSiteMetaTitle(findSiteSettingValue('site_meta_title'));
       setSiteMetaDescription(findSiteSettingValue('site_meta_description'));
-      setStorefrontHomeBgColor(findSiteSettingValue('storefront_home_bg_color') || '#4B1599');
       setStorefrontHeaderBgColor(findSiteSettingValue('storefront_header_bg_color') || '#4B1599');
       setStorefrontHeaderTextColor(findSiteSettingValue('storefront_header_text_color') || '#FFFFFF');
       setStorefrontHeaderSearchBgColor(findSiteSettingValue('storefront_header_search_bg_color') || '#4B1599');
@@ -198,7 +196,6 @@ export default function AdminSettings() {
         updateSiteSetting('footer_logo_url', footerLogoUrl || ''),
         updateSiteSetting('site_meta_title', siteMetaTitle || ''),
         updateSiteSetting('site_meta_description', siteMetaDescription || ''),
-        updateSiteSetting('storefront_home_bg_color', storefrontHomeBgColor || ''),
         updateSiteSetting('storefront_header_bg_color', storefrontHeaderBgColor || ''),
         updateSiteSetting('storefront_header_text_color', storefrontHeaderTextColor || ''),
         updateSiteSetting('storefront_header_search_bg_color', storefrontHeaderSearchBgColor || ''),
@@ -380,10 +377,6 @@ export default function AdminSettings() {
         <CardContent className="space-y-6">
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             <div className="space-y-2">
-              <Label htmlFor="storefront-home-bg-color">Fundo da Home</Label>
-              <Input id="storefront-home-bg-color" type="color" value={storefrontHomeBgColor} onChange={(e) => setStorefrontHomeBgColor(e.target.value)} />
-            </div>
-            <div className="space-y-2">
               <Label htmlFor="storefront-header-bg-color">Fundo do Header</Label>
               <Input id="storefront-header-bg-color" type="color" value={storefrontHeaderBgColor} onChange={(e) => setStorefrontHeaderBgColor(e.target.value)} />
             </div>
@@ -416,7 +409,7 @@ export default function AdminSettings() {
               <Input id="storefront-topbar-text-color" type="color" value={storefrontTopbarTextColor} onChange={(e) => setStorefrontTopbarTextColor(e.target.value)} />
             </div>
           </div>
-          <p className="text-sm text-muted-foreground">Use as cores desejadas para controlar o visual da home e do header público. O placeholder aceita HEX ou RGBA.</p>
+          <p className="text-sm text-muted-foreground">Use as cores desejadas para controlar o visual do header, topbar, busca e ícones públicos. O placeholder aceita HEX ou RGBA.</p>
         </CardContent>
       </Card>
 

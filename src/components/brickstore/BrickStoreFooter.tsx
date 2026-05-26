@@ -89,13 +89,12 @@ export function BrickStoreFooter() {
         {/* Payment Methods */}
         <div className="border-t border-white/10 pt-8 mb-8">
           <h4 className="font-bold text-sm mb-4">Formas de pagamento</h4>
-          <div className="flex flex-wrap gap-3">
-            {['Pix', 'Boleto', 'Visa', 'Mastercard', 'Elo'].map((method) => (
-              <div key={method} className="bg-white/10 px-4 py-2 rounded text-xs font-medium">
-                {method}
-              </div>
-            ))}
-          </div>
+          <img
+            src="https://gjbrindes.com.br/wp-content/uploads/2025/01/sitemgr_pagamentos-1024x289-1.png"
+            alt="Formas de pagamento: Pix, boleto e cartoes"
+            className="h-auto w-full max-w-[460px] rounded-sm bg-white object-contain"
+            loading="lazy"
+          />
         </div>
 
         {/* Bottom */}

@@ -59,7 +59,9 @@ Deno.serve(async (req) => {
     }
 
     const resendApiKey = Deno.env.get("RESEND_API_KEY");
-    const from = Deno.env.get("CONTACT_EMAIL_FROM") || Deno.env.get("RESEND_FROM_EMAIL");
+    const from = Deno.env.get("CONTACT_EMAIL_FROM") ||
+      Deno.env.get("ORDER_EMAIL_FROM") ||
+      Deno.env.get("RESEND_FROM_EMAIL");
     const to = Deno.env.get("CONTACT_EMAIL_TO") || Deno.env.get("SUPPORT_EMAIL") || "contato@kidsblockstore.com.br";
 
     if (!resendApiKey || !from) {

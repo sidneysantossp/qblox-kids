@@ -1,7 +1,11 @@
 import { Link } from 'react-router-dom';
 import { Facebook, Instagram, Youtube } from 'lucide-react';
+import { usePublicSettings } from '@/hooks/use-public-settings';
 
 export function BrickStoreFooter() {
+  const { footer_logo_url, navbar_logo_url } = usePublicSettings();
+  const logoUrl = footer_logo_url || navbar_logo_url;
+
   return (
     <footer className="bg-[#4B1599] text-white">
       <div className="container mx-auto px-4 py-12">
@@ -9,20 +13,26 @@ export function BrickStoreFooter() {
           {/* Logo and Description */}
           <div className="lg:col-span-2">
             <div className="flex items-center gap-1 mb-4">
-              <div className="flex flex-col gap-0.5">
-                <div className="flex gap-0.5">
-                  <div className="w-3 h-3 bg-[#FFD200] rounded-sm" />
-                  <div className="w-3 h-3 bg-[#E52421] rounded-sm" />
-                </div>
-                <div className="flex gap-0.5">
-                  <div className="w-3 h-3 bg-[#E52421] rounded-sm" />
-                  <div className="w-3 h-3 bg-[#FFD200] rounded-sm" />
-                </div>
-              </div>
-              <div className="text-[28px] font-bold leading-none">
-                <span className="text-white">QBLOX</span>
-                <span className="text-[#E52421]"> KIDS</span>
-              </div>
+              {logoUrl ? (
+                <img src={logoUrl} alt="QBLOX KIDS" className="h-12 w-auto object-contain" />
+              ) : (
+                <>
+                  <div className="flex flex-col gap-0.5">
+                    <div className="flex gap-0.5">
+                      <div className="w-3 h-3 bg-[#FFD200] rounded-sm" />
+                      <div className="w-3 h-3 bg-[#E52421] rounded-sm" />
+                    </div>
+                    <div className="flex gap-0.5">
+                      <div className="w-3 h-3 bg-[#E52421] rounded-sm" />
+                      <div className="w-3 h-3 bg-[#FFD200] rounded-sm" />
+                    </div>
+                  </div>
+                  <div className="text-[28px] font-bold leading-none">
+                    <span className="text-white">QBLOX</span>
+                    <span className="text-[#E52421]"> KIDS</span>
+                  </div>
+                </>
+              )}
             </div>
             <p className="text-sm text-white/80 mb-4">
               Especialista em minifiguras de blocos de montar. Qualidade, variedade e diversão para colecionadores e fãs!

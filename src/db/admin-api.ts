@@ -685,6 +685,17 @@ export async function getOrderById(id: string) {
 
 export async function updateOrderStatus(id: string, status: string) {
   console.log('[admin-api] updateOrderStatus: Atualizando status do pedido:', { id, status });
+  const { data: currentOrder, error: fetchError } = await supabase
+    .from('orders')
+    .select('id, status')
+    .eq('id', id)
+    .single();
+
+  if (fetchError) {
+    console.error('[admin-api] updateOrderStatus: Erro ao buscar status atual:', fetchError);
+    throw fetchError;
+  }
+
   const { data, error } = await supabase
     .from('orders')
     .update({ status, updated_at: new Date().toISOString() })
@@ -696,7 +707,22 @@ export async function updateOrderStatus(id: string, status: string) {
     console.error('[admin-api] updateOrderStatus: Erro ao atualizar status:', error);
     throw error;
   }
-  
+
+  if (currentOrder?.status !== status) {
+    const { error: emailError } = await supabase.functions.invoke('send_order_status_email', {
+      body: {
+        orderId: id,
+        previousStatus: currentOrder?.status,
+        newStatus: status,
+        source: 'admin',
+      },
+    });
+
+    if (emailError) {
+      console.error('[admin-api] updateOrderStatus: Status atualizado, mas falhou ao enviar e-mail:', emailError);
+    }
+  }
+
   console.log('[admin-api] updateOrderStatus: Status atualizado com sucesso');
   return data;
 }

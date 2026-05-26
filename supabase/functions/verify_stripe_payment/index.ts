@@ -1,5 +1,6 @@
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import Stripe from "npm:stripe@19.1.0";
+import { sendOrderStatusEmail } from "../_shared/order-status-email.ts";
 
 const supabaseUrl = Deno.env.get("SUPABASE_URL");
 const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
@@ -87,12 +88,13 @@ async function updateOrderStatus(
     return { success: false };
   }
 
-  // Aqui você pode adicionar lógica adicional após pagamento bem-sucedido:
-  // - Enviar email de confirmação
-  // - Atualizar estoque
-  // - Criar registro de envio
-  // - Adicionar pontos de fidelidade
-  // etc.
+  const emailResult = await sendOrderStatusEmail(supabase, {
+    orderId: order.id,
+    previousStatus: order.status,
+    newStatus: "completed",
+    source: "stripe_verification",
+  });
+  console.log("Resultado do e-mail de status:", emailResult);
 
   console.log(`Pedido ${order.id} concluído com sucesso`);
   

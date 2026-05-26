@@ -1,4 +1,5 @@
 import { createClient } from "jsr:@supabase/supabase-js@2";
+import { sendOrderStatusEmail } from "../_shared/order-status-email.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -351,6 +352,14 @@ Deno.serve(async (req) => {
         requestId,
       );
     }
+
+    const emailResult = await sendOrderStatusEmail(supabase, {
+      orderId: order.id,
+      previousStatus: null,
+      newStatus: orderStatus,
+      source: "asaas_payment_created",
+    });
+    console.log("Resultado do e-mail de status:", emailResult);
 
     // Retornar resposta
     return new Response(

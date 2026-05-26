@@ -471,7 +471,7 @@ export default function TermsOfUsePage() {
                 </a>
               </p>
               <p>
-                <strong>Telefone:</strong> (11) 99638-4376
+                <strong>Formulario:</strong> use a Central de Ajuda para enviar sua solicitacao.
               </p>
               <p className="text-muted-foreground">
                 R. Baronesa de Bela Vista, 411 - Vila Congonhas<br />

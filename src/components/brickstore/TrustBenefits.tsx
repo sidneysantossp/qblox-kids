@@ -15,8 +15,8 @@ const benefits = [
   },
   {
     icon: Headset,
-    title: 'Atendimento via WhatsApp',
-    description: 'Suporte rapido antes e depois da compra.',
+    title: 'Atendimento por e-mail',
+    description: 'Suporte organizado antes e depois da compra.',
     color: 'text-[#E52421]',
   },
   {

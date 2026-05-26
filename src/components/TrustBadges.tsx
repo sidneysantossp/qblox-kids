@@ -3,7 +3,7 @@ import { CreditCard, Headset, RotateCcw, ShieldCheck, Truck } from 'lucide-react
 const trustBadges = [
   { icon: ShieldCheck, label: 'Compra segura' },
   { icon: Truck, label: 'Envio com rastreio' },
-  { icon: Headset, label: 'Atendimento via WhatsApp' },
+  { icon: Headset, label: 'Atendimento por e-mail' },
   { icon: RotateCcw, label: 'Troca facil em 7 dias' },
   { icon: CreditCard, label: 'Pix e cartao seguros' },
 ];

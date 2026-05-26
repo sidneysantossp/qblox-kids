@@ -11,7 +11,6 @@ import { CartProvider, useCart } from '@/contexts/CartContext';
 import { FavoritesProvider } from '@/contexts/FavoritesContext';
 import { Toaster } from '@/components/ui/toaster';
 import { ScrollToTop } from '@/components/ScrollToTop';
-import { FloatingWhatsAppButton } from '@/components/ui/FloatingWhatsAppButton';
 import { FreeShippingProgress } from '@/components/cart/FreeShippingProgress';
 import { Button } from '@/components/ui/button';
 
@@ -104,7 +103,6 @@ function AppShell() {
                   </PageLayout>
                 </main>
                 <BottomNav />
-                <FloatingWhatsAppButton />
                 <CookieBanner />
               </div>
             }

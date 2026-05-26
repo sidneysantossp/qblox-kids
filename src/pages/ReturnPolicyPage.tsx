@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertCircle, CheckCircle, XCircle, Package, Clock, FileText } from 'lucide-react';
 
@@ -114,8 +115,8 @@ export default function ReturnPolicyPage() {
                 <div>
                   <strong className="text-foreground">Entre em contato:</strong>
                   <p className="text-sm text-muted-foreground mt-1">
-                    Envie um e-mail para <a href="mailto:contato@kidsblockstore.com.br" className="text-primary hover:underline">contato@kidsblockstore.com.br</a> ou
-                    entre em contato pelo WhatsApp <a href="https://wa.me/5511996384376" className="text-primary hover:underline">(11) 99638-4376</a>.
+                    Envie um e-mail para <a href="mailto:contato@kidsblockstore.com.br" className="text-primary hover:underline">contato@kidsblockstore.com.br</a>
+                    ou use o formulario da <Link to="/central-de-ajuda" className="text-primary hover:underline">Central de Ajuda</Link>.
                   </p>
                 </div>
               </li>
@@ -307,14 +308,12 @@ export default function ReturnPolicyPage() {
               >
                 E-mail: contato@kidsblockstore.com.br
               </a>
-              <a
-                href="https://wa.me/5511996384376"
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link
+                to="/central-de-ajuda"
                 className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/90 transition-colors"
               >
-                WhatsApp: (11) 99638-4376
-              </a>
+                Enviar formulario
+              </Link>
             </div>
           </CardContent>
         </Card>

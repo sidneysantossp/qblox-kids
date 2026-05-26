@@ -44,6 +44,7 @@ export function BrickStoreHeader() {
   const { cartTotal } = useCart();
   const {
     navbar_logo_url,
+    header_logo_height,
     storefront_header_bg_color,
     storefront_header_text_color,
     storefront_header_search_bg_color,
@@ -51,6 +52,8 @@ export function BrickStoreHeader() {
     storefront_header_search_placeholder_color,
     storefront_header_search_icon_color,
   } = usePublicSettings();
+
+  const logoHeight = parseInt(header_logo_height, 10) || 64;
 
   const headerBgColor = storefront_header_bg_color || '#4B1599';
   const headerTextColor = storefront_header_text_color || '#FFFFFF';
@@ -146,12 +149,12 @@ export function BrickStoreHeader() {
   return (
     <>
       <style>{`.storefront-search::placeholder { color: ${searchPlaceholderColor}; opacity: 1; }`}</style>
-      <header className="border-b border-gray-200 shadow-sm sticky top-0 z-50" style={{ backgroundColor: headerBgColor, color: headerTextColor }}>
+      <header className="shadow-sm sticky top-0 z-50" style={{ backgroundColor: headerBgColor, color: headerTextColor }}>
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-[72px] md:h-[82px] gap-4">
           <Link to="/" className="flex items-center gap-2 shrink-0">
             {navbar_logo_url ? (
-              <img src={navbar_logo_url} alt="QBLOX" className="h-12 md:h-16 w-auto object-contain" />
+              <img src={navbar_logo_url} alt="QBLOX" className="w-auto object-contain" style={{ height: `${logoHeight}px` }} />
             ) : (
               <div className="flex items-center gap-1">
                 <div className="flex flex-col gap-0.5">

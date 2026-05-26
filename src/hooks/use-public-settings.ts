@@ -4,6 +4,8 @@ import { getSiteSettings } from '@/db/api';
 export interface PublicSettings {
   navbar_logo_url: string;
   footer_logo_url: string;
+  header_logo_height: string;
+  footer_logo_height: string;
   site_meta_title: string;
   site_meta_description: string;
   storefront_header_bg_color: string;
@@ -19,6 +21,8 @@ export interface PublicSettings {
 const defaultSettings: PublicSettings = {
   navbar_logo_url: '',
   footer_logo_url: '',
+  header_logo_height: '64',
+  footer_logo_height: '48',
   site_meta_title: '',
   site_meta_description: '',
   storefront_header_bg_color: '',

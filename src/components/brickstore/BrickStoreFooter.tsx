@@ -3,8 +3,9 @@ import { Facebook, Instagram, Youtube } from 'lucide-react';
 import { usePublicSettings } from '@/hooks/use-public-settings';
 
 export function BrickStoreFooter() {
-  const { footer_logo_url, navbar_logo_url } = usePublicSettings();
+  const { footer_logo_url, navbar_logo_url, footer_logo_height } = usePublicSettings();
   const logoUrl = footer_logo_url || navbar_logo_url;
+  const logoHeight = parseInt(footer_logo_height, 10) || 48;
 
   return (
     <footer className="bg-[#4B1599] text-white">
@@ -14,7 +15,7 @@ export function BrickStoreFooter() {
           <div className="lg:col-span-2">
             <div className="flex items-center gap-1 mb-4">
               {logoUrl ? (
-                <img src={logoUrl} alt="QBLOX KIDS" className="h-12 w-auto object-contain" />
+                <img src={logoUrl} alt="QBLOX KIDS" className="w-auto object-contain" style={{ height: `${logoHeight}px` }} />
               ) : (
                 <>
                   <div className="flex flex-col gap-0.5">

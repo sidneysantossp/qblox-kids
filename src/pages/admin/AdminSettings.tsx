@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Save, Package, AlertCircle, Plug, Bug, Image as ImageIcon, Globe, X } from 'lucide-react';
+import { Loader2, Save, Package, AlertCircle, Plug, Bug, Image as ImageIcon, Globe, X, Ruler } from 'lucide-react';
 import { supabase } from '@/db/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -27,6 +27,8 @@ export default function AdminSettings() {
   const [correiosCepOrigem, setCorreiosCepOrigem] = useState('');
   const [navbarLogoUrl, setNavbarLogoUrl] = useState('');
   const [footerLogoUrl, setFooterLogoUrl] = useState('');
+  const [headerLogoHeight, setHeaderLogoHeight] = useState('64');
+  const [footerLogoHeight, setFooterLogoHeight] = useState('48');
   const [siteMetaTitle, setSiteMetaTitle] = useState('');
   const [siteMetaDescription, setSiteMetaDescription] = useState('');
   const [storefrontHeaderBgColor, setStorefrontHeaderBgColor] = useState('#4B1599');
@@ -148,6 +150,8 @@ export default function AdminSettings() {
       setCorreiosCepOrigem(findSettingValue('correios_cep_origem'));
       setNavbarLogoUrl(findSiteSettingValue('navbar_logo_url'));
       setFooterLogoUrl(findSiteSettingValue('footer_logo_url'));
+      setHeaderLogoHeight(findSiteSettingValue('header_logo_height') || '64');
+      setFooterLogoHeight(findSiteSettingValue('footer_logo_height') || '48');
       setSiteMetaTitle(findSiteSettingValue('site_meta_title'));
       setSiteMetaDescription(findSiteSettingValue('site_meta_description'));
       setStorefrontHeaderBgColor(findSiteSettingValue('storefront_header_bg_color') || '#4B1599');
@@ -204,6 +208,8 @@ export default function AdminSettings() {
         updateSiteSetting('storefront_header_search_icon_color', storefrontHeaderSearchIconColor || ''),
         updateSiteSetting('storefront_topbar_bg_color', storefrontTopbarBgColor || ''),
         updateSiteSetting('storefront_topbar_text_color', storefrontTopbarTextColor || ''),
+        updateSiteSetting('header_logo_height', headerLogoHeight || '64'),
+        updateSiteSetting('footer_logo_height', footerLogoHeight || '48'),
       ]);
 
       toast({ title: 'Sucesso', description: 'Configurações salvas com sucesso' });
@@ -355,6 +361,58 @@ export default function AdminSettings() {
                   <DropzoneContent />
                 </Dropzone>
                 <p className="text-sm text-muted-foreground">Arraste a logo do footer ou clique para selecionar um arquivo.</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Logo Size Controls */}
+          <div className="border-t pt-6">
+            <div className="flex items-center gap-2 mb-4">
+              <Ruler className="h-4 w-4 text-primary" />
+              <Label className="text-base font-semibold">Tamanho das Logos</Label>
+            </div>
+            <div className="grid gap-6 md:grid-cols-2">
+              <div className="space-y-3">
+                <Label htmlFor="header-logo-height">Altura da Logo no Header</Label>
+                <div className="flex items-center gap-4">
+                  <input
+                    id="header-logo-height"
+                    type="range"
+                    min="32"
+                    max="120"
+                    step="4"
+                    value={headerLogoHeight}
+                    onChange={(e) => setHeaderLogoHeight(e.target.value)}
+                    className="flex-1 h-2 accent-primary cursor-pointer"
+                  />
+                  <span className="text-sm font-mono font-medium bg-muted px-2 py-1 rounded min-w-[52px] text-center">{headerLogoHeight}px</span>
+                </div>
+                {navbarLogoUrl && (
+                  <div className="flex items-center justify-center rounded-lg border bg-white p-3">
+                    <img src={navbarLogoUrl} alt="Preview header" className="w-auto object-contain" style={{ height: `${headerLogoHeight}px` }} />
+                  </div>
+                )}
+              </div>
+              <div className="space-y-3">
+                <Label htmlFor="footer-logo-height">Altura da Logo no Footer</Label>
+                <div className="flex items-center gap-4">
+                  <input
+                    id="footer-logo-height"
+                    type="range"
+                    min="24"
+                    max="96"
+                    step="4"
+                    value={footerLogoHeight}
+                    onChange={(e) => setFooterLogoHeight(e.target.value)}
+                    className="flex-1 h-2 accent-primary cursor-pointer"
+                  />
+                  <span className="text-sm font-mono font-medium bg-muted px-2 py-1 rounded min-w-[52px] text-center">{footerLogoHeight}px</span>
+                </div>
+                {(footerLogoUrl || navbarLogoUrl) && (
+                  <div className="flex items-center justify-center rounded-lg border bg-[#4B1599] p-3 rounded-lg">
+                    <img src={footerLogoUrl || navbarLogoUrl} alt="Preview footer" className="w-auto object-contain" style={{ height: `${footerLogoHeight}px` }} />
+                  </div>
+                )}
               </div>
             </div>
           </div>

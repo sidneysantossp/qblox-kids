@@ -44,6 +44,11 @@ import HelpCenterPage from './pages/HelpCenterPage';
 import ReturnPolicyPage from './pages/ReturnPolicyPage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import TermsOfUsePage from './pages/TermsOfUsePage';
+import ContactPage from './pages/ContactPage';
+import FAQPage from './pages/FAQPage';
+import SecurePurchasePage from './pages/SecurePurchasePage';
+import ProductCompatibilityPage from './pages/ProductCompatibilityPage';
+import ProductCareAgePage from './pages/ProductCareAgePage';
 import AdminAccessDebugPage from './pages/AdminAccessDebugPage';
 import TestPaymentMethods from './pages/TestPaymentMethods';
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -374,6 +379,36 @@ const routes: RouteConfig[] = [
     name: 'Help Center',
     path: '/central-de-ajuda',
     element: <HelpCenterPage />,
+    visible: false
+  },
+  {
+    name: 'Contact',
+    path: '/contato',
+    element: <ContactPage />,
+    visible: false
+  },
+  {
+    name: 'FAQ',
+    path: '/perguntas-frequentes',
+    element: <FAQPage />,
+    visible: false
+  },
+  {
+    name: 'Secure Purchase',
+    path: '/compra-segura',
+    element: <SecurePurchasePage />,
+    visible: false
+  },
+  {
+    name: 'Product Compatibility',
+    path: '/compatibilidade-dos-bonecos',
+    element: <ProductCompatibilityPage />,
+    visible: false
+  },
+  {
+    name: 'Product Care and Age',
+    path: '/cuidados-e-idade-recomendada',
+    element: <ProductCareAgePage />,
     visible: false
   },
   {

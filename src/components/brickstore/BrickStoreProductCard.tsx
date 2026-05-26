@@ -8,6 +8,7 @@ import type { Product } from '@/types';
 import { CardImageGallery } from '@/components/products/CardImageGallery';
 import { getProductPath } from '@/lib/urls';
 import { TrustBadges } from '@/components/TrustBadges';
+import { getKitValueMessage, getProductCtaLabel } from '@/lib/product-conversion';
 
 export interface BrickStoreProductCardProps {
   id: string;
@@ -100,6 +101,8 @@ export function BrickStoreProductCard({
   const displayOriginalPrice = oldPrice || price;
   const installmentPrice = (price / 3).toFixed(2);
   const shouldShowInstallments = price >= 20;
+  const ctaLabel = getProductCtaLabel({ name, category });
+  const kitValue = getKitValueMessage({ name, category, price });
 
   const stopNavigation = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
@@ -227,6 +230,18 @@ export function BrickStoreProductCard({
             )}
           </div>
 
+          {kitValue ? (
+            <div className="rounded-lg border border-yellow-200 bg-yellow-50 px-3 py-2 text-[11px] leading-snug text-[#5C4200]">
+              <p className="font-extrabold">{kitValue.headline}</p>
+              <p>{kitValue.unitPrice}</p>
+              <p>{kitValue.context}</p>
+            </div>
+          ) : (
+            <p className="text-[11px] font-semibold text-emerald-700">
+              Frete gratis acima de R$99
+            </p>
+          )}
+
           <TrustBadges compact limit={2} className="pt-1" />
 
           <div className="mt-2 space-y-2">
@@ -257,12 +272,13 @@ export function BrickStoreProductCard({
 
               <Button
                 type="button"
-                className="flex-1 bg-[#FFD200] hover:bg-[#F5C400] text-[#111827] font-extrabold text-[11px] md:text-xs h-9 rounded-lg px-3"
+                className="flex-1 bg-[#FFD200] hover:bg-[#F5C400] text-[#111827] font-extrabold text-[11px] md:text-xs h-10 rounded-lg px-3 shadow-sm shadow-yellow-300/40"
                 onClick={(event) => void handleAddToCart(event)}
                 disabled={isAddingToCart}
               >
                 <ShoppingCart className="w-3.5 h-3.5 shrink-0 md:mr-1.5" />
-                <span className="hidden md:inline">{isAddingToCart ? 'ADICIONANDO...' : 'ADICIONAR'}</span>
+                <span className="hidden md:inline">{isAddingToCart ? 'ADICIONANDO...' : ctaLabel.toUpperCase()}</span>
+                <span className="md:hidden">{isAddingToCart ? '...' : 'COMPRAR'}</span>
               </Button>
             </div>
 

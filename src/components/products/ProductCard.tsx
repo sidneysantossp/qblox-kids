@@ -5,6 +5,7 @@ import type { Product } from '@/types';
 import { useFavorites } from '@/contexts/FavoritesContext';
 import { getProductPath } from '@/lib/urls';
 import { TrustBadges } from '@/components/TrustBadges';
+import { getKitValueMessage } from '@/lib/product-conversion';
 
 interface ProductCardProps {
   product: Product;
@@ -22,6 +23,7 @@ export function ProductCard({ product }: ProductCardProps) {
   
   const installmentPrice = (finalPrice / 3).toFixed(2);
   const shouldShowInstallments = finalPrice >= 20;
+  const kitValue = getKitValueMessage({ name: product.name, category: product.category, price: finalPrice });
 
   return (
     <Link 
@@ -107,6 +109,17 @@ export function ProductCard({ product }: ProductCardProps) {
             </p>
           )}
         </div>
+
+        {kitValue ? (
+          <div className="rounded-lg border border-yellow-200 bg-yellow-50 px-3 py-2 text-[11px] leading-snug text-[#5C4200]">
+            <p className="font-extrabold">{kitValue.headline}</p>
+            <p>{kitValue.unitPrice}</p>
+          </div>
+        ) : (
+          <p className="text-[11px] font-semibold text-emerald-700">
+            Frete gratis acima de R$99
+          </p>
+        )}
 
         <TrustBadges compact limit={2} />
       </div>

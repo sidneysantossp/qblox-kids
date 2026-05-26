@@ -44,6 +44,7 @@ import { trackViewContent } from '@/lib/meta-pixel';
 import type { Product } from '@/types';
 import { FreeShippingProgress } from '@/components/cart/FreeShippingProgress';
 import { TrustBadges } from '@/components/TrustBadges';
+import { getKitValueMessage, getProductCtaLabel } from '@/lib/product-conversion';
 import { getCategoryCanonicalUrl, getCategoryPath, getPillarPathByCategory, getProductCanonicalUrl, getProductPath, getSatelliteGuidePathsByCategory } from '@/lib/urls';
 import { useToast } from '@/hooks/use-toast';
 
@@ -220,6 +221,8 @@ export default function ProductDetailPage() {
     );
   }
 
+  const kitValue = getKitValueMessage(product);
+  const ctaLabel = getProductCtaLabel(product);
   const seoTitle = product.meta_title || generateProductTitle(product.name, product.price);
   const seoDescription = product.meta_description || generateProductDescription(
     product.name,
@@ -416,6 +419,18 @@ export default function ProductDetailPage() {
                   <span className="text-xl text-muted-foreground line-through">R$ {product.original_price.toFixed(2).replace('.', ',')}</span>
                 )}
               </div>
+
+              {kitValue ? (
+                <div className="mb-6 rounded-xl border border-yellow-200 bg-yellow-50 p-4 text-sm text-[#5C4200]">
+                  <p className="font-extrabold text-base">{kitValue.headline}</p>
+                  <p>{kitValue.unitPrice}</p>
+                  <p>{kitValue.context}</p>
+                </div>
+              ) : (
+                <p className="mb-6 text-sm font-semibold text-emerald-700">
+                  Frete gratis acima de R$99
+                </p>
+              )}
             </div>
 
             <Separator className="my-6" />
@@ -429,8 +444,8 @@ export default function ProductDetailPage() {
                   <button type="button" onClick={() => setQuantity(Math.min(99, quantity + 1))} disabled={quantity >= 99 || isAddingToCart} aria-label="Aumentar quantidade" className="h-full w-11 flex items-center justify-center hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed transition-colors"><Plus className="h-4 w-4 text-muted-foreground" /></button>
                 </div>
 
-                <Button type="button" onClick={() => void handleAddToCart()} disabled={isAddingToCart} className="flex-1 h-11 text-base font-bold bg-[hsl(var(--success))] hover:bg-[hsl(var(--success))]/90 text-white" aria-label={`Adicionar ${quantity} ${product.name} ao carrinho`}>
-                  {isAddingToCart ? 'ADICIONANDO...' : 'COMPRAR'}
+                <Button type="button" onClick={() => void handleAddToCart()} disabled={isAddingToCart} className="flex-1 h-12 text-base font-extrabold bg-[#FFD200] hover:bg-[#F5C400] text-[#111827] shadow-sm shadow-yellow-300/50" aria-label={`Adicionar ${quantity} ${product.name} ao carrinho`}>
+                  {isAddingToCart ? 'ADICIONANDO...' : ctaLabel.toUpperCase()}
                 </Button>
               </div>
             </div>

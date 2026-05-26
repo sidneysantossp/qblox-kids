@@ -61,12 +61,7 @@ export function BrickStoreHeader() {
   const hoverItemBackgroundColor = '#FFFFFF';
   const hoverItemTextColor = '#4B1599';
 
-  const menuItems = [
-    { label: 'Início', path: '/' },
-  ].map((item) => ({
-    ...item,
-    active: item.path === '/' ? location.pathname === '/' : location.pathname.startsWith(item.path),
-  }));
+  const menuItems = [];
 
   useEffect(() => {
     const loadCategories = async () => {
@@ -333,32 +328,6 @@ export function BrickStoreHeader() {
 
                 <div className="flex-1 overflow-y-auto p-5">
                   <nav className="flex flex-col gap-4">
-                    {menuItems.map((item) => (
-                      <Link
-                        key={item.path}
-                        to={item.path}
-                        onClick={() => setIsMenuOpen(false)}
-                        className="rounded-lg px-2 py-1.5 text-sm font-semibold uppercase transition-colors"
-                        style={{
-                          backgroundColor: item.active ? hoverItemBackgroundColor : 'transparent',
-                          color: item.active ? hoverItemTextColor : headerTextColor,
-                        }}
-                        onMouseEnter={(event) => {
-                          if (!item.active) {
-                            event.currentTarget.style.backgroundColor = hoverItemBackgroundColor;
-                            event.currentTarget.style.color = hoverItemTextColor;
-                          }
-                        }}
-                        onMouseLeave={(event) => {
-                          if (!item.active) {
-                            event.currentTarget.style.backgroundColor = 'transparent';
-                            event.currentTarget.style.color = headerTextColor;
-                          }
-                        }}
-                      >
-                        {item.label}
-                      </Link>
-                    ))}
 
                     <div className="border-t pt-4 mt-2">
                       <p className="text-xs font-semibold text-black/80 mb-3">CATEGORIAS</p>
@@ -377,20 +346,16 @@ export function BrickStoreHeader() {
                                 onClick={() => setIsMenuOpen(false)}
                                 className="flex items-center gap-2 rounded-lg p-1.5 transition-colors"
                                 style={{
-                                  backgroundColor: isActive ? hoverItemBackgroundColor : 'transparent',
-                                  color: isActive ? hoverItemTextColor : headerTextColor,
+                                  backgroundColor: 'transparent',
+                                  color: headerTextColor,
                                 }}
                                 onMouseEnter={(event) => {
-                                  if (!isActive) {
-                                    event.currentTarget.style.backgroundColor = hoverItemBackgroundColor;
-                                    event.currentTarget.style.color = hoverItemTextColor;
-                                  }
+                                  event.currentTarget.style.backgroundColor = hoverItemBackgroundColor;
+                                  event.currentTarget.style.color = hoverItemTextColor;
                                 }}
                                 onMouseLeave={(event) => {
-                                  if (!isActive) {
-                                    event.currentTarget.style.backgroundColor = 'transparent';
-                                    event.currentTarget.style.color = headerTextColor;
-                                  }
+                                  event.currentTarget.style.backgroundColor = 'transparent';
+                                  event.currentTarget.style.color = headerTextColor;
                                 }}
                               >
                                 {category.mini_thumb_url || category.image_url ? (
@@ -451,32 +416,6 @@ export function BrickStoreHeader() {
 
         <div className="hidden lg:flex items-center justify-end gap-6 min-h-[52px] pt-2 pb-2">
           <nav className="flex items-center justify-end gap-6 overflow-x-auto whitespace-nowrap scrollbar-hide min-w-0">
-            {menuItems.map((item) => (
-              <Link
-                key={item.path}
-                to={item.path}
-                className="rounded-md px-3 py-2 text-[13px] font-semibold uppercase transition-colors relative"
-                style={{
-                  backgroundColor: item.active ? hoverItemBackgroundColor : 'transparent',
-                  color: item.active ? hoverItemTextColor : headerTextColor,
-                }}
-                onMouseEnter={(event) => {
-                  if (!item.active) {
-                    event.currentTarget.style.backgroundColor = hoverItemBackgroundColor;
-                    event.currentTarget.style.color = hoverItemTextColor;
-                  }
-                }}
-                onMouseLeave={(event) => {
-                  if (!item.active) {
-                    event.currentTarget.style.backgroundColor = 'transparent';
-                    event.currentTarget.style.color = headerTextColor;
-                  }
-                }}
-              >
-                <span>{item.label}</span>
-                {item.active && <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-[#FFD200]" />}
-              </Link>
-            ))}
 
             {!loadingCategories && categories.map((category) => {
               const categoryPath = getCategoryPath(category.slug || category.name);
@@ -495,24 +434,19 @@ export function BrickStoreHeader() {
                     to={categoryPath}
                     className="rounded-md px-3 py-2 text-[13px] font-semibold uppercase transition-colors relative"
                     style={{
-                      backgroundColor: isActive ? hoverItemBackgroundColor : 'transparent',
-                      color: isActive ? hoverItemTextColor : headerTextColor,
+                      backgroundColor: 'transparent',
+                      color: headerTextColor,
                     }}
                     onMouseEnter={(event) => {
-                      if (!isActive) {
-                        event.currentTarget.style.backgroundColor = hoverItemBackgroundColor;
-                        event.currentTarget.style.color = hoverItemTextColor;
-                      }
+                      event.currentTarget.style.backgroundColor = hoverItemBackgroundColor;
+                      event.currentTarget.style.color = hoverItemTextColor;
                     }}
                     onMouseLeave={(event) => {
-                      if (!isActive) {
-                        event.currentTarget.style.backgroundColor = 'transparent';
-                        event.currentTarget.style.color = headerTextColor;
-                      }
+                      event.currentTarget.style.backgroundColor = 'transparent';
+                      event.currentTarget.style.color = headerTextColor;
                     }}
                   >
                     <span>{category.name}</span>
-                    {isActive && <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-[#FFD200]" />}
                   </Link>
                   {category.slug === 'viloes' && (
                     <Link
@@ -520,24 +454,19 @@ export function BrickStoreHeader() {
                       to="/ofertas-especiais"
                       className="rounded-md px-3 py-2 text-[13px] font-semibold uppercase transition-colors relative"
                       style={{
-                        backgroundColor: location.pathname.startsWith('/ofertas-especiais') ? hoverItemBackgroundColor : 'transparent',
-                        color: location.pathname.startsWith('/ofertas-especiais') ? hoverItemTextColor : headerTextColor,
+                        backgroundColor: 'transparent',
+                        color: headerTextColor,
                       }}
                       onMouseEnter={(event) => {
-                        if (!location.pathname.startsWith('/ofertas-especiais')) {
-                          event.currentTarget.style.backgroundColor = hoverItemBackgroundColor;
-                          event.currentTarget.style.color = hoverItemTextColor;
-                        }
+                        event.currentTarget.style.backgroundColor = hoverItemBackgroundColor;
+                        event.currentTarget.style.color = hoverItemTextColor;
                       }}
                       onMouseLeave={(event) => {
-                        if (!location.pathname.startsWith('/ofertas-especiais')) {
-                          event.currentTarget.style.backgroundColor = 'transparent';
-                          event.currentTarget.style.color = headerTextColor;
-                        }
+                        event.currentTarget.style.backgroundColor = 'transparent';
+                        event.currentTarget.style.color = headerTextColor;
                       }}
                     >
                       <span>Ofertas</span>
-                      {location.pathname.startsWith('/ofertas-especiais') && <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-[#FFD200]" />}
                     </Link>
                   )}
                 </>

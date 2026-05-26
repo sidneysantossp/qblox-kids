@@ -89,12 +89,14 @@ export function BrickStoreFooter() {
         {/* Payment Methods */}
         <div className="border-t border-white/10 pt-8 mb-8">
           <h4 className="font-bold text-sm mb-4">Formas de pagamento</h4>
-          <img
-            src="https://gjbrindes.com.br/wp-content/uploads/2025/01/sitemgr_pagamentos-1024x289-1.png"
-            alt="Formas de pagamento: Pix, boleto e cartoes"
-            className="h-auto w-full max-w-[460px] rounded-sm bg-white object-contain"
-            loading="lazy"
-          />
+          <div className="h-[58px] max-w-[460px] overflow-hidden">
+            <img
+              src="https://gjbrindes.com.br/wp-content/uploads/2025/01/sitemgr_pagamentos-1024x289-1.png"
+              alt="Formas de pagamento: Pix, boleto e cartoes"
+              className="w-full -translate-y-[28%] object-contain"
+              loading="lazy"
+            />
+          </div>
         </div>
 
         {/* Bottom */}

@@ -1,6 +1,7 @@
 import { createContext, type ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { trackAddToWishlist } from '@/lib/meta-pixel';
 import type { Product } from '@/types';
 
 interface FavoritesContextType {
@@ -53,14 +54,19 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
       return;
     }
 
+    const exists = favorites.some((item) => item.id === product.id);
+    if (!exists) {
+      trackAddToWishlist(product);
+    }
+
     setFavorites((currentFavorites) => {
-      const exists = currentFavorites.some((item) => item.id === product.id);
-      if (exists) {
+      const currentlyExists = currentFavorites.some((item) => item.id === product.id);
+      if (currentlyExists) {
         return currentFavorites.filter((item) => item.id !== product.id);
       }
       return [product, ...currentFavorites];
     });
-  }, [redirectToLogin, user]);
+  }, [favorites, redirectToLogin, user]);
 
   const removeFavorite = useCallback((productId: string) => {
     setFavorites((currentFavorites) => currentFavorites.filter((item) => item.id !== productId));

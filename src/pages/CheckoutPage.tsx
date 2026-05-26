@@ -22,6 +22,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/db/supabase';
 import { createAsaasPayment, calculateShipping, validateCoupon, getActivePaymentMethods, type ShippingOption } from '@/db/api';
+import { trackInitiateCheckout } from '@/lib/meta-pixel';
 import { cpfMask, phoneMask, cepMask, fetchAddressByCEP, BRAZILIAN_STATES, creditCardMask, cvvMask, expiryMask, validateCardNumber, detectCardBrand } from '@/lib/masks';
 import type { CouponValidation } from '@/types';
 
@@ -156,6 +157,13 @@ function CheckoutForm() {
 
     loadPaymentMethods();
   }, [toast]);
+
+  // Track InitiateCheckout when page loads with items
+  useEffect(() => {
+    if (cartItems.length > 0) {
+      trackInitiateCheckout(cartItems, cartTotal);
+    }
+  }, []);
 
   // Calcular frete quando CEP de destino estiver completo
   useEffect(() => {

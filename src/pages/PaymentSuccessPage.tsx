@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { verifyStripePayment } from '@/db/api';
+import { trackPurchase } from '@/lib/meta-pixel';
 import { useCart } from '@/contexts/CartContext';
 import type { PaymentVerificationResponse } from '@/types';
 
@@ -36,7 +37,14 @@ export default function PaymentSuccessPage() {
       if (response?.data?.verified) {
         setVerificationStatus('success');
         setPaymentData(response.data);
-        
+
+        // Track Meta Pixel Purchase event
+        trackPurchase(
+          response.data.order?.id || '',
+          response.data.amount || 0,
+          response.data.order?.items || []
+        );
+
         // Limpar carrinho após pagamento bem-sucedido
         await clearCartContext();
       } else {

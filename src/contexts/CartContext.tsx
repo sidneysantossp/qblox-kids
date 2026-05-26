@@ -1,5 +1,6 @@
 import { createContext, type ReactNode, useContext, useEffect, useState } from 'react';
 import { addToCart as addToCartDB, clearCart as clearCartDB, getCartItems, removeFromCart as removeFromCartDB, updateCartItemQuantity } from '@/db/api';
+import { trackAddToCart } from '@/lib/meta-pixel';
 import { supabase } from '@/db/supabase';
 import { useToast } from '@/hooks/use-toast';
 import type { CartItem, Product } from '@/types';
@@ -110,6 +111,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   ) => {
     try {
       const result = await addToCartDB(sessionId, product.id, quantity);
+      trackAddToCart(product, quantity);
 
       if (!options?.skipRefresh) {
         await refreshCart();

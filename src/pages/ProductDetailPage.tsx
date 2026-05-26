@@ -40,6 +40,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { useCart } from '@/contexts/CartContext';
 import { useFavorites } from '@/contexts/FavoritesContext';
 import { getProductById, getProductsByCategory } from '@/db/api';
+import { trackViewContent } from '@/lib/meta-pixel';
 import type { Product } from '@/types';
 import { FreeShippingProgress } from '@/components/cart/FreeShippingProgress';
 import { getCategoryCanonicalUrl, getCategoryPath, getPillarPathByCategory, getProductCanonicalUrl, getProductPath, getSatelliteGuidePathsByCategory } from '@/lib/urls';
@@ -93,6 +94,12 @@ export default function ProductDetailPage() {
 
     void loadProduct();
   }, [productId]);
+
+  useEffect(() => {
+    if (product) {
+      trackViewContent(product);
+    }
+  }, [product]);
 
   const handleAddToCart = async () => {
     if (!product || isAddingToCart) {

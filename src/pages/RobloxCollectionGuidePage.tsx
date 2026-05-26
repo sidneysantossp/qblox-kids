@@ -14,7 +14,7 @@ import { getProductPath } from '@/lib/urls';
 import { getBestsellerProducts, getFeaturedProducts } from '@/db/api';
 import type { FAQItem, Product } from '@/types';
 
-const pageUrl = 'https://qblox.com.br/guia/como-comecar-uma-colecao-de-roblox';
+const pageUrl = 'https://www.qblox.com.br/guia/como-comecar-uma-colecao-de-roblox';
 const pageTitle = 'Como começar uma coleção de Roblox';
 const pageDescription = 'Guia completo para começar uma coleção de Roblox com mais contexto, entendendo tema, variedade, continuidade visual e produtos de entrada.';
 const pageKeywords = 'como começar uma coleção de roblox, bonecos de roblox, coleção de roblox, roblox para presente, bonecos de montar de roblox';
@@ -107,7 +107,7 @@ export default function RobloxCollectionGuidePage() {
       pageUrl,
       featuredProductLinks.map((product) => ({
         name: product.name,
-        url: `https://qblox.com.br${getProductPath(product)}`,
+        url: `https://www.qblox.com.br${getProductPath(product)}`,
         image: product.image_url,
         price: product.price,
         currency: 'BRL',

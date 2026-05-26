@@ -46,7 +46,7 @@ export default function SuperHeroesPillarPage() {
 
   const schema = generateItemListSchema(
     'Bonecos de Super Heróis',
-    'https://qblox.com.br/bonecos-de-super-herois',
+    'https://www.qblox.com.br/bonecos-de-super-herois',
     products.map((product): ProductListItem => ({
       name: product.name,
       url: getProductCanonicalUrl(product),
@@ -61,8 +61,8 @@ export default function SuperHeroesPillarPage() {
       <SEO
         title="Bonecos de Super Heróis | Guia, Categorias e Produtos | QBLOX"
         description="Explore bonecos de super-heróis para colecionar, presentear e montar. Compare categorias, produtos em destaque e conteúdos relacionados ao universo de ação da QBLOX."
-        canonical="https://qblox.com.br/bonecos-de-super-herois"
-        url="https://qblox.com.br/bonecos-de-super-herois"
+        canonical="https://www.qblox.com.br/bonecos-de-super-herois"
+        url="https://www.qblox.com.br/bonecos-de-super-herois"
         type="website"
       />
       <SchemaMarkup schema={schema} />

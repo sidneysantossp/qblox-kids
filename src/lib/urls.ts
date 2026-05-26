@@ -20,11 +20,11 @@ export function getProductPath(product: Pick<Product, 'id' | 'name' | 'slug'>) {
   return `/produto/${slug}-${product.id}`;
 }
 
-export function getProductCanonicalUrl(product: Pick<Product, 'id' | 'name' | 'slug'>, baseUrl = 'https://qblox.com.br') {
+export function getProductCanonicalUrl(product: Pick<Product, 'id' | 'name' | 'slug'>, baseUrl = 'https://www.qblox.com.br') {
   return `${baseUrl}${getProductPath(product)}`;
 }
 
-export function getCategoryCanonicalUrl(categoryOrSlug: string, baseUrl = 'https://qblox.com.br') {
+export function getCategoryCanonicalUrl(categoryOrSlug: string, baseUrl = 'https://www.qblox.com.br') {
   return `${baseUrl}${getCategoryPath(categoryOrSlug)}`;
 }
 

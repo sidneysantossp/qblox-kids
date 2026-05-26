@@ -14,7 +14,7 @@ import { getProductPath } from '@/lib/urls';
 import { getBestsellerProducts, getFeaturedProducts, getTvSeriesProducts } from '@/db/api';
 import type { FAQItem, Product } from '@/types';
 
-const pageUrl = 'https://qblox.com.br/guia/melhores-bonecos-de-montar-para-iniciantes';
+const pageUrl = 'https://www.qblox.com.br/guia/melhores-bonecos-de-montar-para-iniciantes';
 const pageTitle = 'Melhores bonecos de montar para iniciantes';
 const pageDescription = 'Guia completo para iniciantes que querem escolher bonecos de montar por tema, facilidade de decisão, categoria e potencial de compra com mais contexto.';
 const pageKeywords = 'melhores bonecos de montar para iniciantes, bonecos de montar para começar, bonecos de montar para presente, categorias de bonecos de montar, produtos para iniciantes';
@@ -110,7 +110,7 @@ export default function BeginnersGuidePage() {
       pageUrl,
       featuredProductLinks.map((product) => ({
         name: product.name,
-        url: `https://qblox.com.br${getProductPath(product)}`,
+        url: `https://www.qblox.com.br${getProductPath(product)}`,
         image: product.image_url,
         price: product.price,
         currency: 'BRL',

@@ -46,7 +46,7 @@ export default function BuildingFiguresPillarPage() {
 
   const itemListSchema = generateItemListSchema(
     'Bonecos de Montar',
-    'https://qblox.com.br/bonecos-de-montar',
+    'https://www.qblox.com.br/bonecos-de-montar',
     featuredProducts.slice(0, 8).map((product): ProductListItem => ({
       name: product.name,
       url: getProductCanonicalUrl(product),
@@ -63,8 +63,8 @@ export default function BuildingFiguresPillarPage() {
       <SEO
         title="Bonecos de Montar | Guia de Compra, Categorias e Produtos | QBLOX"
         description="Descubra como escolher bonecos de montar, explore categorias como Super Heróis, Roblox e Séries da TV e encontre produtos em destaque para presentear, colecionar e montar."
-        canonical="https://qblox.com.br/bonecos-de-montar"
-        url="https://qblox.com.br/bonecos-de-montar"
+        canonical="https://www.qblox.com.br/bonecos-de-montar"
+        url="https://www.qblox.com.br/bonecos-de-montar"
         type="website"
       />
       <SchemaMarkup schema={generateWebsiteSchema()} />

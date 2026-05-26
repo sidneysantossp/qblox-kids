@@ -30,7 +30,7 @@ const authorSchema = JSON.stringify({
     worksFor: {
       '@type': 'Organization',
       name: 'QBLOX',
-      url: 'https://qblox.com.br'
+      url: 'https://www.qblox.com.br'
     }
   }
 });

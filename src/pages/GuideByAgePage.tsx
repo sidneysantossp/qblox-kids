@@ -14,8 +14,8 @@ import { getProductPath } from '@/lib/urls';
 import { getAllCategories, getBestsellerProducts, getFeaturedProducts, getTvSeriesProducts } from '@/db/api';
 import type { FAQItem, Product } from '@/types';
 
-const coverImage = 'https://qblox.com.br/blog/como-escolher-bonecos-de-montar-por-idade.svg';
-const pageUrl = 'https://qblox.com.br/guia/como-escolher-bonecos-de-montar-por-idade';
+const coverImage = 'https://www.qblox.com.br/blog/como-escolher-bonecos-de-montar-por-idade.svg';
+const pageUrl = 'https://www.qblox.com.br/guia/como-escolher-bonecos-de-montar-por-idade';
 const pageTitle = 'Como escolher bonecos de montar por idade';
 const pageDescription = 'Guia completo para escolher bonecos de montar por idade, tema e intenção de compra, com comparação por perfil, links internos e recomendações de produtos.';
 const pageKeywords = 'como escolher bonecos de montar por idade, bonecos de montar para crianças, bonecos de montar para presente, bonecos de montar para iniciantes, minifiguras por faixa etária';
@@ -122,7 +122,7 @@ export default function GuideByAgePage() {
       pageUrl,
       featuredProductLinks.map((product) => ({
         name: product.name,
-        url: `https://qblox.com.br${getProductPath(product)}`,
+        url: `https://www.qblox.com.br${getProductPath(product)}`,
         image: product.image_url,
         price: product.price,
         currency: 'BRL',

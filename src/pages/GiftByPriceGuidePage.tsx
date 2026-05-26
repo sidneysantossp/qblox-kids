@@ -14,7 +14,7 @@ import { getProductPath } from '@/lib/urls';
 import { getBestsellerProducts, getFeaturedProducts, getTvSeriesProducts } from '@/db/api';
 import type { FAQItem, Product } from '@/types';
 
-const pageUrl = 'https://qblox.com.br/guia/bonecos-de-montar-por-faixa-de-preco';
+const pageUrl = 'https://www.qblox.com.br/guia/bonecos-de-montar-por-faixa-de-preco';
 const pageTitle = 'Bonecos de montar por faixa de preço';
 const pageDescription = 'Guia completo para comparar bonecos de montar por faixa de preço sem perder contexto de tema, categoria, presente e custo-benefício.';
 const pageKeywords = 'bonecos de montar por faixa de preço, bonecos de montar baratos, bonecos de montar custo-benefício, presente por faixa de preço, categorias de bonecos de montar';
@@ -110,7 +110,7 @@ export default function GiftByPriceGuidePage() {
       pageUrl,
       featuredProductLinks.map((product) => ({
         name: product.name,
-        url: `https://qblox.com.br${getProductPath(product)}`,
+        url: `https://www.qblox.com.br${getProductPath(product)}`,
         image: product.image_url,
         price: product.price,
         currency: 'BRL',

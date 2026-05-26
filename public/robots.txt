@@ -1,7 +1,7 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://qblox.com.br/sitemap.xml
+Sitemap: https://www.qblox.com.br/sitemap.xml
 
 Disallow: /admin/
 Disallow: /checkout

@@ -84,8 +84,8 @@ export default function BlogPage() {
       <SEO
         title="Blog QBLOX | Dicas e Guias sobre Bonecos de Montar"
         description="Descubra dicas, guias e novidades sobre bonecos de montar tipo LEGO. Aprenda a escolher, montar e cuidar da sua coleção de minifiguras."
-        url="https://qblox.com.br/blog"
-        canonical="https://qblox.com.br/blog"
+        url="https://www.qblox.com.br/blog"
+        canonical="https://www.qblox.com.br/blog"
         type="website"
       />
 

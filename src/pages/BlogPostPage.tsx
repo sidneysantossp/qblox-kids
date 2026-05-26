@@ -184,7 +184,7 @@ export default function BlogPostPage() {
     headline: post.title,
     description: post.meta_description || post.excerpt || post.title,
     image: post.featured_image || undefined,
-    url: `https://qblox.com.br/blog/${post.slug}`,
+    url: `https://www.qblox.com.br/blog/${post.slug}`,
     datePublished: post.published_at || undefined,
     dateModified: post.updated_at,
     author: post.author || QBLOX_AUTHOR_NAME,
@@ -213,8 +213,8 @@ export default function BlogPostPage() {
         title={post.meta_title || `${post.title} | Blog QBLOX`}
         description={post.meta_description || post.excerpt || post.title}
         image={post.featured_image || undefined}
-        url={`https://qblox.com.br/blog/${post.slug}`}
-        canonical={`https://qblox.com.br/blog/${post.slug}`}
+        url={`https://www.qblox.com.br/blog/${post.slug}`}
+        canonical={`https://www.qblox.com.br/blog/${post.slug}`}
         type="article"
       />
       <SchemaMarkup schema={articleSchema} />
@@ -257,7 +257,7 @@ export default function BlogPostPage() {
             )}
           </div>
 
-          <ArticleShareButtons url={`https://qblox.com.br/blog/${post.slug}`} title={post.title} />
+          <ArticleShareButtons url={`https://www.qblox.com.br/blog/${post.slug}`} title={post.title} />
 
           {/* Featured Image */}
           {post.featured_image && (

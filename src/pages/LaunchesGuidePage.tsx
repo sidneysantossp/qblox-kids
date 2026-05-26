@@ -14,7 +14,7 @@ import { getProductPath } from '@/lib/urls';
 import { getBestsellerProducts, getFeaturedProducts } from '@/db/api';
 import type { FAQItem, Product } from '@/types';
 
-const pageUrl = 'https://qblox.com.br/guia/melhores-lancamentos-de-bonecos-de-montar';
+const pageUrl = 'https://www.qblox.com.br/guia/melhores-lancamentos-de-bonecos-de-montar';
 const pageTitle = 'Melhores lançamentos de bonecos de montar';
 const pageDescription = 'Guia completo para acompanhar lançamentos, entender quando novidade faz sentido e cruzar esse filtro com tema, presente e categoria.';
 const pageKeywords = 'melhores lançamentos de bonecos de montar, novidades bonecos de montar, lançamentos para presente, lançamentos por tema, novos bonecos de montar';
@@ -107,7 +107,7 @@ export default function LaunchesGuidePage() {
       pageUrl,
       featuredProductLinks.map((product) => ({
         name: product.name,
-        url: `https://qblox.com.br${getProductPath(product)}`,
+        url: `https://www.qblox.com.br${getProductPath(product)}`,
         image: product.image_url,
         price: product.price,
         currency: 'BRL',

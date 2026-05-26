@@ -14,7 +14,7 @@ import { getProductPath } from '@/lib/urls';
 import { getBestsellerProducts, getFeaturedProducts, getTvSeriesProducts } from '@/db/api';
 import type { FAQItem, Product } from '@/types';
 
-const pageUrl = 'https://qblox.com.br/guia/bonecos-de-montar-para-presentear';
+const pageUrl = 'https://www.qblox.com.br/guia/bonecos-de-montar-para-presentear';
 const pageTitle = 'Bonecos de montar para presentear: como escolher melhor';
 const pageDescription = 'Guia completo para escolher bonecos de montar para presente com base em tema, contexto da compra, faixa de preço e identificação com personagens.';
 const pageKeywords = 'bonecos de montar para presentear, presente de bonecos de montar, bonecos de montar para crianças, bonecos de montar por tema, melhor presente de bonecos';
@@ -110,7 +110,7 @@ export default function GiftGuidePage() {
       pageUrl,
       featuredProductLinks.map((product) => ({
         name: product.name,
-        url: `https://qblox.com.br${getProductPath(product)}`,
+        url: `https://www.qblox.com.br${getProductPath(product)}`,
         image: product.image_url,
         price: product.price,
         currency: 'BRL',

@@ -14,7 +14,7 @@ import { getProductPath } from '@/lib/urls';
 import { getBestsellerProducts, getFeaturedProducts, getTvSeriesProducts } from '@/db/api';
 import type { FAQItem, Product } from '@/types';
 
-const pageUrl = 'https://qblox.com.br/guia/comparativo-super-herois-roblox-series-tv';
+const pageUrl = 'https://www.qblox.com.br/guia/comparativo-super-herois-roblox-series-tv';
 const pageTitle = 'Comparativo entre Super Heróis, Roblox e Séries da TV';
 const pageDescription = 'Guia completo para comparar os principais temas da loja e descobrir qual categoria faz mais sentido para presente, coleção ou início de jornada.';
 const pageKeywords = 'comparativo super heróis roblox séries da tv, bonecos de super heróis, bonecos de roblox, bonecos de séries da tv, comparação de temas';
@@ -110,7 +110,7 @@ export default function ThemesComparisonGuidePage() {
       pageUrl,
       featuredProductLinks.map((product) => ({
         name: product.name,
-        url: `https://qblox.com.br${getProductPath(product)}`,
+        url: `https://www.qblox.com.br${getProductPath(product)}`,
         image: product.image_url,
         price: product.price,
         currency: 'BRL',

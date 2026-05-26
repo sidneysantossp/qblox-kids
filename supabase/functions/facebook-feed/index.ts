@@ -89,7 +89,7 @@ function csvEscape(value: string): string {
  * Gera a URL do produto no site
  */
 function getProductUrl(product: Product): string {
-  const baseUrl = 'https://qblox.com.br';
+  const baseUrl = 'https://www.qblox.com.br';
   const slug = product.slug || generateSlug(product.name);
   return `${baseUrl}/produto/${slug}-${product.id}`;
 }
@@ -232,7 +232,7 @@ ${additionalImages}
 <rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">
   <channel>
     <title>QBLOX KIDS - Catálogo de Produtos</title>
-    <link>https://qblox.com.br</link>
+    <link>https://www.qblox.com.br</link>
     <description>Bonecos de montar tipo LEGO para crianças - Super Heróis, Roblox, Séries da TV e muito mais!</description>
 ${items}
   </channel>

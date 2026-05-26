@@ -25,7 +25,7 @@ export function SEO({
   title,
   description,
   keywords,
-  image = 'https://qblox.com.br/og-image.jpg',
+  image = 'https://www.qblox.com.br/og-image.jpg',
   url,
   type = 'website',
   price,

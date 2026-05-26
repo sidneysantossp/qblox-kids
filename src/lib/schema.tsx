@@ -101,7 +101,7 @@ export function generateBreadcrumbSchema(items: BreadcrumbItem[]): string {
       '@type': 'ListItem',
       position: index + 1,
       name: item.name,
-      item: `https://qblox.com.br${item.url}`,
+      item: `https://www.qblox.com.br${item.url}`,
     })),
   };
 
@@ -117,7 +117,7 @@ export function generateOrganizationSchema(): string {
     '@type': 'Organization',
     name: BRAND_NAME,
     url: BRAND_BASE_URL,
-    logo: 'https://qblox.com.br/logo.png',
+    logo: 'https://www.qblox.com.br/logo.png',
     description: 'Loja especializada em bonecos de montar tipo LEGO para crianças',
     contactPoint: {
       '@type': 'ContactPoint',
@@ -145,7 +145,7 @@ export function generateWebsiteSchema(): string {
       '@type': 'SearchAction',
       target: {
         '@type': 'EntryPoint',
-        urlTemplate: 'https://qblox.com.br/busca?q={search_term_string}',
+        urlTemplate: 'https://www.qblox.com.br/busca?q={search_term_string}',
       },
       'query-input': 'required name=search_term_string',
     },
@@ -238,7 +238,7 @@ export function generateArticleSchema(article: ArticleSchema): string {
       name: BRAND_NAME,
       logo: {
         '@type': 'ImageObject',
-        url: 'https://qblox.com.br/logo.png',
+        url: 'https://www.qblox.com.br/logo.png',
       },
     },
   };

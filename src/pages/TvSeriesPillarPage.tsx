@@ -37,7 +37,7 @@ export default function TvSeriesPillarPage() {
 
   const schema = generateItemListSchema(
     'Bonecos de Séries da TV',
-    'https://qblox.com.br/bonecos-de-series-da-tv',
+    'https://www.qblox.com.br/bonecos-de-series-da-tv',
     products.map((product): ProductListItem => ({
       name: product.name,
       url: getProductCanonicalUrl(product),
@@ -49,7 +49,7 @@ export default function TvSeriesPillarPage() {
 
   return (
     <>
-      <SEO title="Bonecos de Séries da TV | Guia, Personagens e Produtos | QBLOX" description="Descubra bonecos de séries da TV para colecionar, presentear e comparar por tema. Explore personagens, vitrines e conteúdos de apoio na QBLOX." canonical="https://qblox.com.br/bonecos-de-series-da-tv" url="https://qblox.com.br/bonecos-de-series-da-tv" type="website" />
+      <SEO title="Bonecos de Séries da TV | Guia, Personagens e Produtos | QBLOX" description="Descubra bonecos de séries da TV para colecionar, presentear e comparar por tema. Explore personagens, vitrines e conteúdos de apoio na QBLOX." canonical="https://www.qblox.com.br/bonecos-de-series-da-tv" url="https://www.qblox.com.br/bonecos-de-series-da-tv" type="website" />
       <SchemaMarkup schema={schema} />
       <SchemaMarkup schema={generateFAQSchema(faq)} />
       <div className="min-h-screen bg-background">

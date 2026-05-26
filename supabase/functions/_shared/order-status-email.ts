@@ -84,7 +84,7 @@ function buildEmailHtml(order: OrderRecord, previousStatus: string | null | unde
   const orderNumber = getOrderNumber(order.id);
   const statusLabel = statusLabels[newStatus] || newStatus;
   const previousLabel = previousStatus ? statusLabels[previousStatus] || previousStatus : null;
-  const siteUrl = Deno.env.get("SITE_URL") || "https://qblox.com.br";
+  const siteUrl = Deno.env.get("SITE_URL") || "https://www.qblox.com.br";
   const orderUrl = `${siteUrl.replace(/\/$/, "")}/meus-pedidos`;
   const customerName = escapeHtml(getCustomerName(order));
 

@@ -228,7 +228,7 @@ export default function ProductDetailPage() {
   const productUrl = getProductCanonicalUrl(product);
 
   const breadcrumbItems = [
-    { name: 'Início', url: 'https://qblox.com.br/' },
+    { name: 'Início', url: 'https://www.qblox.com.br/' },
     { name: product.category, url: getCategoryCanonicalUrl(product.category) },
     { name: product.name, url: productUrl },
   ];

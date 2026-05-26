@@ -14,7 +14,7 @@ import { getProductPath } from '@/lib/urls';
 import { getBestsellerProducts, getFeaturedProducts } from '@/db/api';
 import type { FAQItem, Product } from '@/types';
 
-const pageUrl = 'https://qblox.com.br/guia/bonecos-de-super-herois-mais-procurados';
+const pageUrl = 'https://www.qblox.com.br/guia/bonecos-de-super-herois-mais-procurados';
 const pageTitle = 'Bonecos de super-heróis mais procurados';
 const pageDescription = 'Guia completo para entender quais personagens e temas de super-heróis costumam gerar mais interesse e como usar isso para escolher melhor.';
 const pageKeywords = 'bonecos de super-heróis mais procurados, bonecos de montar de super-heróis, personagens mais buscados, bonecos de heróis para presente, super-heróis para colecionar';
@@ -107,7 +107,7 @@ export default function MostWantedSuperHeroesGuidePage() {
       pageUrl,
       featuredProductLinks.map((product) => ({
         name: product.name,
-        url: `https://qblox.com.br${getProductPath(product)}`,
+        url: `https://www.qblox.com.br${getProductPath(product)}`,
         image: product.image_url,
         price: product.price,
         currency: 'BRL',

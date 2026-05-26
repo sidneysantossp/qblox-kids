@@ -37,7 +37,7 @@ export default function RobloxPillarPage() {
 
   const schema = generateItemListSchema(
     'Bonecos de Roblox',
-    'https://qblox.com.br/bonecos-de-roblox',
+    'https://www.qblox.com.br/bonecos-de-roblox',
     products.map((product): ProductListItem => ({
       name: product.name,
       url: getProductCanonicalUrl(product),
@@ -49,7 +49,7 @@ export default function RobloxPillarPage() {
 
   return (
     <>
-      <SEO title="Bonecos de Roblox | Guia, Coleções e Produtos | QBLOX" description="Explore bonecos de Roblox para presentear, montar coleções e comparar produtos em destaque. Descubra caminhos de compra, vitrines e conteúdos relacionados na QBLOX." canonical="https://qblox.com.br/bonecos-de-roblox" url="https://qblox.com.br/bonecos-de-roblox" type="website" />
+      <SEO title="Bonecos de Roblox | Guia, Coleções e Produtos | QBLOX" description="Explore bonecos de Roblox para presentear, montar coleções e comparar produtos em destaque. Descubra caminhos de compra, vitrines e conteúdos relacionados na QBLOX." canonical="https://www.qblox.com.br/bonecos-de-roblox" url="https://www.qblox.com.br/bonecos-de-roblox" type="website" />
       <SchemaMarkup schema={schema} />
       <SchemaMarkup schema={generateFAQSchema(faq)} />
       <div className="min-h-screen bg-background">

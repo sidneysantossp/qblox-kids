@@ -74,7 +74,7 @@ Deno.serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    const baseUrl = 'https://qblox.com.br';
+    const baseUrl = 'https://www.qblox.com.br';
     const urls: Array<{
       loc: string;
       lastmod?: string;

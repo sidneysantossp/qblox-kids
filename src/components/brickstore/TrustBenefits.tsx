@@ -1,36 +1,42 @@
-import { Lock, Truck, Star, Headset } from 'lucide-react';
+import { CreditCard, Headset, RotateCcw, ShieldCheck, Truck } from 'lucide-react';
 
 const benefits = [
   {
-    icon: Lock,
-    title: 'Compra 100% segura',
-    description: 'Seus dados protegidos em todas as etapas.',
+    icon: ShieldCheck,
+    title: 'Compra segura',
+    description: 'Ambiente protegido para comprar com tranquilidade.',
     color: 'text-[#0057D9]',
   },
   {
     icon: Truck,
-    title: 'Envio para todo o Brasil',
-    description: 'Receba seus bonecos no conforto da sua casa.',
+    title: 'Envio com rastreio',
+    description: 'Acompanhe seu pedido do envio ate a entrega.',
     color: 'text-[#FFD200]',
   },
   {
-    icon: Star,
-    title: 'Produtos selecionados',
-    description: 'Minifiguras escolhidas com padrão de qualidade.',
+    icon: Headset,
+    title: 'Atendimento via WhatsApp',
+    description: 'Suporte rapido antes e depois da compra.',
     color: 'text-[#E52421]',
   },
   {
-    icon: Headset,
-    title: 'Atendimento especializado',
-    description: 'Suporte para ajudar antes e depois da compra.',
+    icon: RotateCcw,
+    title: 'Troca facil em 7 dias',
+    description: 'Politica clara para trocar ou devolver.',
     color: 'text-[#0057D9]',
+  },
+  {
+    icon: CreditCard,
+    title: 'Pagamento seguro',
+    description: 'Pix, boleto e cartao com dados protegidos.',
+    color: 'text-[#4B1599]',
   },
 ];
 
 export function TrustBenefits() {
   return (
     <section className="container mx-auto px-4 my-16">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
         {benefits.map((benefit, index) => {
           const Icon = benefit.icon;
           return (

@@ -43,6 +43,7 @@ import { getProductById, getProductsByCategory } from '@/db/api';
 import { trackViewContent } from '@/lib/meta-pixel';
 import type { Product } from '@/types';
 import { FreeShippingProgress } from '@/components/cart/FreeShippingProgress';
+import { TrustBadges } from '@/components/TrustBadges';
 import { getCategoryCanonicalUrl, getCategoryPath, getPillarPathByCategory, getProductCanonicalUrl, getProductPath, getSatelliteGuidePathsByCategory } from '@/lib/urls';
 import { useToast } from '@/hooks/use-toast';
 
@@ -533,6 +534,10 @@ export default function ProductDetailPage() {
                   </div>
                   <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors" />
                 </button>
+
+                <div className="p-4">
+                  <TrustBadges />
+                </div>
               </CardContent>
             </Card>
           </div>

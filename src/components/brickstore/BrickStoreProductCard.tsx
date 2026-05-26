@@ -7,6 +7,7 @@ import { useEffect, useMemo, useState } from 'react';
 import type { Product } from '@/types';
 import { CardImageGallery } from '@/components/products/CardImageGallery';
 import { getProductPath } from '@/lib/urls';
+import { TrustBadges } from '@/components/TrustBadges';
 
 export interface BrickStoreProductCardProps {
   id: string;
@@ -225,6 +226,8 @@ export function BrickStoreProductCard({
               </p>
             )}
           </div>
+
+          <TrustBadges compact limit={2} className="pt-1" />
 
           <div className="mt-2 space-y-2">
             <div className="flex items-stretch gap-2">

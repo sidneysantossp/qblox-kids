@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import type { Product } from '@/types';
 import { useFavorites } from '@/contexts/FavoritesContext';
 import { getProductPath } from '@/lib/urls';
+import { TrustBadges } from '@/components/TrustBadges';
 
 interface ProductCardProps {
   product: Product;
@@ -106,6 +107,8 @@ export function ProductCard({ product }: ProductCardProps) {
             </p>
           )}
         </div>
+
+        <TrustBadges compact limit={2} />
       </div>
     </Link>
   );

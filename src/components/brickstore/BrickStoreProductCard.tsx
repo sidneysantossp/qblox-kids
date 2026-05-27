@@ -23,6 +23,7 @@ export interface BrickStoreProductCardProps {
   images?: string[];
   badge?: 'MAIS VENDIDO' | 'NOVO' | 'OFERTA';
   discount?: number;
+  showCartControls?: boolean;
 }
 
 export function mapProductToBrickStoreProductCardProps(product: Product): BrickStoreProductCardProps {
@@ -58,6 +59,7 @@ export function BrickStoreProductCard({
   images = [],
   badge,
   discount,
+  showCartControls = true,
 }: BrickStoreProductCardProps) {
   const { addToCart } = useCart();
   const [quantity, setQuantity] = useState(1);
@@ -77,7 +79,7 @@ export function BrickStoreProductCard({
   }, [showSuccessMessage]);
 
   const badgeColors = {
-    'MAIS VENDIDO': 'bg-[#FFD200] text-[#111827]',
+    'MAIS VENDIDO': 'bg-[#FF7A1A] text-white',
     'NOVO': 'bg-[#0057D9] text-white',
     'OFERTA': 'bg-[#E52421] text-white',
   };
@@ -243,51 +245,53 @@ export function BrickStoreProductCard({
 
           <TrustBadges compact limit={2} className="pt-1" />
 
-          <div className="mt-2 space-y-2">
-            <div className="flex items-stretch gap-2">
-              <div className="flex items-center border border-border rounded-lg overflow-hidden h-9 bg-background shrink-0">
-                <button
+          {showCartControls ? (
+            <div className="mt-2 space-y-2">
+              <div className="flex items-stretch gap-2">
+                <div className="flex items-center border border-border rounded-lg overflow-hidden h-9 bg-background shrink-0">
+                  <button
+                    type="button"
+                    onClick={handleDecrease}
+                    disabled={quantity <= 1 || isAddingToCart}
+                    aria-label="Diminuir quantidade"
+                    className="h-full w-9 flex items-center justify-center hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    <Minus className="h-3.5 w-3.5 text-muted-foreground" />
+                  </button>
+                  <span className="h-full min-w-[38px] px-2 flex items-center justify-center text-sm font-medium text-foreground border-x border-border">
+                    {quantity}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleIncrease}
+                    disabled={quantity >= 99 || isAddingToCart}
+                    aria-label="Aumentar quantidade"
+                    className="h-full w-9 flex items-center justify-center hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    <Plus className="h-3.5 w-3.5 text-muted-foreground" />
+                  </button>
+                </div>
+
+                <Button
                   type="button"
-                  onClick={handleDecrease}
-                  disabled={quantity <= 1 || isAddingToCart}
-                  aria-label="Diminuir quantidade"
-                  className="h-full w-9 flex items-center justify-center hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="min-w-0 flex-1 bg-[#16A34A] hover:bg-[#15803D] text-white font-extrabold text-xs h-10 rounded-lg px-3 shadow-sm shadow-green-700/20"
+                  onClick={(event) => void handleAddToCart(event)}
+                  disabled={isAddingToCart}
                 >
-                  <Minus className="h-3.5 w-3.5 text-muted-foreground" />
-                </button>
-                <span className="h-full min-w-[38px] px-2 flex items-center justify-center text-sm font-medium text-foreground border-x border-border">
-                  {quantity}
-                </span>
-                <button
-                  type="button"
-                  onClick={handleIncrease}
-                  disabled={quantity >= 99 || isAddingToCart}
-                  aria-label="Aumentar quantidade"
-                  className="h-full w-9 flex items-center justify-center hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  <Plus className="h-3.5 w-3.5 text-muted-foreground" />
-                </button>
+                  <ShoppingCart className="w-3.5 h-3.5 shrink-0 md:mr-1.5" />
+                  <span className="hidden truncate md:inline">{isAddingToCart ? 'ADICIONANDO...' : 'COMPRAR'}</span>
+                  <span className="md:hidden">{isAddingToCart ? '...' : 'COMPRAR'}</span>
+                </Button>
               </div>
 
-              <Button
-                type="button"
-                className="min-w-0 flex-1 bg-[#FFD200] hover:bg-[#F5C400] text-[#111827] font-extrabold text-xs h-10 rounded-lg px-3 shadow-sm shadow-yellow-300/40"
-                onClick={(event) => void handleAddToCart(event)}
-                disabled={isAddingToCart}
-              >
-                <ShoppingCart className="w-3.5 h-3.5 shrink-0 md:mr-1.5" />
-                <span className="hidden truncate md:inline">{isAddingToCart ? 'ADICIONANDO...' : 'COMPRAR'}</span>
-                <span className="md:hidden">{isAddingToCart ? '...' : 'COMPRAR'}</span>
-              </Button>
+              {showSuccessMessage && (
+                <div className="flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-[11px] md:text-xs font-medium text-green-800">
+                  <Check className="h-3.5 w-3.5 shrink-0" />
+                  Produto adicionado ao seu carrinho com sucesso.
+                </div>
+              )}
             </div>
-
-            {showSuccessMessage && (
-              <div className="flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-[11px] md:text-xs font-medium text-green-800">
-                <Check className="h-3.5 w-3.5 shrink-0" />
-                Produto adicionado ao seu carrinho com sucesso.
-              </div>
-            )}
-          </div>
+          ) : null}
         </div>
       </div>
     </Link>

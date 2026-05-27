@@ -239,7 +239,11 @@ export default function CategoryPage() {
           ) : filteredProducts.length > 0 ? (
             <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 xl:gap-6">
               {filteredProducts.map((product) => (
-                <BrickStoreProductCard key={product.id} {...mapProductToBrickStoreProductCardProps(product)} />
+                <BrickStoreProductCard
+                  key={product.id}
+                  {...mapProductToBrickStoreProductCardProps(product)}
+                  showCartControls={false}
+                />
               ))}
             </div>
           ) : (

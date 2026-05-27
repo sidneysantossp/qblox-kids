@@ -3,6 +3,7 @@ import { cn } from '@/lib/utils';
 
 interface FreeShippingProgressProps {
   cartTotal: number;
+  hasCollectionItem?: boolean;
   variant?: 'compact' | 'default' | 'banner';
   className?: string;
 }
@@ -26,12 +27,13 @@ const getProgressGradient = (cartTotal: number) => {
 
 export function FreeShippingProgress({
   cartTotal,
+  hasCollectionItem = false,
   variant = 'default',
   className,
 }: FreeShippingProgressProps) {
   const remaining = Math.max(FREE_SHIPPING_THRESHOLD - cartTotal, 0);
   const progress = Math.min(100, Math.round((cartTotal / FREE_SHIPPING_THRESHOLD) * 100));
-  const isUnlocked = cartTotal >= FREE_SHIPPING_THRESHOLD;
+  const isUnlocked = hasCollectionItem || cartTotal >= FREE_SHIPPING_THRESHOLD;
   const isBanner = variant === 'banner';
   const isCompact = variant === 'compact';
 
@@ -46,7 +48,7 @@ export function FreeShippingProgress({
         )}
       >
         <p className={cn('text-center font-medium', isCompact ? 'text-xs' : 'text-sm', isBanner && 'text-sm md:text-base')}>
-          Você ganhou frete grátis!
+          {hasCollectionItem ? 'Coleção no carrinho: frete grátis liberado!' : 'Você ganhou frete grátis!'}
         </p>
       </div>
     );

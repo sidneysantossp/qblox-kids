@@ -10,7 +10,7 @@ import { useState } from 'react';
 import { FreeShippingProgress } from '@/components/cart/FreeShippingProgress';
 
 export function VerticalCartDrawer() {
-  const { cartItems, cartCount, cartTotal, updateQuantity, removeItem, isLoading } = useCart();
+  const { cartItems, cartCount, cartTotal, hasCollectionItem, updateQuantity, removeItem, isLoading } = useCart();
   const [open, setOpen] = useState(false);
 
   const formatPrice = (price: number) => {
@@ -150,7 +150,7 @@ export function VerticalCartDrawer() {
         {/* Footer */}
         {cartItems.length > 0 && (
           <div className="border-t p-6 space-y-4">
-            <FreeShippingProgress cartTotal={cartTotal} />
+            <FreeShippingProgress cartTotal={cartTotal} hasCollectionItem={hasCollectionItem} />
 
             <div className="flex items-center justify-between">
               <span className="text-lg font-semibold">Preço Total</span>

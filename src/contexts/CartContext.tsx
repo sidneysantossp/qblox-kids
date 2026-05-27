@@ -1,6 +1,7 @@
 import { createContext, type ReactNode, useContext, useEffect, useState } from 'react';
 import { addToCart as addToCartDB, clearCart as clearCartDB, getCartItems, removeFromCart as removeFromCartDB, updateCartItemQuantity } from '@/db/api';
 import { trackAddToCart } from '@/lib/meta-pixel';
+import { hasCollectionItem as cartHasCollectionItem } from '@/lib/collection-products';
 import { supabase } from '@/db/supabase';
 import { useToast } from '@/hooks/use-toast';
 import type { CartItem, Product } from '@/types';
@@ -9,6 +10,7 @@ interface CartContextType {
   cartItems: CartItem[];
   cartCount: number;
   cartTotal: number;
+  hasCollectionItem: boolean;
   isLoading: boolean;
   addToCart: (product: Product, quantity?: number, options?: { silent?: boolean; skipRefresh?: boolean }) => Promise<void>;
   updateQuantity: (itemId: string, quantity: number) => Promise<void>;
@@ -200,6 +202,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     const price = item.product?.price || 0;
     return total + (price * item.quantity);
   }, 0);
+  const hasCollectionItem = cartHasCollectionItem(cartItems);
 
   return (
     <CartContext.Provider
@@ -207,6 +210,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         cartItems,
         cartCount,
         cartTotal,
+        hasCollectionItem,
         isLoading,
         addToCart,
         updateQuantity,
@@ -232,6 +236,7 @@ export function useCart() {
         cartItems: [],
         cartCount: 0,
         cartTotal: 0,
+        hasCollectionItem: false,
         isLoading: false,
         addToCart: async () => {},
         updateQuantity: async () => {},

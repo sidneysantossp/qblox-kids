@@ -61,7 +61,7 @@ function CookieBanner() {
 
 function AppShell() {
   const location = useLocation();
-  const { cartTotal } = useCart();
+  const { cartTotal, hasCollectionItem } = useCart();
   const adminRoutes = routes.filter((route) => route.path.startsWith('/admin'));
   const publicRoutes = routes.filter((route) => !route.path.startsWith('/admin'));
   const isProductDetailRoute = Boolean(matchPath('/produto/:id', location.pathname));
@@ -93,7 +93,7 @@ function AppShell() {
                 {isProductDetailRoute && (
                   <div className="hidden md:block border-b bg-white/95">
                     <div className="container mx-auto px-4 py-3">
-                      <FreeShippingProgress cartTotal={cartTotal} variant="banner" />
+                      <FreeShippingProgress cartTotal={cartTotal} hasCollectionItem={hasCollectionItem} variant="banner" />
                     </div>
                   </div>
                 )}

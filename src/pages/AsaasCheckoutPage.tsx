@@ -62,14 +62,14 @@ type CreditCardFormData = z.infer<typeof creditCardSchema>;
 
 export default function AsaasCheckoutPage() {
   const { user } = useAuth();
-  const { cartItems, cartTotal, clearCart } = useCart();
+  const { cartItems, cartTotal, hasCollectionItem, clearCart } = useCart();
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
 
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<'PIX' | 'BOLETO' | 'CREDIT_CARD'>('PIX');
-  const shippingCost = cartTotal >= FREE_SHIPPING_THRESHOLD ? 0 : 15.0;
+  const shippingCost = hasCollectionItem || cartTotal >= FREE_SHIPPING_THRESHOLD ? 0 : 15.0;
   const pixDiscount = paymentMethod === 'PIX' ? Number((cartTotal * 0.05).toFixed(2)) : 0;
 
   const form = useForm<CheckoutFormData>({
@@ -652,10 +652,12 @@ export default function AsaasCheckoutPage() {
                     <span className="text-muted-foreground">Frete</span>
                     <span>{shippingCost === 0 ? 'Grátis' : `R$ ${shippingCost.toFixed(2)}`}</span>
                   </div>
-                  {cartTotal < FREE_SHIPPING_THRESHOLD ? (
+                  {!hasCollectionItem && cartTotal < FREE_SHIPPING_THRESHOLD ? (
                     <p className="text-xs text-muted-foreground">Faltam R$ {(FREE_SHIPPING_THRESHOLD - cartTotal).toFixed(2)} para frete grátis.</p>
                   ) : (
-                    <p className="text-xs font-medium text-green-600">Você ganhou frete grátis para todo o Brasil.</p>
+                    <p className="text-xs font-medium text-green-600">
+                      {hasCollectionItem ? 'Coleção no carrinho: frete grátis liberado.' : 'Você ganhou frete grátis para todo o Brasil.'}
+                    </p>
                   )}
                   <Separator />
                   <div className="flex justify-between font-bold text-lg">

@@ -1,8 +1,24 @@
 type ProductConversionInput = {
   name: string;
   category?: string | null;
+  categories?: string[];
   price: number;
 };
+
+const COLLECTION_CATEGORY_KEY = 'colecionaveis';
+
+function normalizeCategory(value?: string | null) {
+  return (value || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim()
+    .toLowerCase();
+}
+
+function isCollectionProduct(product: Pick<ProductConversionInput, 'category' | 'categories'>) {
+  const categories = [product.category, ...(product.categories || [])];
+  return categories.some((category) => normalizeCategory(category) === COLLECTION_CATEGORY_KEY);
+}
 
 export function getKitQuantity(name: string) {
   const match = name.match(/\b(?:kit|combo|colecao)?\s*(\d{2,3})\s*(?:bonecos?|pecas?|itens?|minifiguras?)\b/i);
@@ -19,6 +35,14 @@ export function getProductCtaLabel(product: Pick<ProductConversionInput, 'name' 
 }
 
 export function getKitValueMessage(product: ProductConversionInput) {
+  if (isCollectionProduct(product)) {
+    return {
+      headline: 'Comprando a Coleção, cada Boneco sai por R$ 9,90',
+      unitPrice: 'Melhor Custo Benefício',
+      context: 'Frete Grátis',
+    };
+  }
+
   const quantity = getKitQuantity(product.name);
   if (!quantity || quantity < 2) return null;
 

@@ -14,6 +14,7 @@ export interface BrickStoreProductCardProps {
   id: string;
   name: string;
   category: string;
+  categories?: string[];
   price: number;
   oldPrice?: number;
   rating?: number;
@@ -31,6 +32,7 @@ export function mapProductToBrickStoreProductCardProps(product: Product): BrickS
     id: product.id,
     name: product.name,
     category: product.category,
+    categories: product.categories,
     price: product.price,
     oldPrice: product.original_price || undefined,
     rating: Math.round(product.rating || 0),
@@ -50,6 +52,7 @@ export function BrickStoreProductCard({
   id,
   name,
   category,
+  categories,
   price,
   oldPrice,
   rating = 5,
@@ -103,7 +106,7 @@ export function BrickStoreProductCard({
   const displayOriginalPrice = oldPrice || price;
   const installmentPrice = (price / 3).toFixed(2);
   const shouldShowInstallments = price >= 20;
-  const kitValue = getKitValueMessage({ name, category, price });
+  const kitValue = getKitValueMessage({ name, category, categories, price });
 
   const stopNavigation = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();

@@ -8,13 +8,13 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { 
-  Breadcrumb, 
-  BreadcrumbList, 
-  BreadcrumbItem, 
-  BreadcrumbLink, 
-  BreadcrumbSeparator, 
-  BreadcrumbPage 
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbSeparator,
+  BreadcrumbPage
 } from '@/components/ui/breadcrumb';
 import { FreeShippingProgress } from '@/components/cart/FreeShippingProgress';
 import { useCart } from '@/contexts/CartContext';
@@ -28,11 +28,11 @@ import type { CouponValidation } from '@/types';
 
 function CheckoutForm() {
   const { user } = useAuth();
-  const { cartItems, cartTotal, clearCart } = useCart();
+  const { cartItems, cartTotal, hasCollectionItem, clearCart } = useCart();
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   const [isProcessing, setIsProcessing] = useState(false);
   const [shippingOptions, setShippingOptions] = useState<ShippingOption[]>([]);
   const [selectedShipping, setSelectedShipping] = useState<string>('');
@@ -47,6 +47,7 @@ function CheckoutForm() {
   const [activePaymentMethods, setActivePaymentMethods] = useState<any[]>([]);
   const [isLoadingPaymentMethods, setIsLoadingPaymentMethods] = useState(true);
   const [isUsingFallbackShipping, setIsUsingFallbackShipping] = useState(false);
+  const hasCollectionFreeShipping = hasCollectionItem;
   const numberInputRef = useRef<HTMLInputElement>(null);
 
   // Estados para dados do cartão de crédito
@@ -78,19 +79,19 @@ function CheckoutForm() {
     if (!user) {
       // Salvar a URL atual para retornar após o login
       const returnUrl = location.pathname + location.search;
-      
+
       // Redirecionar para login com URL de retorno
-      navigate('/login', { 
+      navigate('/login', {
         state: { returnUrl },
-        replace: true 
+        replace: true
       });
-      
+
       toast({
         title: 'Login necessário',
         description: 'Faça login para continuar com a compra',
         variant: 'destructive',
       });
-      
+
       return;
     }
 
@@ -138,7 +139,7 @@ function CheckoutForm() {
         setIsLoadingPaymentMethods(true);
         const methods = await getActivePaymentMethods();
         setActivePaymentMethods(methods);
-        
+
         // Definir primeiro método ativo como padrão
         if (methods.length > 0) {
           setPaymentMethod(methods[0].code);
@@ -169,12 +170,28 @@ function CheckoutForm() {
   useEffect(() => {
     const loadShipping = async () => {
       const cleanCEP = formData.zipCode.replace(/\D/g, '');
-      
+
       if (cleanCEP.length === 8) {
         setIsLoadingShipping(true);
         console.log('[Checkout] Calculando frete para CEP:', cleanCEP, 'Total:', cartTotal);
-        
+
         try {
+          if (hasCollectionFreeShipping) {
+            const collectionFreeShipping: ShippingOption = {
+              id: 'collection-free-shipping',
+              name: 'Frete grátis da coleção',
+              price: 0,
+              delivery_time: 'Prazo informado após a separação',
+              company: 'QBLOX KIDS',
+            };
+
+            setShippingOptions([collectionFreeShipping]);
+            setSelectedShipping(collectionFreeShipping.id);
+            setShippingCost(0);
+            setIsUsingFallbackShipping(false);
+            return;
+          }
+
           const options = await calculateShipping(cleanCEP, cartTotal);
           console.log('[Checkout] Opções de frete recebidas:', options);
           setShippingOptions(options);
@@ -191,7 +208,7 @@ function CheckoutForm() {
           }
         } catch (error) {
           console.error('[Checkout] Erro ao calcular frete:', error);
-          
+
           // Em caso de erro, usar frete padrão
           const defaultShipping: ShippingOption = {
             id: 'standard',
@@ -206,7 +223,7 @@ function CheckoutForm() {
           setSelectedShipping(defaultShipping.id);
           setShippingCost(defaultShipping.price);
           setIsUsingFallbackShipping(true);
-          
+
           toast({
             title: 'Aviso',
             description: 'Usando frete padrão. Valor: R$ 15,90',
@@ -225,13 +242,13 @@ function CheckoutForm() {
     };
 
     loadShipping();
-  }, [formData.zipCode, cartTotal, toast]);
+  }, [formData.zipCode, cartTotal, hasCollectionFreeShipping, toast]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    
+
     let maskedValue = value;
-    
+
     // Aplicar máscaras
     if (name === 'cpf') {
       maskedValue = cpfMask(value);
@@ -239,14 +256,14 @@ function CheckoutForm() {
       maskedValue = phoneMask(value);
     } else if (name === 'zipCode') {
       maskedValue = cepMask(value);
-      
+
       // Buscar endereço quando CEP estiver completo
       const cleanCEP = value.replace(/\D/g, '');
       if (cleanCEP.length === 8) {
         handleCEPLookup(cleanCEP);
       }
     }
-    
+
     setFormData({
       ...formData,
       [name]: maskedValue
@@ -266,7 +283,7 @@ function CheckoutForm() {
       maskedValue = cvvMask(value);
     } else if (name === 'expiry') {
       maskedValue = expiryMask(value);
-      
+
       // Separar mês e ano quando completo
       if (maskedValue.length === 5) {
         const [month, year] = maskedValue.split('/');
@@ -287,10 +304,10 @@ function CheckoutForm() {
 
   const handleCEPLookup = async (cep: string) => {
     setIsLoadingCEP(true);
-    
+
     try {
       const addressData = await fetchAddressByCEP(cep);
-      
+
       if (addressData) {
         setFormData(prev => ({
           ...prev,
@@ -299,12 +316,12 @@ function CheckoutForm() {
           city: addressData.localidade,
           state: addressData.uf,
         }));
-        
+
         // Focar no campo de número após preencher o endereço
         setTimeout(() => {
           numberInputRef.current?.focus();
         }, 100);
-        
+
         toast({
           title: 'Endereço encontrado!',
           description: 'Preencha o número da residência.',
@@ -364,7 +381,7 @@ function CheckoutForm() {
       // Aplicar desconto do cupom
       setAppliedCoupon(result);
       setDiscount(maxDiscount);
-      
+
       toast({
         title: 'Cupom aplicado!',
         description: `Desconto de R$ ${maxDiscount.toFixed(2)} aplicado ao subtotal`,
@@ -442,7 +459,7 @@ function CheckoutForm() {
 
       // Mapear método de pagamento para formato Asaas
       let asaasPaymentMethod: 'PIX' | 'BOLETO' | 'CREDIT_CARD';
-      
+
       if (paymentMethod === 'pix') {
         asaasPaymentMethod = 'PIX';
       } else if (paymentMethod === 'boleto') {
@@ -517,7 +534,7 @@ function CheckoutForm() {
           orderId: response.orderId,
         });
         await clearCart();
-        
+
         toast({
           title: 'Pedido criado com sucesso!',
           description: 'Redirecionando para pagamento...',
@@ -756,10 +773,12 @@ function CheckoutForm() {
                 </CardHeader>
                 <CardContent>
                   <div className="mb-6 rounded-lg border border-orange-200 bg-gradient-to-r from-orange-50 to-green-50 p-4 dark:border-orange-800 dark:from-orange-950/20 dark:to-green-950/20">
-                    <FreeShippingProgress cartTotal={cartTotal} />
-                    <p className="mt-2 text-center text-xs text-muted-foreground">
-                      Continue comprando para ganhar frete grátis! 🚚
-                    </p>
+                    <FreeShippingProgress cartTotal={cartTotal} hasCollectionItem={hasCollectionFreeShipping} />
+                    {!hasCollectionFreeShipping && (
+                      <p className="mt-2 text-center text-xs text-muted-foreground">
+                        Continue comprando para ganhar frete grátis!
+                      </p>
+                    )}
                   </div>
 
                   {isUsingFallbackShipping && shippingOptions.length > 0 && (
@@ -889,7 +908,7 @@ function CheckoutForm() {
                     {(paymentMethod === 'credit_card' || paymentMethod === 'debit_card') && (
                       <div className="mt-6 space-y-4 border-t pt-4">
                         <h3 className="font-semibold text-lg">Dados do Cartão</h3>
-                        
+
                         <div className="space-y-2">
                           <Label htmlFor="cardNumber">Número do Cartão *</Label>
                           <Input

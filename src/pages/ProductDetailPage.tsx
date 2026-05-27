@@ -45,6 +45,7 @@ import type { Product } from '@/types';
 import { FreeShippingProgress } from '@/components/cart/FreeShippingProgress';
 import { TrustBadges } from '@/components/TrustBadges';
 import { getKitValueMessage, getProductCtaLabel } from '@/lib/product-conversion';
+import { isCollectionProduct } from '@/lib/collection-products';
 import { getCategoryCanonicalUrl, getCategoryPath, getPillarPathByCategory, getProductCanonicalUrl, getProductPath, getSatelliteGuidePathsByCategory } from '@/lib/urls';
 import { useToast } from '@/hooks/use-toast';
 
@@ -68,7 +69,7 @@ export default function ProductDetailPage() {
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [selectedBundleProductIds, setSelectedBundleProductIds] = useState<string[]>([]);
   const [isAddingBundle, setIsAddingBundle] = useState(false);
-  const { addToCart, cartTotal, refreshCart } = useCart();
+  const { addToCart, cartTotal, hasCollectionItem, refreshCart } = useCart();
   const { isFavorite, toggleFavorite } = useFavorites();
   const { toast } = useToast();
 
@@ -222,6 +223,7 @@ export default function ProductDetailPage() {
   }
 
   const kitValue = getKitValueMessage(product);
+  const productHasCollectionFreeShipping = isCollectionProduct(product);
   const ctaLabel = getProductCtaLabel(product);
   const seoTitle = product.meta_title || generateProductTitle(product.name, product.price);
   const seoDescription = product.meta_description || generateProductDescription(
@@ -451,7 +453,10 @@ export default function ProductDetailPage() {
             </div>
 
             <div className="mb-6 space-y-2">
-              <FreeShippingProgress cartTotal={projectedFreeShippingTotal} />
+              <FreeShippingProgress
+                cartTotal={projectedFreeShippingTotal}
+                hasCollectionItem={hasCollectionItem || productHasCollectionFreeShipping}
+              />
               <p className="text-xs text-muted-foreground">
                 Simulação considerando este produto e os itens selecionados em compre junto.
               </p>

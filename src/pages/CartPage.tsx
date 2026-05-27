@@ -3,13 +3,13 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { SEO } from '@/components/SEO';
 import { getProductPath } from '@/lib/urls';
-import { 
-  Breadcrumb, 
-  BreadcrumbItem, 
-  BreadcrumbLink, 
-  BreadcrumbList, 
-  BreadcrumbPage, 
-  BreadcrumbSeparator 
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator
 } from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -18,7 +18,7 @@ import { FreeShippingProgress } from '@/components/cart/FreeShippingProgress';
 import { useCart } from '@/contexts/CartContext';
 
 export default function CartPage() {
-  const { cartItems, cartTotal, updateQuantity, removeItem, isLoading } = useCart();
+  const { cartItems, cartTotal, hasCollectionItem, updateQuantity, removeItem, isLoading } = useCart();
   const navigate = useNavigate();
   const [isCheckingOut] = useState(false);
 
@@ -59,7 +59,7 @@ export default function CartPage() {
         title="Carrinho de Compras | QBLOX"
         description="Revise seus produtos e finalize sua compra. Frete grátis acima de R$99."
       />
-      
+
       <div className="container mx-auto px-4 py-8">
       {/* Breadcrumb */}
       <Breadcrumb className="mb-6">
@@ -170,7 +170,7 @@ export default function CartPage() {
           <Card className="sticky top-24">
             <CardContent className="p-6">
               <h2 className="text-xl font-bold mb-4">Resumo do Pedido</h2>
-              
+
               <div className="space-y-3 mb-4">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Subtotal</span>
@@ -179,7 +179,7 @@ export default function CartPage() {
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Frete</span>
                   <span className="font-medium text-success">
-                    {cartTotal >= 99 ? 'Grátis' : 'A calcular'}
+                    {hasCollectionItem || cartTotal >= 99 ? 'Grátis' : 'A calcular'}
                   </span>
                 </div>
               </div>
@@ -194,11 +194,11 @@ export default function CartPage() {
               </div>
 
               <div className="mb-4">
-                <FreeShippingProgress cartTotal={cartTotal} />
+                <FreeShippingProgress cartTotal={cartTotal} hasCollectionItem={hasCollectionItem} />
               </div>
 
-              <Button 
-                size="lg" 
+              <Button
+                size="lg"
                 className="w-full bg-[#FF6B35] hover:bg-[#FF5722] text-white"
                 onClick={handleCheckout}
                 disabled={isCheckingOut || cartItems.length === 0}

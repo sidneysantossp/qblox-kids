@@ -13,7 +13,7 @@ import { Separator } from '@/components/ui/separator';
 import { FreeShippingProgress } from '@/components/cart/FreeShippingProgress';
 
 export function CartDropdown() {
-  const { cartItems, cartCount, cartTotal, removeItem } = useCart();
+  const { cartItems, cartCount, cartTotal, hasCollectionItem, removeItem } = useCart();
   const [open, setOpen] = useState(false);
 
   const formatPrice = (price: number) => {
@@ -97,7 +97,7 @@ export function CartDropdown() {
               <Separator />
 
               <div className="p-4 space-y-3">
-                <FreeShippingProgress cartTotal={cartTotal} variant="compact" />
+                <FreeShippingProgress cartTotal={cartTotal} hasCollectionItem={hasCollectionItem} variant="compact" />
 
                 <div className="flex gap-2">
                   <Button asChild variant="outline" className="flex-1" size="sm">

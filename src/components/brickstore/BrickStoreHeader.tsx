@@ -152,9 +152,14 @@ export function BrickStoreHeader() {
       <header className="shadow-sm sticky top-0 z-50" style={{ backgroundColor: headerBgColor, color: headerTextColor }}>
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-[72px] md:h-[82px] gap-4">
-          <Link to="/" className="flex items-center gap-2 shrink-0">
+          <Link to="/" className="flex min-w-0 max-w-[42vw] items-center gap-2 shrink md:max-w-none md:shrink-0">
             {navbar_logo_url ? (
-              <img src={navbar_logo_url} alt="QBLOX" className="w-auto object-contain" style={{ height: `${logoHeight}px` }} />
+              <img
+                src={navbar_logo_url}
+                alt="QBLOX"
+                className="block max-h-[56px] max-w-full object-contain md:max-h-none"
+                style={{ height: `${logoHeight}px` }}
+              />
             ) : (
               <div className="flex items-center gap-1">
                 <div className="flex flex-col gap-0.5">

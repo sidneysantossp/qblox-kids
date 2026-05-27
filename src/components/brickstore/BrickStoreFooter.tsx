@@ -86,14 +86,25 @@ export function BrickStoreFooter() {
           </div>
         </div>
 
-        {/* Payment Methods */}
-        <div className="border-t border-white/10 pt-8 mb-8">
-          <h4 className="font-bold text-sm mb-4">Formas de pagamento</h4>
-          <div className="h-[29px] max-w-[230px] overflow-hidden">
+        <div className="grid grid-cols-1 gap-8 border-t border-white/10 pt-8 mb-8 md:grid-cols-2">
+          <div>
+            <h4 className="font-bold text-sm mb-4">Formas de pagamento</h4>
+            <div className="h-[29px] max-w-[230px] overflow-hidden">
+              <img
+                src="https://gjbrindes.com.br/wp-content/uploads/2025/01/sitemgr_pagamentos-1024x289-1.png"
+                alt="Formas de pagamento: Pix, boleto e cartoes"
+                className="w-full -translate-y-[28%] object-contain"
+                loading="lazy"
+              />
+            </div>
+          </div>
+
+          <div>
+            <h4 className="font-bold text-sm mb-4">Site Seguro</h4>
             <img
-              src="https://gjbrindes.com.br/wp-content/uploads/2025/01/sitemgr_pagamentos-1024x289-1.png"
-              alt="Formas de pagamento: Pix, boleto e cartoes"
-              className="w-full -translate-y-[28%] object-contain"
+              src="https://a7ma.com.br/wp-content/uploads/2022/07/selo-garantia-768x205-1.png"
+              alt="Selo de garantia e site seguro"
+              className="h-auto w-full max-w-[230px] object-contain"
               loading="lazy"
             />
           </div>

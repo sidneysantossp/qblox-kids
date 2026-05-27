@@ -231,13 +231,13 @@ export default function CategoryPage() {
           )}
 
           {isLoading ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 2xl:grid-cols-4 gap-4 xl:gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 xl:gap-6">
               {[...Array(8)].map((_, i) => (
                 <Skeleton key={i} className="aspect-[3/4] bg-muted" />
               ))}
             </div>
           ) : filteredProducts.length > 0 ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 2xl:grid-cols-4 gap-4 xl:gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 xl:gap-6">
               {filteredProducts.map((product) => (
                 <BrickStoreProductCard
                   key={product.id}

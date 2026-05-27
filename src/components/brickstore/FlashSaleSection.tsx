@@ -65,7 +65,11 @@ export function FlashSaleSection() {
                 <CarouselContent className="-ml-4">
                   {flashSaleProducts.map((product) => (
                     <CarouselItem key={product.id} className="pl-4 basis-[75%] sm:basis-[45%] md:basis-[32%] lg:basis-[25%]">
-                      <BrickStoreProductCard {...mapProductToBrickStoreProductCardProps(product)} />
+                      <BrickStoreProductCard
+                        {...mapProductToBrickStoreProductCardProps(product)}
+                        showCartControls={false}
+                        showTrustBadges={false}
+                      />
                     </CarouselItem>
                   ))}
                 </CarouselContent>
@@ -73,7 +77,12 @@ export function FlashSaleSection() {
             </div>
             <div className="hidden xl:grid grid-cols-5 gap-4">
               {flashSaleProducts.map((product) => (
-                <BrickStoreProductCard key={product.id} {...mapProductToBrickStoreProductCardProps(product)} />
+                <BrickStoreProductCard
+                  key={product.id}
+                  {...mapProductToBrickStoreProductCardProps(product)}
+                  showCartControls={false}
+                  showTrustBadges={false}
+                />
               ))}
             </div>
           </>

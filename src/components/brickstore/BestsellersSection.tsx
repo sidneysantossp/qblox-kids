@@ -43,6 +43,8 @@ export function BestsellersSection({ products }: BestsellersSectionProps) {
             image={product.image_url}
             images={product.images}
             badge="MAIS VENDIDO"
+            showCartControls={false}
+            showTrustBadges={false}
             discount={
               product.original_price && product.original_price > product.price
                 ? Math.round(((product.original_price - product.price) / product.original_price) * 100)

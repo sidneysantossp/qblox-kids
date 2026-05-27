@@ -70,6 +70,8 @@ export function PromotionsSection() {
                   image={product.image_url}
                   images={product.images}
                   badge="OFERTA"
+                  showCartControls={false}
+                  showTrustBadges={false}
                   discount={
                     product.original_price && product.original_price > product.price
                       ? Math.round(((product.original_price - product.price) / product.original_price) * 100)

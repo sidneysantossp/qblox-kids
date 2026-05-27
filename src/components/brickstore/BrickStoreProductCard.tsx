@@ -25,6 +25,7 @@ export interface BrickStoreProductCardProps {
   badge?: 'MAIS VENDIDO' | 'NOVO' | 'OFERTA';
   discount?: number;
   showCartControls?: boolean;
+  showTrustBadges?: boolean;
 }
 
 export function mapProductToBrickStoreProductCardProps(product: Product): BrickStoreProductCardProps {
@@ -63,6 +64,7 @@ export function BrickStoreProductCard({
   badge,
   discount,
   showCartControls = true,
+  showTrustBadges = true,
 }: BrickStoreProductCardProps) {
   const { addToCart } = useCart();
   const [quantity, setQuantity] = useState(1);
@@ -246,7 +248,7 @@ export function BrickStoreProductCard({
             </p>
           )}
 
-          <TrustBadges compact limit={2} className="pt-1" />
+          {showTrustBadges ? <TrustBadges compact limit={2} className="pt-1" /> : null}
 
           {showCartControls ? (
             <div className="mt-2 space-y-2">

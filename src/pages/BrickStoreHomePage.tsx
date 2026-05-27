@@ -12,6 +12,7 @@ import { TrustBenefits } from '@/components/brickstore/TrustBenefits';
 import { TestimonialsSection } from '@/components/brickstore/TestimonialsSection';
 import { WeeklyDeals } from '@/components/products/WeeklyDeals';
 import { useEffect, useState } from 'react';
+import { Clock, Truck } from 'lucide-react';
 import { getBestsellerProducts, getFeaturedProducts, getLaunchProducts, getWeeklyDealsProducts } from '@/db/api';
 import { getActiveHomepageSections } from '@/db/admin-api';
 import type { HomepageSection, Product, SpecialHighlightConfig } from '@/types';
@@ -78,6 +79,20 @@ export default function BrickStoreHomePage() {
     <div className="min-h-screen bg-[#F7F8FA]">
       {/* Hero Banner */}
       <HeroBanner />
+
+      <div className="container mx-auto px-4 mt-4">
+        <div className="flex flex-col gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-emerald-900 shadow-sm sm:flex-row sm:items-center sm:justify-center">
+          <div className="flex items-center justify-center gap-2 font-extrabold">
+            <Clock className="h-4 w-4" />
+            <span>Compras até as 14h</span>
+          </div>
+          <div className="hidden h-4 w-px bg-emerald-300 sm:block" />
+          <div className="flex items-center justify-center gap-2 font-semibold">
+            <Truck className="h-4 w-4" />
+            <span>Envio no mesmo dia</span>
+          </div>
+        </div>
+      </div>
 
       {homepageSections.map(renderHomepageSection)}
 

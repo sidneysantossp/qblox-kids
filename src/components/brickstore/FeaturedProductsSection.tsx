@@ -39,6 +39,8 @@ export function FeaturedProductsSection({ products }: FeaturedProductsSectionPro
             image={product.image_url}
             images={product.images}
             badge={product.is_bestseller ? 'MAIS VENDIDO' : product.is_on_sale ? 'OFERTA' : 'NOVO'}
+            showCartControls={false}
+            showTrustBadges={false}
             discount={
               product.original_price && product.original_price > product.price
                 ? Math.round(((product.original_price - product.price) / product.original_price) * 100)

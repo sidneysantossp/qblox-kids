@@ -43,7 +43,11 @@ export function LaunchesSection({ products }: LaunchesSectionProps) {
                 key={product.id}
                 className="pl-4 basis-[75%] sm:basis-[45%] md:basis-[32%] lg:basis-[25%]"
               >
-                <BrickStoreProductCard {...mapProductToBrickStoreProductCardProps(product)} />
+                <BrickStoreProductCard
+                  {...mapProductToBrickStoreProductCardProps(product)}
+                  showCartControls={false}
+                  showTrustBadges={false}
+                />
               </CarouselItem>
             ))}
           </CarouselContent>

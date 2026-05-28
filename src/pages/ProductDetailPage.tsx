@@ -225,6 +225,21 @@ export default function ProductDetailPage() {
   const kitValue = getKitValueMessage(product);
   const productHasCollectionFreeShipping = isCollectionProduct(product);
   const ctaLabel = getProductCtaLabel(product);
+  const productCharacteristics = [
+    { label: 'Marca', value: 'QBlox Kids' },
+    { label: 'Linha', value: 'Bonecos de Montar' },
+    { label: 'Modelo', value: 'Mini Boneco Colecionável' },
+    { label: 'Categoria', value: 'Boneco de Montar' },
+    { label: 'Tema', value: product.category || 'Ninja / Heróis / Guerreiros / Aventura' },
+    { label: 'Material', value: product.material || 'Plástico ABS' },
+    { label: 'Compatibilidade', value: 'Compatível com blocos de montar' },
+    { label: 'Quantidade de peças', value: product.whats_included || '1 mini boneco + acessórios conforme o modelo' },
+    { label: 'Personagem', value: 'Personagem colecionável QBlox' },
+    { label: 'Acessórios inclusos', value: product.whats_included || 'Espada, escudo, lança, arco, asas ou acessórios conforme o modelo' },
+    { label: 'Indicação', value: 'Brincar, montar e colecionar' },
+    { label: 'Idade recomendada', value: product.age_recommendation ? `A partir de ${product.age_recommendation}` : 'A partir de 4 anos' },
+    { label: 'Produto colecionável', value: 'Sim' },
+  ];
   const seoTitle = product.meta_title || generateProductTitle(product.name, product.price);
   const seoDescription = product.meta_description || generateProductDescription(
     product.name,
@@ -567,6 +582,7 @@ export default function ProductDetailPage() {
           <Tabs defaultValue="description" className="w-full">
             <TabsList className="w-full justify-start mb-6">
               <TabsTrigger value="description">Descrição</TabsTrigger>
+              <TabsTrigger value="characteristics">Características</TabsTrigger>
               <TabsTrigger value="specifications">Especificações</TabsTrigger>
               <TabsTrigger value="warranty">Garantia</TabsTrigger>
               <TabsTrigger value="reviews">
@@ -621,6 +637,28 @@ export default function ProductDetailPage() {
                         Todas as peças são 100% compatíveis com outras marcas de blocos de construção,
                         permitindo que você expanda sua coleção e crie construções ainda mais incríveis.
                       </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="characteristics" className="mt-6">
+              <Card>
+                <CardContent className="p-6">
+                  <h2 className="text-xl font-bold mb-4">Características do Produto</h2>
+                  <div className="overflow-hidden rounded-xl border">
+                    <div className="grid grid-cols-[minmax(130px,0.8fr)_1fr] bg-muted px-4 py-3 text-sm font-bold text-foreground">
+                      <span>Característica</span>
+                      <span>Informação</span>
+                    </div>
+                    <div className="divide-y">
+                      {productCharacteristics.map((item) => (
+                        <div key={item.label} className="grid grid-cols-1 gap-1 px-4 py-3 text-sm md:grid-cols-[minmax(130px,0.8fr)_1fr] md:gap-4">
+                          <span className="font-medium text-muted-foreground">{item.label}</span>
+                          <span className="text-foreground">{item.value}</span>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </CardContent>

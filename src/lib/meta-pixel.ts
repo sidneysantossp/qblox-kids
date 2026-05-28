@@ -16,13 +16,19 @@ function safeFbq(...args: unknown[]): void {
   }
 }
 
+function getMetaContentId(product: Pick<Product, 'id' | 'sku'>): string {
+  return product.sku || product.id;
+}
+
 /**
  * Track when a user views a product page.
  * Meta Pixel event: ViewContent
  */
 export function trackViewContent(product: Product): void {
+  const contentId = getMetaContentId(product);
+
   safeFbq('track', 'ViewContent', {
-    content_ids: [product.id],
+    content_ids: [contentId],
     content_name: product.name,
     content_type: 'product',
     content_category: product.category,
@@ -31,7 +37,7 @@ export function trackViewContent(product: Product): void {
     availability: product.availability_status === 'in_stock' ? 'in stock' : 'out of stock',
     contents: [
       {
-        id: product.id,
+        id: contentId,
         quantity: 1,
         item_price: product.price,
       },
@@ -44,15 +50,17 @@ export function trackViewContent(product: Product): void {
  * Meta Pixel event: AddToCart
  */
 export function trackAddToCart(product: Product, quantity: number): void {
+  const contentId = getMetaContentId(product);
+
   safeFbq('track', 'AddToCart', {
-    content_ids: [product.id],
+    content_ids: [contentId],
     content_name: product.name,
     content_type: 'product',
     value: product.price * quantity,
     currency: 'BRL',
     contents: [
       {
-        id: product.id,
+        id: contentId,
         quantity,
         item_price: product.price,
       },
@@ -65,9 +73,9 @@ export function trackAddToCart(product: Product, quantity: number): void {
  * Meta Pixel event: InitiateCheckout
  */
 export function trackInitiateCheckout(items: CartItem[], totalValue: number): void {
-  const contentIds = items.map((item) => item.product_id);
+  const contentIds = items.map((item) => item.product ? getMetaContentId(item.product) : item.product_id);
   const contents = items.map((item) => ({
-    id: item.product_id,
+    id: item.product ? getMetaContentId(item.product) : item.product_id,
     quantity: item.quantity,
     item_price: item.product?.price ?? 0,
   }));
@@ -89,11 +97,11 @@ export function trackInitiateCheckout(items: CartItem[], totalValue: number): vo
 export function trackPurchase(
   orderId: string,
   totalValue: number,
-  items: Array<{ product_id?: string; id?: string; quantity: number; price?: number }>
+  items: Array<{ product_id?: string; id?: string; sku?: string | null; quantity: number; price?: number }>
 ): void {
-  const contentIds = items.map((item) => item.product_id || item.id || '');
+  const contentIds = items.map((item) => item.sku || item.product_id || item.id || '');
   const contents = items.map((item) => ({
-    id: item.product_id || item.id || '',
+    id: item.sku || item.product_id || item.id || '',
     quantity: item.quantity,
     item_price: item.price ?? 0,
   }));
@@ -125,8 +133,10 @@ export function trackSearch(searchQuery: string): void {
  * Meta Pixel event: AddToWishlist
  */
 export function trackAddToWishlist(product: Product): void {
+  const contentId = getMetaContentId(product);
+
   safeFbq('track', 'AddToWishlist', {
-    content_ids: [product.id],
+    content_ids: [contentId],
     content_name: product.name,
     content_type: 'product',
     content_category: product.category,
